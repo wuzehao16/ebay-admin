@@ -6,7 +6,7 @@
         <a href="/"><img src="../assets/logo.png" style="width:42px;margin-top: 5px;"></a>
       </div>
       <div class="topbar-title topbar-btn">
-        <span>风车车的枫叶</span>
+        <span>邑备链分销平台</span>
       </div>
       <div class="topbar-account topbar-btn">
         <el-dropdown trigger="click">
@@ -31,36 +31,24 @@
           <i class="iconfont icon-menuunfold" v-show="collapsed"></i>
         </div>
 
-        <!--菜单展开时的显示情况-->
-        <el-menu style='overflow:hidden;' v-show="!collapsed" default-active="0" @open="handleOpen" @close="handleClose" router>
+        <el-menu default-active="0"  class="el-menu-vertical-demo" :collapse='collapsed' router>
           <template v-for="(item,index) in $router.options.routes" v-if="item.menuShow">
             <el-submenu v-if="!item.leaf" :index="index+''">
-              <template slot="title"><i :class="item.iconCls"></i>{{item.name}}</template>
+              <template slot="title">
+                <i :class="item.iconCls"></i>
+                <span slot='title'>{{item.name}}</span>
+              </template>
+   
               <el-menu-item v-for="term in item.children" :key="term.path" :index="term.path" v-if="term.menuShow">
                 {{term.name}}
               </el-menu-item>
             </el-submenu>
-            <el-menu-item v-else-if="item.leaf&&item.children&&item.children.length" :index="item.children[0].path" class="el-submenu__title">
-              <i :class="item.iconCls"></i>{{item.children[0].name}}
+            <el-menu-item v-else-if="item.leaf&&item.children&&item.children.length" :index="item.children[0].path" >
+              <i :class="item.iconCls"></i><span slot='title'>{{item.children[0].name}}</span>
             </el-menu-item>
           </template>
-        </el-menu>
-
-        <!--菜单折叠后的显示情况-->
-        <ul v-show="collapsed" class="el-menu collapsed" ref="menuCollapsed">
-          <template v-for="(item,index) in $router.options.routes" v-if="item.menuShow">
-            <li v-if="!item.leaf" :index="index+''" style="position: relative;">
-              <div class="el-submenu__title" style="padding-left: 20px;" @mouseover="showMenu(index,true)" @mouseout="showMenu(index,false)"><i :class="item.iconCls"></i></div>
-              <ul class="el-menu submenu" :class="'submenu-hook-'+index" @mouseover="showMenu(index,true)" @mouseout="showMenu(index,false)">
-                <li v-for="term in item.children" :key="term.path" v-if="term.menuShow" class="el-menu-item" style="padding-left: 40px;" :class="$route.path==term.path?'is-active':''"
-                    @click="$router.push(term.path)">{{term.name}}</li>
-              </ul>
-            </li>
-            <li v-else-if="item.leaf&&item.children&&item.children.length" class="el-menu-item el-submenu__title" :class="$route.path==item.children[0].path?'is-active':''" @click="$router.push(item.children[0].path)">
-              <i :class="item.iconCls"></i>
-            </li>
-          </template>
-        </ul>
+ 
+        </el-menu> 
 
       </aside>
 
@@ -97,7 +85,7 @@
     },
     methods: {
       handleOpen() {
-        //console.log('handleopen');
+        console.log('handleopen');
       },
       handleClose() {
         //console.log('handleclose');
@@ -214,14 +202,14 @@
       overflow: hidden;
     }
     aside {
-      flex: 0 0 180px;
-      width: 180px;
+      flex: 0 0 200px;
+      width: 200px;
       .el-menu {
         height: 100%;
         border-radius: 0px;
         background-color: #333744;
       }
-      .collapsed {
+  /*     .collapsed {
         width: 50px;
         .submenu {
           position: absolute;
@@ -229,17 +217,17 @@
           left: 50px;
           z-index: 9999;
           height: auto;
-          display: none;
+          // display: none;
         }
-      }
+      } */
     }
     .menu-collapsed {
-      flex: 0 0 50px;
-      width: 50px;
+      flex: 0 0 64px;
+      width: 64px;
     }
     .menu-expanded {
-      flex: 0 0 180px;
-      width: 180px;
+      flex: 0 0 200px;
+      width: 200px;
     }
     .menu-toggle {
       background: #4A5064;
@@ -260,4 +248,4 @@
       }
     }
   }
-</style>
+</style> 

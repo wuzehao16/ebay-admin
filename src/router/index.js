@@ -6,7 +6,13 @@ import Dashboard from '@/components/Dashboard'
 import BookList from '@/components/book/list'
 import BookCategoryList from '@/components/bookcategory/list'
 
+import UserList2 from '@/components/user/userlist'
 import UserList from '@/components/user/list'
+import OrderList from '@/components/order/list'
+import OrderEdit from '@/components/order/edit'
+import OrderDetail from '@/components/order/detail'
+import OrderAdd from '@/components/order/add'
+
 import UserChangePwd from '@/components/user/changepwd'
 import UserProfile from '@/components/user/profile'
 
@@ -33,6 +39,31 @@ let router = new Router({
       iconCls: 'iconfont icon-home', // 图标样式class
       children: [
         {path: '/dashboard', component: Dashboard, name: '首页', menuShow: true}
+      ]
+    },
+    {
+      path: '/user',
+      component: Home,
+      name: '用户管理',
+      menuShow: true,
+      leaf: true, // 只有一个节点
+      iconCls: 'iconfont icon-users', // 图标样式class
+      children: [
+        {path: '/user/userlist', component: UserList2, name: '会员管理', menuShow: true}
+      ]
+    },
+    {
+      path: '/order',
+      component: Home,
+      name: '订单管理',
+      menuShow: true,
+      leaf: true,
+      iconCls: 'iconfont icon-users', // 图标样式class
+      children: [
+        {path: '/order/list', component: OrderList, name: '订单列表', menuShow: true},
+        {path: '/order/edit', component: OrderEdit, name: '订单编辑', menuShow: false},
+        {path: '/order/detail', component: OrderDetail, name: '订单详情', menuShow: false},
+        {path: '/order/add', component: OrderAdd, name: '订单新增', menuShow: false}
       ]
     },
     {

@@ -7,6 +7,9 @@ import {LoginUsers, Users} from './data/user'
 import {LoginUsersb, Usersb} from './data/userb'
 import {Books} from './data/book'
 import {Orders} from './data/order'
+import {ExOrders} from './data/ex_order'
+import {Places} from './data/place_settle'
+import {Accounts, AccountStated} from './data/account'
 let _Users = Users
 let _Usersb = Usersb
 let _Books = Books
@@ -149,6 +152,81 @@ export default {
       })
     })    
 
+    //  编辑分销结算
+    mock.onGet('/place_settle/edit').reply(config => {
+      let {
+        order_id,
+        fir_level_name,
+        fir_level_per,
+        sec_level_name,
+        sec_level_per,
+      } = config.params
+
+      Places.some(u => {
+        if (u.order_id === order_id) {
+          u.fir_level_name = fir_level_name
+          u.fir_level_per = fir_level_per
+          u.sec_level_name = sec_level_name
+          u.sec_level_per = sec_level_per
+          return true
+        }
+      })
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            code: 200,
+            msg: '编辑成功'
+          }])
+        }, 500)
+      })
+    }) 
+
+    // 审核分销结算place_settle/settle
+    mock.onGet('/place_settle/settle').reply(config => {
+      let {
+        order_id,
+        audit_opinion,
+        audit_conclusion
+      } = config.params
+
+      Places.some(u => {
+        if (u.order_id === order_id) {
+          u.audit_opinion = audit_opinion
+          u.audit_conclusion = audit_conclusion
+          return true
+        }
+      })
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            code: 200,
+            msg: '编辑成功'
+          }])
+        }, 500)
+      })
+    })     
+
+
+   // 编辑异常订单提交
+    mock.onGet('/ex_order/edit').reply(config => {
+      let {ex_id, ex_status, handle_records} = config.params
+      ExOrders.some(u => {
+        if (u.ex_id === ex_id) {
+          u.ex_status = ex_status
+          u.handle_records = handle_records
+          return true
+        }
+      })
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            code: 200,
+            msg: '编辑成功'
+          }])
+        }, 500)
+      })
+    })  
+
     //新增订单
     mock.onGet('/order/add').reply(config => {
       let {
@@ -209,8 +287,25 @@ export default {
     })      
 
 
+    //新增异常订单
+    mock.onGet('/ex_order/add').reply(config => {
+      let ex_order = {
+        ex_id: Math.round(Math.random()*100000),
+        create_time: "2017-12-12 12:12:12",
+        handle_records: []        
+      }
+      Object.assign(ex_order, config.params)
 
-
+      ExOrders.push(ex_order)
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            code: 200,
+            msg: '新增成功'
+          }])
+        }, 500)
+      })
+    })  
 
     // 获取用户列表b
     mock.onGet('/userb/list').reply(config => {
@@ -238,7 +333,6 @@ export default {
 
     // 获取订单列表（分页）
     mock.onGet('/order/list').reply(config => {
-
       let {
         page,
         page_size,
@@ -266,7 +360,10 @@ export default {
         return true
       })
       let total = mockOrders.length
-      mockOrders = mockOrders.filter((u, index) => index < page_size * page && index >= page_size * (page - 1))
+
+      if (page) {
+        mockOrders = mockOrders.filter((u, index) => index < page_size * page && index >= page_size * (page - 1))
+      }
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve([200, {
@@ -275,7 +372,162 @@ export default {
           }])
         }, 500)
       })
+    }) 
+
+    ///place_settle/list  分销结算列表
+    mock.onGet('/place_settle/list').reply(config => {
+      let {
+        page,
+        page_size,
+        settle_status,
+        goods_name,
+        user_name,
+        order_id
+      } = config.params
+      page_size ? page_size : page_size = 10
+      let mockPlaces = Places.filter(order => {
+        if (settle_status && order.settle_status != settle_status ) return false
+        if (goods_name && order.goods_name.indexOf(goods_name) === -1) return false
+        if (user_name && order.user_name.indexOf(user_name) === -1) return false
+        if (order_id && order.order_id.indexOf(order_id) === -1) return false
+        return true
+      })
+      let total = mockPlaces.length
+      if (page) {
+        mockPlaces = mockPlaces.filter((u, index) => index < page_size * page && index >= page_size * (page - 1))
+      }
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            total: total,
+            places: mockPlaces
+          }])
+        }, 500)
+      })
+    })
+
+    //获取个人账户明细
+    mock.onGet('/account/account_stated').reply(config => {
+      let {
+        page,
+        page_size,
+        user_name,
+        tel,
+        trade_status,
+        trade_time
+      } = config.params
+      page_size ? page_size : page_size = 10
+      let mockAccountStated = AccountStated.filter(account => {
+        if (user_name && account.user_name != user_name ) return false
+        if (tel && account.tel != tel ) return false
+        if (trade_status && account.trade_status != trade_status ) return false
+        if (trade_time) {
+          if (new Date(account.trade_time).getTime() < trade_time[0].getTime() )return false
+          if (new Date(account.trade_time).getTime() > trade_time[1].getTime() )return false
+        }
+        return true
+      })
+      let total = mockAccountStated.length
+      if (page) {
+        mockAccountStated = mockAccountStated.filter((u, index) => index < page_size * page && index >= page_size * (page - 1))
+      }
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            total: total,
+            accounts: mockAccountStated
+          }])
+        }, 500)
+      })
     })    
+
+    //账户管理列表money
+    mock.onGet('/account/list').reply(config => {
+      let {
+        page,
+        page_size,
+        user_name,
+        tel,
+        little_cpe,
+        greater_cpe,
+        update_time
+      } = config.params
+      page_size ? page_size : page_size = 10
+      let mockAccounts = Accounts.filter(account => {
+        if (tel && account.tel.indexOf(tel) === -1) return false
+        if (user_name && account.user_name.indexOf(user_name) === -1) return false
+        if (little_cpe && account.check_pending_earnings < little_cpe) return false
+        if (greater_cpe && account.check_pending_earnings > greater_cpe) return false
+        if (update_time) {
+          if (new Date(account.update_time).getTime() < update_time[0].getTime() )return false
+          if (new Date(account.update_time).getTime() > update_time[1].getTime() )return false
+        }
+        return true
+      })
+      let total = mockAccounts.length
+      if (page) {
+        mockAccounts = mockAccounts.filter((u, index) => index < page_size * page && index >= page_size * (page - 1))
+      }
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            total: total,
+            accounts: mockAccounts
+          }])
+        }, 500)
+      })
+    })
+
+
+
+    // 获取异常订单列表
+    mock.onGet('/ex_order/list').reply(config =>{
+      let {
+        page,
+        page_size,
+        ex_id,
+        order_id,
+        goods_name,
+        ex_status,
+        ex_type,
+        ex_description,
+        create_time,
+        user_name,
+        tel,
+        seller_email,
+        seller_tel,
+        handle_records,
+        handler    
+      } = config.params
+     
+      page_size ? page_size : page_size = 10
+      let mockExOrders = ExOrders.filter(u => {
+        if (ex_status && u.ex_status != ex_status) return false
+        if (ex_type && u.ex_type != ex_type) return false
+        if (order_id && u.order_id.indexOf(order_id) === -1) return false
+        if (handler){
+          let handlerArr = []
+          for (var h of u.handle_records) {
+            handlerArr.push(h.handler)
+          }
+          if (!handlerArr.includes(handler)) return false
+        }
+        return true
+      })
+      let total = mockExOrders.length
+      mockExOrders = mockExOrders.filter((u, index) => index < page_size * page && index >= page_size * (page - 1))
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            total: total,
+            ex_orders: mockExOrders
+          }])
+        }, 500)
+      })      
+    })
+
+
+
 
     // 删除用户
     mock.onGet('/user/delete').reply(config => {

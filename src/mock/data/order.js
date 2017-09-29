@@ -11,7 +11,6 @@ for (let i = 0; i < 10; i++) {
   }))
 }
 
-
 const Orders = []
 for (let i = 0; i < 100; i++) {
   Orders.push(Mock.mock({
@@ -26,6 +25,8 @@ for (let i = 0; i < 100; i++) {
     user_name: Mock.Random.cname(),
     "user_type|0-1": 0,
     tel: /^1[0-9]{10}$/,
+    seller_tel: /^1[0-9]{10}$/,
+    seller_email: Mock.Random.cname(),
     create_time: Mock.Random.date(),
     goods_tax: 45.32,
     logistics_fees: 64.15,

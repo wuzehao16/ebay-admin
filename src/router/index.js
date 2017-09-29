@@ -13,6 +13,21 @@ import OrderEdit from '@/components/order/edit'
 import OrderDetail from '@/components/order/detail'
 import OrderAdd from '@/components/order/add'
 
+//异常订单
+import ExOrderList from '@/components/order_exception/list'
+import ExOrderAdd from '@/components/order_exception/add'
+import ExOrderEdit from '@/components/order_exception/edit'
+import ExOrderDetail from '@/components/order_exception/detail'
+
+//分销结算
+import PlaceSettleList from '@/components/placeSettle/list'
+import PlaceSettleEdit from '@/components/placeSettle/edit'
+import PlaceSettleSettle from '@/components/placeSettle/settle'
+
+//账户管理
+import AccountList from '@/components/account/list'
+import AccountStated from '@/components/account/account_stated'
+
 import UserChangePwd from '@/components/user/changepwd'
 import UserProfile from '@/components/user/profile'
 
@@ -64,6 +79,45 @@ let router = new Router({
         {path: '/order/edit', component: OrderEdit, name: '订单编辑', menuShow: false},
         {path: '/order/detail', component: OrderDetail, name: '订单详情', menuShow: false},
         {path: '/order/add', component: OrderAdd, name: '订单新增', menuShow: false}
+      ]
+    },
+    {
+      path: '/orderException',
+      component: Home,
+      name: '订单异常',
+      menuShow: true,
+      leaf: true,
+      iconCls: 'iconfont icon-users', // 图标样式class
+      children: [
+        {path: '/orderException/list', component: ExOrderList, name: '订单异常', menuShow: true},
+        {path: '/orderException/edit', component: ExOrderEdit, name: '异常订单编辑', menuShow: false},
+        {path: '/orderException/detail', component: ExOrderDetail, name: '异常订单详情', menuShow: false},
+        {path: '/orderException/add', component: ExOrderAdd, name: '异常订单新增', menuShow: false}
+      ]
+    },
+    {
+      path: '/placeSettle',
+      component: Home,
+      name: '分销结算',
+      menuShow: true,
+      leaf: true,
+      iconCls: 'iconfont icon-users', // 图标样式class
+      children: [
+        {path: '/placeSettle/list', component: PlaceSettleList, name: '分销结算', menuShow: true},
+        {path: '/placeSettle/edit', component: PlaceSettleEdit, name: '结算编辑', menuShow: false},
+        {path: '/placeSettle/settle', component: PlaceSettleSettle, name: '结算审核', menuShow: false},
+      ]
+    },
+    {
+      path: '/account',
+      component: Home,
+      name: '账户管理',
+      menuShow: true,
+      leaf: true,
+      iconCls: 'iconfont icon-users', // 图标样式class
+      children: [
+        {path: '/account/list', component: AccountList, name: '账户列表', menuShow: true},
+        {path: '/account/account_stated', component: AccountStated, name: '账户明细', menuShow: false}
       ]
     },
     {

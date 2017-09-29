@@ -29,6 +29,7 @@ export const reqBatchDeleteBook = params => { return axios.get(`${base}/book/bat
 
 export const reqAddBook = params => { return axios.get(`${base}/book/add`, { params: params }) }
 
+//订单管理
 export const reqGetOrderList = params => { return axios.get(`${base}/order/list`, { params: params }) }
 
 export const reqGetOrder = params => { return axios.get(`${base}/order/getorder`, { params: params }) }
@@ -36,3 +37,19 @@ export const reqGetOrder = params => { return axios.get(`${base}/order/getorder`
 export const reqEditOrder = params => { return axios.get(`${base}/order/edit`, { params: params }) }
 
 export const reqAddOrder = params => { return axios.get(`${base}/order/add`, { params: params }) }
+
+//订单异常
+export const reqGetExOrderList = params => { return axios.get(`${base}/ex_order/list`, { params: params }) }
+
+export const reqEditExOrder = params => { return axios.get(`${base}/ex_order/edit`, { params: params }) }
+
+export const reqAddExOrder = params => { return axios.get(`${base}/ex_order/add`, { params: params }) }
+
+//分销结算
+export const reqGetPlaceList = params => { return axios.get(`${base}/place_settle/list`, { params: params }) }
+export const reqGetPlaceEdit = params => { return axios.get(`${base}/place_settle/edit`, { params: params }) }
+export const reqGetPlaceSettle = params => { return axios.get(`${base}/place_settle/settle`, { params: params }) }
+
+//账户管理
+export const reqGetAccountList = params => { return axios.get(`${base}/account/list`, { params: params }) }
+export const reqGetAccountSteted = params => { return axios.get(`${base}/account/account_stated`, { params: params }) }

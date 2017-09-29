@@ -74,7 +74,7 @@
     		</template>
     	</el-table-column>
   
-    	<el-table-column prop="order_status" label="订单状态" width="120" :filters="[{ text: '待付款', value: 0 }, { text: '待发货', value: 1 }, { text: '已签收', value: 2 }, { text: '已拒签', value: 3 }]" :filter-method="filterTag" filter-placement="bottom-end">
+    	<el-table-column prop="order_status" label="订单状态" width="120" :filters="[{ text: '待付款', value: 0 }, { text: '待发货', value: 1 }, { text: '已签收', value: 2 }, { text: '已拒签', value: 3 }]" :filter-method="filterOrderStatusTag" filter-placement="bottom-end">
         	<template scope="scope">
             	<el-tag :type="scope.row.order_status == 0 ? 'primary' : 'success'" close-transition>
             		<template v-if='scope.row.order_status == 0'>
@@ -83,7 +83,7 @@
             		<template v-else-if='scope.row.order_status == 1'>
             			待发货
             		</template>
-            		<template v-else-if='scope.row.order_status != 2'>
+            		<template v-else-if='scope.row.order_status == 2'>
             			已签收
             		</template>
             		<template v-else>
@@ -93,16 +93,16 @@
         	</template>
     	</el-table-column> 
     	<el-table-column property="ebay_order_no" label="Ebay订单号" width='200'></el-table-column>
-    	<el-table-column prop="ebay_status" label="Ebay状态" width="120" :filters="[{ text: '已下单', value: 0 }, { text: '已付款', value: 1 }, { text: '已发货', value: 2 }, { text: '已取消', value: 3 }]" :filter-method="filterTag" filter-placement="bottom-end">
+    	<el-table-column prop="ebay_status" label="Ebay状态" width="120" :filters="[{ text: '已下单', value: 0 }, { text: '已付款', value: 1 }, { text: '已发货', value: 2 }, { text: '已取消', value: 3 }]" :filter-method="filterEbayStatusTag" filter-placement="bottom-end">
         	<template scope="scope">
-            	<el-tag :type="scope.row.ebay_order_no == 0 ? 'primary' : 'success'" close-transition>
-            		<template v-if='scope.row.order_status == 0'>
+            	<el-tag :type="scope.row.ebay_status == 0 ? 'primary' : 'success'" close-transition>
+            		<template v-if='scope.row.ebay_status == 0'>
             			已下单
             		</template>
-            		<template v-else-if='scope.row.order_status == 1'>
+            		<template v-else-if='scope.row.ebay_status == 1'>
             			已付款
             		</template>
-            		<template v-else-if='scope.row.order_status == 2'>
+            		<template v-else-if='scope.row.ebay_status == 2'>
             			已发货
             		</template>
             		<template v-else>
@@ -147,7 +147,7 @@
 </template>
 <script>
   import util from '../../common/util'
-  import {reqGetOrderList, reqGetUserList2, reqDeleteUser, reqAddUser, reqEditUser } from '../../api/api';
+  import { reqGetOrderList } from '../../api/api';
 
   export default{
     data(){
@@ -174,7 +174,13 @@
       	this.currentRow = val
       },
       filterTag(value, row) {
-        return row.usertype === value;
+        return row.user_type === value;
+      },
+      filterOrderStatusTag(value, row) {
+      	return row.order_status === value
+      },
+      filterEbayStatusTag(value, row) {
+      	return row.ebay_status === value
       },
       setPageChange(val) {
       	this.orderPage = val
@@ -221,8 +227,3 @@
   }
 </script>
 
-<style>
-  .demo-table-expand label {
-    font-weight: bold;
-  }
-</style>

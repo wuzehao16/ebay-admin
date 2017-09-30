@@ -53,3 +53,16 @@ export const reqGetPlaceSettle = params => { return axios.get(`${base}/place_set
 //账户管理
 export const reqGetAccountList = params => { return axios.get(`${base}/account/list`, { params: params }) }
 export const reqGetAccountSteted = params => { return axios.get(`${base}/account/account_stated`, { params: params }) }
+
+//提现管理
+export const reqGetWithdrawList = params => { return axios.get(`${base}/withdraw/list`, { params: params }) }
+export const reqGetWithdrawAudit = params => { return axios.get(`${base}/withdraw/audit`, { params: params }) }
+export const reqGetWithdrawIssue = params => { return axios.get(`${base}/withdraw/issue`, { params: params }) }
+//对账管理
+export const reqReconciliationList = params => { return axios.get(`${base}/reconciliation/list`, { params: params }) }
+export const reqReconciliationEdit = params => { return axios.get(`${base}/reconciliation/edit`, { params: params }) }
+export const reqReconciliationDetail = params => { return axios.get(`${base}/reconciliation/detail`, { params: params }) }
+
+//微信管理
+export const reqGetWechatMenus = params => { return axios.get(`${base}/wechat/menulist`, { params: params }) }
+export const reqEditWechatMenu = params => { return axios.get(`${base}/wechat/menuedit`, { params: params }) }

@@ -10,6 +10,11 @@ import {Orders} from './data/order'
 import {ExOrders} from './data/ex_order'
 import {Places} from './data/place_settle'
 import {Accounts, AccountStated} from './data/account'
+import {WithdrawList} from './data/withdraw'
+import {ReconciliationList} from './data/reconciliation'
+import {WechatMenus} from './data/wechat'
+
+
 let _Users = Users
 let _Usersb = Usersb
 let _Books = Books
@@ -78,6 +83,17 @@ export default {
         }, 500)
       })
     })
+
+    //获取微信自定义菜单列表
+    mock.onGet('/wechat/menulist').reply(config => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            menus: WechatMenus
+          }])
+        }, 500)
+      })
+    })    
 
     //获取编辑订单信息_OrderEdit
     mock.onGet('/order/getorder').reply(config => {
@@ -478,7 +494,77 @@ export default {
       })
     })
 
+    //WithdrawList 获取提现列表
+    mock.onGet('/withdraw/list').reply(config => {
+      let {
+        page,
+        page_size,
+        user_name,
+        tel,
+        audit_status,
+        risk_factor
+      } = config.params
+      page_size ? page_size : page_size = 10
+      let mockWithdrawList = WithdrawList.filter(w => {
+        if (tel && w.tel.indexOf(tel) === -1) return false
+        if (user_name && w.user_name.indexOf(user_name) === -1) return false
+        if (audit_status && w.audit_status  !== Number.parseInt(audit_status)) return false
+        if (risk_factor && w.risk_factor  !== Number.parseInt(risk_factor)) return false
+        return true
+      })
+      let total = mockWithdrawList.length
+      if (page) {
+        mockWithdrawList = mockWithdrawList.filter((u, index) => index < page_size * page && index >= page_size * (page - 1))
+      }
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            total: total,
+            withdraw_list: mockWithdrawList
+          }])
+        }, 500)
+      })
+    })
 
+    //  对账列表
+    mock.onGet('/reconciliation/list').reply(config => {
+      let {
+        page,
+        page_size,
+        user_name,
+        trade_id,
+        platform_time,
+        ebay_time,
+        reconc_status
+      } = config.params
+      page_size ? page_size : page_size = 10
+      let mockReconciliationList = ReconciliationList.filter(w => {
+        if (user_name && w.user_name.indexOf(user_name) === -1) return false
+        if (trade_id && w.trade_id.indexOf(trade_id) === -1) return false
+        if (reconc_status && w.reconc_status  != reconc_status) return false
+        if (platform_time) {
+          if (new Date(w.platform_time).getTime() < platform_time[0].getTime() ) return false
+          if (new Date(w.platform_time).getTime() > platform_time[1].getTime() ) return false
+        }        
+        if (ebay_time) {
+          if (new Date(w.ebay_time).getTime() < ebay_time[0].getTime() ) return false
+          if (new Date(w.ebay_time).getTime() > ebay_time[1].getTime() ) return false
+        }
+        return true
+      })
+      let total = mockReconciliationList.length
+      if (page) {
+        mockReconciliationList = mockReconciliationList.filter((u, index) => index < page_size * page && index >= page_size * (page - 1))
+      }
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            total: total,
+            re_list: mockReconciliationList
+          }])
+        }, 500)
+      })
+    })
 
     // 获取异常订单列表
     mock.onGet('/ex_order/list').reply(config =>{
@@ -592,6 +678,91 @@ export default {
         }
       })
 
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            code: 200,
+            msg: '编辑成功'
+          }])
+        }, 500)
+      })
+    })
+
+    //  提现审核 
+    mock.onGet('/withdraw/audit').reply(config => {
+      let {audit_status, audit_opinion, risk_factor, withdraw_id} = config.params
+      WithdrawList.some(u => {
+        if (u.withdraw_id === withdraw_id) {
+          u.audit_status = audit_status
+          u.audit_opinion = audit_opinion
+          u.risk_factor = risk_factor
+          return true
+        }
+      })
+
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            code: 200,
+            msg: '编辑成功'
+          }])
+        }, 500)
+      })
+    })   
+
+    //  微信菜单编辑
+    mock.onGet('/wechat/menuedit').reply(config => {
+      let {menu_id, menu_name, menu_type, menu_url, menu_key } = config.params
+      WechatMenus.some(u => {
+        if (u.menu_id === menu_id) {
+          u.menu_name = menu_name
+          u.menu_type = menu_type
+          u.menu_url = menu_url
+          u.menu_key = menu_key
+          return true
+        }
+      })
+
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            code: 200,
+            msg: '编辑成功'
+          }])
+        }, 500)
+      })
+    })    
+
+    // 对账处理
+    mock.onGet('/reconciliation/edit').reply(config => {
+      let {trade_id, deal_opinion} = config.params
+      ReconciliationList.some(u => {
+        if (u.trade_id === trade_id) {
+          u.deal_opinion = deal_opinion
+          return true
+        }
+      })
+
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            code: 200,
+            msg: '编辑成功'
+          }])
+        }, 500)
+      })
+    }) 
+
+
+    //发放提现 /withdraw/issue
+    mock.onGet('/withdraw/issue').reply(config => {
+      let {issue_status, withdraw_id} = config.params
+      WithdrawList.some(u => {
+        if (u.withdraw_id === withdraw_id) {
+          u.issue_status = 1 //1为已发放状态
+          return true
+        }
+      })
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve([200, {

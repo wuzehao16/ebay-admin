@@ -27,6 +27,19 @@ import PlaceSettleSettle from '@/components/placeSettle/settle'
 //账户管理
 import AccountList from '@/components/account/list'
 import AccountStated from '@/components/account/account_stated'
+//提现管理
+import WithdrawList from '@/components/withdraw/list'
+import WithdrawAudit from '@/components/withdraw/audit'
+import WithdrawDetail from '@/components/withdraw/detail'
+//对账管理
+import ReconciliationList from '@/components/reconciliation/list'
+import ReconciliationEdit from '@/components/reconciliation/edit'
+import ReconciliationDetail from '@/components/reconciliation/detail'
+//微信菜单、回复
+
+import WechatMenus from '@/components/wechat/menulist'
+
+
 
 import UserChangePwd from '@/components/user/changepwd'
 import UserProfile from '@/components/user/profile'
@@ -120,6 +133,47 @@ let router = new Router({
         {path: '/account/account_stated', component: AccountStated, name: '账户明细', menuShow: false}
       ]
     },
+    {
+      path: '/withdraw',
+      component: Home,
+      name: '提现管理',
+      menuShow: true,
+      leaf: true,
+      iconCls: 'iconfont icon-users', // 图标样式class
+      children: [
+        {path: '/withdraw/list', component: WithdrawList, name: '提现管理', menuShow: true},
+        {path: '/withdraw/audit', component: WithdrawAudit, name: '提现审核', menuShow: false},
+        {path: '/withdraw/detail', component: WithdrawDetail, name: '提现详情', menuShow: false}
+      ]
+    },
+    {
+      path: '/reconciliation',
+      component: Home,
+      name: '对账管理',
+      menuShow: true,
+      leaf: true,
+      iconCls: 'iconfont icon-users', // 图标样式class
+      children: [
+        {path: '/reconciliation/list', component: ReconciliationList, name: '对账管理', menuShow: true},
+        {path: '/reconciliation/edit', component: ReconciliationEdit, name: '对账处理', menuShow: false},
+        {path: '/reconciliation/detail', component: ReconciliationDetail, name: '对账详情', menuShow: false}
+      ]
+    },
+    {
+      path: '/wechat',
+      component: Home,
+      name: '微信管理',
+      menuShow: true,
+      // leaf: true,
+      iconCls: 'iconfont icon-users', // 图标样式class
+      children: [
+        {path: '/wechat/menulist', component: WechatMenus, name: '微信菜单', menuShow: true},
+        {path: '/wechat/menuedit', component: ReconciliationEdit, name: '微信菜单编辑', menuShow: false},
+        {path: '/wechat/replylist', component: ReconciliationList, name: '自动回复设置', menuShow: true}
+      ]
+    },
+
+
     {
       path: '/',
       component: Home,

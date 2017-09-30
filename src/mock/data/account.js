@@ -15,8 +15,6 @@ for (let i = 0; i < 100; i++) {
   }))
 }
 
-
-
 const AccountStated = []
 for (let a of Accounts) {
 	for ( let i = 0; i < 10; i++ ) {

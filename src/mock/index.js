@@ -1,6 +1,4 @@
-/**
- * Created by jerry on 2017/4/13.
- */
+
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import {LoginUsers, Users} from './data/user'
@@ -12,8 +10,8 @@ import {Places} from './data/place_settle'
 import {Accounts, AccountStated} from './data/account'
 import {WithdrawList} from './data/withdraw'
 import {ReconciliationList} from './data/reconciliation'
-import {WechatMenus} from './data/wechat'
-
+import {WechatMenus, WechatReply} from './data/wechat'
+import {Goods, EbayGoods} from './data/goods' 
 
 let _Users = Users
 let _Usersb = Usersb
@@ -90,6 +88,17 @@ export default {
         setTimeout(() => {
           resolve([200, {
             menus: WechatMenus
+          }])
+        }, 500)
+      })
+    })
+
+     
+    mock.onGet('/wechat/replylist').reply(config => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            replys: WechatReply
           }])
         }, 500)
       })
@@ -345,6 +354,44 @@ export default {
         }, 500)
       })
     })
+
+    // 获取商品列表（已翻译的）
+    mock.onGet('/goods/list').reply(config => {
+      let {page, page_size, item_id, goods_name, goods_status, translator} = config.params
+      let mockGoods = Goods.filter(goods => {
+        if (item_id && goods.item_id.indexOf(item_id) === -1) return false
+        if (goods_name && goods.goods_name.indexOf(goods_name) === -1) return false
+        if (translator && goods.translator.indexOf(translator) === -1) return false
+        if (goods_status && goods.goods_status != goods_status ) return false
+        return true
+      })
+      let total = mockGoods.length
+      mockGoods = mockGoods.filter((u, index) => index < page_size * page && index >= page_size * (page - 1))
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            total: total,
+            goods: mockGoods
+          }])
+        }, 500)
+      })
+    })    
+
+    // 获取Ebay商品（待翻译）
+    mock.onGet('/goods/from_ebay').reply(config => {
+      let { item_id } = config.params
+      let mockEbayGoods = EbayGoods.filter(e => {
+        if ( item_id && e.item_id.indexOf(item_id) === -1 ) return false
+        return true
+      })
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            ebay_goods: mockEbayGoods
+          }])
+        }, 500)
+      })
+    })     
 
 
     // 获取订单列表（分页）
@@ -708,21 +755,176 @@ export default {
           }])
         }, 500)
       })
+
     })   
+
+    //  微信菜单删除
+    mock.onGet('/wechat/menudelete').reply(config => {
+      let {menu_id, father_menu_id, index} = config.params
+      if (father_menu_id) {
+        WechatMenus.some(u => {
+          if (u.menu_id === father_menu_id) {
+            u.children.splice(index,1)
+          }
+        })        
+      } else {
+        WechatMenus.splice(index,1)
+      }
+
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            code: 200,
+            msg: '删除成功'
+          }])
+        }, 500)
+      })      
+    })
+
+    //  微信回复删除
+    mock.onGet('/wechat/replydelete').reply(config => {
+      let {index} = config.params
+      WechatReply.splice(index,1)
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            code: 200,
+            msg: '删除成功'
+          }])
+        }, 500)
+      })      
+    })    
+
+    // 微信菜单新增
+    mock.onGet('/wechat/menuadd').reply(config => {
+      let {menu_name, menu_type, menu_key, menu_url, father_menu_id} = config.params
+      if (father_menu_id) {
+        WechatMenus.some(u => {
+          if (u.menu_id === father_menu_id) {
+            u.children.push({
+              menu_id: "xxkjfdiuflj8738473",
+              create_time: "2300-11-11 11:11:11",
+              update_time: "2300-11-11 11:11:11",
+              menu_name: menu_name,
+              menu_type: menu_type,
+              menu_key: menu_key,
+              menu_url: menu_url              
+            })
+          }
+        })
+      } else {
+        WechatMenus.push({
+          menu_id: "xxkjfdiuflj8738473",
+          create_time: "2300-11-11 11:11:11",
+          update_time: "2300-11-11 11:11:11",
+          menu_name: menu_name,
+          menu_type: menu_type,
+          menu_key: menu_key,
+          menu_url: menu_url,
+          children: []
+        })        
+      }
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            code: 200,
+            msg: '新增成功'
+          }])
+        }, 500)
+      })
+    })    
+
+    // 微信回复新增
+    mock.onGet('/wechat/replyadd').reply(config => {
+      let {reply_title, reply_type, reply_key, reply_url, reply_img, reply_default, reply_content} = config.params
+      WechatReply.push({
+        reply_id: "33ffffdiuflj8738473",
+        create_time: "2300-11-11 11:11:12",
+        update_time: "2300-11-11 11:11:12",
+        reply_title: reply_title,
+        reply_type: reply_type,
+        reply_key: reply_key,
+        reply_url: reply_url,
+        reply_img: reply_img,
+        reply_default: reply_default,
+        reply_content: reply_content
+      })        
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            code: 200,
+            msg: '新增成功'
+          }])
+        }, 500)
+      })
+    })     
+
+    // 微信菜单同步
+    mock.onGet('/wechat/menusync').reply(config => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            code: 200,
+            msg: '已同步微信菜单'
+          }])
+        }, 500)
+      })
+    })
 
     //  微信菜单编辑
     mock.onGet('/wechat/menuedit').reply(config => {
-      let {menu_id, menu_name, menu_type, menu_url, menu_key } = config.params
-      WechatMenus.some(u => {
-        if (u.menu_id === menu_id) {
-          u.menu_name = menu_name
-          u.menu_type = menu_type
-          u.menu_url = menu_url
-          u.menu_key = menu_key
+      let {menu_id, menu_name, menu_type, menu_url, menu_key, father_menu_id } = config.params
+      if ( father_menu_id ) {//编辑二级菜单
+        WechatMenus.some(u => {
+          if (u.menu_id === father_menu_id) {
+            u.children.some(c => {
+              if (c.menu_id === menu_id) {
+                c.menu_name = menu_name
+                c.menu_type = menu_type
+                c.menu_url = menu_url
+                c.menu_key = menu_key
+                return true                
+              }
+            })
+          }
+        })
+      } else {//编辑一级菜单
+        WechatMenus.some(u => {
+          if (u.menu_id === menu_id) {
+            u.menu_name = menu_name
+            u.menu_type = menu_type
+            u.menu_url = menu_url
+            u.menu_key = menu_key
+            return true
+          }
+        })        
+      }
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([200, {
+            code: 200,
+            msg: '编辑成功'
+          }])
+        }, 500)
+      })
+    })
+
+    // 微信回复编辑    
+    mock.onGet('/wechat/replyedit').reply(config => {
+      let {reply_id, reply_title, reply_type, reply_key, 
+        reply_url, reply_img, reply_default, reply_content } = config.params
+      WechatReply.some(u => {
+        if (u.reply_id === reply_id) {
+          u.reply_title = reply_title
+          u.reply_type = reply_type
+          u.reply_key = reply_key
+          u.reply_url = reply_url
+          u.reply_img = reply_img
+          u.reply_default = reply_default
+          u.reply_content = reply_content
           return true
         }
-      })
-
+      }) 
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve([200, {

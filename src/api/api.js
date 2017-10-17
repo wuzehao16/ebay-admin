@@ -1,9 +1,7 @@
-/**
- * Created by jerry on 2017/4/13.
- */
+
 import axios from 'axios'
 
-let base = ''
+let base = '' 
 
 export const requestLogin = params => { return axios.post(`${base}/login`, params).then(res => res.data) }
 
@@ -66,3 +64,14 @@ export const reqReconciliationDetail = params => { return axios.get(`${base}/rec
 //微信管理
 export const reqGetWechatMenus = params => { return axios.get(`${base}/wechat/menulist`, { params: params }) }
 export const reqEditWechatMenu = params => { return axios.get(`${base}/wechat/menuedit`, { params: params }) }
+export const reqDeleteWechatMenu = params => { return axios.get(`${base}/wechat/menudelete`, { params: params }) }
+export const reqAddWechatMenu = params => { return axios.get(`${base}/wechat/menuadd`, { params: params }) }
+export const reqSyncWechatMenu = params => { return axios.get(`${base}/wechat/menusync`, { params: params }) }
+
+export const reqWechatReply = params => { return axios.get(`${base}/wechat/replylist`, { params: params }) }
+export const reqWechatReplyEdit = params => { return axios.get(`${base}/wechat/replyedit`, { params: params }) }
+export const reqWechatReplyDelete = params => { return axios.get(`${base}/wechat/replydelete`, { params: params }) }
+export const reqWechatReplyAdd = params => { return axios.get(`${base}/wechat/replyadd`, { params: params }) }
+
+export const reqGoodsList = params => { return axios.get(`${base}/goods/list`, { params: params }) }
+export const reqEbayGoods = params => { return axios.get(`${base}/goods/from_ebay`, { params: params }) }

@@ -13,6 +13,11 @@ import OrderEdit from '@/components/order/edit'
 import OrderDetail from '@/components/order/detail'
 import OrderAdd from '@/components/order/add'
 
+//商品管理 
+import GoodsList from '@/components/goods/list'
+import GoodsAdd from '@/components/goods/add'
+import GoodsEdit from '@/components/goods/edit'
+
 //异常订单
 import ExOrderList from '@/components/order_exception/list'
 import ExOrderAdd from '@/components/order_exception/add'
@@ -38,6 +43,7 @@ import ReconciliationDetail from '@/components/reconciliation/detail'
 //微信菜单、回复
 
 import WechatMenus from '@/components/wechat/menulist'
+import WechatReply from '@/components/wechat/autoreply'
 
 
 
@@ -78,6 +84,19 @@ let router = new Router({
       iconCls: 'iconfont icon-users', // 图标样式class
       children: [
         {path: '/user/userlist', component: UserList2, name: '会员管理', menuShow: true}
+      ]
+    },
+    {
+      path: '/goods',
+      component: Home,
+      name: '商品管理',
+      menuShow: true,
+      leaf: true, // 只有一个节点
+      iconCls: 'iconfont icon-users', // 图标样式class
+      children: [
+        {path: '/goods/list', component: GoodsList, name: '商品管理', menuShow: true},
+        {path: '/goods/add', component: GoodsAdd, name: '商品新增', menuShow: false},
+        {path: '/goods/edit', component: GoodsEdit, name: '商品编辑', menuShow: false}
       ]
     },
     {
@@ -168,12 +187,11 @@ let router = new Router({
       iconCls: 'iconfont icon-users', // 图标样式class
       children: [
         {path: '/wechat/menulist', component: WechatMenus, name: '微信菜单', menuShow: true},
-        {path: '/wechat/menuedit', component: ReconciliationEdit, name: '微信菜单编辑', menuShow: false},
-        {path: '/wechat/replylist', component: ReconciliationList, name: '自动回复设置', menuShow: true}
+        {path: '/wechat/replylist', component: WechatReply, name: '自动回复设置', menuShow: true}
       ]
     },
 
-
+/*
     {
       path: '/',
       component: Home,
@@ -206,7 +224,7 @@ let router = new Router({
         {path: '/user/profile', component: UserProfile, name: '个人信息', menuShow: true},
         {path: '/user/changepwd', component: UserChangePwd, name: '修改密码', menuShow: true}
       ]
-    }
+    }*/
   ]
 })
 

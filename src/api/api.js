@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-// import Mock from '../mock'
-// Mock.init()
-=======
->>>>>>> a066ce15001d04b6984030900328ec2f077220ab
 import axios from 'axios'
 
 export const requestLogin = params => { return axios.post(`api/login`, params).then(res => res.data) }

@@ -71,6 +71,6 @@ export const reqWechatReplyAdd = params => { return axios.get(`api/wechat/replya
 
 export const reqGoodsList = params => { return axios.get(`api/seller/product/list`, { params: params }) }
 export const reqSaveGoods = params => { return axios.post(`api/seller/product/save`, params) }
-
+export const reqGoodsDetail = params => { return axios.get(`api/buyer/product/detail`, { params: params }) }
 
 export const reqEbayGoods = params => { return axios.get(`api/goods/from_ebay`, { params: params }) }

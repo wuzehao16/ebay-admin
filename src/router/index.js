@@ -16,7 +16,7 @@ import OrderAdd from '@/components/order/add'
 //商品管理 
 import GoodsList from '@/components/goods/list'
 import GoodsAdd from '@/components/goods/add'
-import GoodsEdit from '@/components/goods/edit'
+import GoodsPreview from '@/components/goods/preview'
 
 //异常订单
 import ExOrderList from '@/components/order_exception/list'
@@ -94,7 +94,7 @@ let router = new Router({
       children: [
         {path: '/goods/list', component: GoodsList, name: '商品管理', menuShow: true},
         {path: '/goods/add', component: GoodsAdd, name: '商品新增', menuShow: false},
-        {path: '/goods/edit', component: GoodsEdit, name: '商品编辑', menuShow: false}
+        {path: '/goods/preview', component: GoodsPreview, name: '商品预览', menuShow: false}
       ]
     },
     {

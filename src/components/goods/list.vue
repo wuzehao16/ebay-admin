@@ -66,8 +66,8 @@
       </el-table-column>
 	    <el-table-column label="操作" width='160' fixed="right">
         	<template scope="scope">
-            	<el-button size="small" @click="">编辑</el-button>
-            	<el-button size="small" type="primary" @click="">预览</el-button>
+            	<el-button size="small" @click="goEdit(scope.row.id)">编辑</el-button>
+            	<el-button size="small" type="primary" @click="goPreview(scope.row.id)">预览</el-button>
         	</template>
     	</el-table-column>
   	</el-table>
@@ -102,6 +102,23 @@
       }
     },
     methods: {
+      goEdit(id) {
+        console.log(id)
+        this.$router.push({
+            name: '商品新增',
+            params: {
+              productId: id
+            }
+        })
+      },
+      goPreview(id) {
+        this.$router.push({
+            name: '商品预览',
+            params: {
+              productId: id
+            }
+        })
+      },
       setHighlight(val) {
       	this.currentRow = val
       },

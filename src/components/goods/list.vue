@@ -9,21 +9,19 @@
     </el-col>
     <el-col :span="24" class="warp-main">
 	  <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
-	    <el-form :inline="true" :model="filterGoods">
+	    <el-form :inline="true" :model="filters">
 	      <el-form-item>
-	        <el-input v-model="filterGoods.item_id" placeholder="ItemId"></el-input>
+	        <el-input v-model="filters.item_id" placeholder="ItemId"></el-input>
 	      </el-form-item>
 	      <el-form-item>
-	        <el-input v-model="filterGoods.goods_name" placeholder="商品名称"></el-input>
+	        <el-input v-model="filters.productNane" placeholder="商品名称"></el-input>
 	      </el-form-item>
 	      <el-form-item>
-	        <el-input v-model="filterGoods.translator" placeholder="译者姓名"></el-input>
+	        <el-input v-model="filters.userWxOpenid" placeholder="译者微信ID"></el-input>
 	      </el-form-item>
-		  <el-select v-model="filterGoods.goods_status" placeholder="商品状态" clearable>
-    		<el-option key="0" label="草稿" value="0"></el-option>
-    		<el-option key="1" label="待上架" value="1"></el-option>
-    		<el-option key="2" label="已上架" value="2"></el-option>
-    		<el-option key="3" label="已下架" value="3"></el-option>
+		  <el-select v-model="filters.productStatus" placeholder="商品状态" clearable>
+    		<el-option key="0" label="正常" value="正常"></el-option>
+    		<el-option key="1" label="下架" value="下架"></el-option>
 		  </el-select>
 	      <el-form-item>
 	        <el-button type="primary" @click="getGoods">查询</el-button>
@@ -34,45 +32,38 @@
 	    </el-form>
 	  </el-col>
     <el-table ref="singleTable" :data="goods" v-loading='loading' highlight-current-row @current-change="setHighlight" style="width: 100%">
-    	<el-table-column type="index" width="100"> </el-table-column>
-    	<el-table-column property="id" label="商品编号" width='200'></el-table-column>
-    	<el-table-column property="item_id" label="ItemId" width='200'></el-table-column>
-    	<el-table-column property="goods_name" label="商品名称" width='200'></el-table-column>
-    	<el-table-column prop="goods_status" label="商品状态" width="120" :filters="[{ text: '草稿', value: 0 }, { text: '待上架', value: 1 }, { text: '已上架', value: 2 }, { text: '已下架', value: 3 }]" :filter-method="filterTag" filter-placement="bottom-end">
+    	<el-table-column property="id" label="商品编号" width='100'></el-table-column>
+    	<el-table-column  label="ItemId" width='100'>
+        <template scope="scope">
+          无。。。
+        </template> 
+      </el-table-column>
+      <el-table-column property="productNane" label="商品名称" width='200'></el-table-column>
+    	<el-table-column property="productStatus" label="商品状态" width='100'></el-table-column>
+    	<el-table-column property="userWxOpenid" label="译者微信ID" width="140"></el-table-column>
+    	<el-table-column prop="auditStatus" label="审核状态" width="120" :filters="[{ text: '待审核', value: '0' }, { text: '已通过', value: '1' }, { text: '不通过', value: '2' }]" :filter-method="filterAuditTag" filter-placement="bottom-end">
         	<template scope="scope">
-        		<template v-if='scope.row.goods_status == 0'>
-        			<el-tag type='gray'>草稿</el-tag>
-        		</template>
-        		<template v-else-if='scope.row.goods_status == 1'>
-        			<el-tag type='primary'>待上架</el-tag>
-        		</template>
-        		<template v-else-if='scope.row.goods_status == 2'>
-        			<el-tag type='success'>已上架</el-tag>
-        		</template>
-        		<template v-else-if='scope.row.goods_status == 3'>
-        			<el-tag type='warning'>已下架</el-tag>
-        		</template>
-        	</template>
-    	</el-table-column>
-    	<el-table-column property="translator" label="译者姓名"></el-table-column>
-    	<el-table-column prop="audit_status" label="审核状态" width="120" :filters="[{ text: '待提审', value: 0 }, { text: '待审核', value: 1 }, { text: '已通过', value: 2 }, { text: '已驳回', value: 3 }]" :filter-method="filterAuditTag" filter-placement="bottom-end">
-        	<template scope="scope">
-        		<template v-if='scope.row.audit_status == 0'>
-        			<el-tag type='gray'>待提审</el-tag>
-        		</template>
-        		<template v-else-if='scope.row.audit_status == 1'>
+        		<template v-if='scope.row.auditStatus == "0"'>
         			<el-tag type='primary'>待审核</el-tag>
         		</template>
-        		<template v-else-if='scope.row.audit_status == 2'>
+        		<template v-else-if='scope.row.auditStatus == "1"'>
         			<el-tag type='success'>已通过</el-tag>
         		</template>
-        		<template v-else-if='scope.row.audit_status == 3'>
-        			<el-tag type='warning'>已驳回</el-tag>
+        		<template v-else-if='scope.row.auditStatus == "2"'>
+        			<el-tag type='warning'>不通过</el-tag>
         		</template>
         	</template>
     	</el-table-column>
-    	<el-table-column property="translate_time" label="翻译时间" width="110"></el-table-column>
-    	<el-table-column property="audit_time" label="审核时间" width="110"></el-table-column>
+    	<el-table-column label="翻译时间" width="150">
+          <template scope="scope">
+            {{ scope.row.created ? formatDate(scope.row.created) : '--' }}
+          </template> 
+      </el-table-column>
+    	<el-table-column  label="审核时间">
+          <template scope="scope">
+            {{ scope.row.updated ? formatDate(scope.row.updated) : '--' }}
+          </template>
+      </el-table-column>
 	    <el-table-column label="操作" width='160' fixed="right">
         	<template scope="scope">
             	<el-button size="small" @click="">编辑</el-button>
@@ -82,7 +73,7 @@
   	</el-table>
   	<!--工具条-->
     <el-col :span="24" class="toolbar">
-        <el-pagination layout="prev, pager, next" @current-change="setPageChange" :page-size="page_size" :total="totalGoods" style="float:right;">
+        <el-pagination layout="prev, pager, next" @current-change="setPageChange" :page-size="filters.size" :total="totalGoods" style="float:right;">
         </el-pagination>
     </el-col>
     </el-col>
@@ -90,16 +81,18 @@
 </template>
 
 <script>
+  import util from '../../common/util'
   import { reqGoodsList } from '../../api/api';
-
   export default{
     data(){
       return {
-        filterGoods: {
+        filters: {
         	item_id: '',
-        	goods_name: '',
-        	translator: '',
-        	goods_status: ''
+        	productNane: '',
+        	userWxOpenid: '',
+        	productStatus: '',
+          page: 0,
+          size: 15
         },
         goods: [],
         totalGoods: 0,
@@ -116,28 +109,31 @@
         return row.goods_status === value
       },
       filterAuditTag(value, row) {
-      	return row.audit_status === value
+      	return row.auditStatus === value
       },
       setPageChange(val) {
-      	this.page = val
+      	this.filters.page = val - 1
       	this.getGoods()
       },
       getGoods() {
-		let params = {
-  		  page: this.page,
-  		  page_size: this.page_size
-          };
-      	Object.assign(params, this.filterGoods)
 		    this.loading = true
-      	reqGoodsList(params).then((res) => {
-      		this.totalGoods = res.data.total
-      		this.goods = res.data.goods
-      		this.loading =false
-      	})
+      	reqGoodsList(this.filters).then((res) => {
+          let re = res.data.data
+          if (re) {
+        		this.totalGoods = res.data.data.totalElements
+        		this.goods = res.data.data.content
+          }
+      		this.loading = false
+      	}).catch((err) => {
+          this.loading = false
+        })
 
       },
       showAdd() {
       	this.$router.push('/goods/add')
+      },
+      formatDate(val) {
+        return util.formatDate.format(new Date(val), 'yyyy-MM-dd hh:mm')
       }
     },
     mounted() {

@@ -1,4 +1,4 @@
-import axios from 'axios'
+import * as api from './api'
 
 export const reqGetUserList = params => { return axios.get(`sell/user/list`, { params: params }) }
 
@@ -44,3 +44,4 @@ export const reqAddOrder = params => { return axios.post(`/api/buyer/order/save`
 //账户管理
 export const reqGetAccountList = params => { return axios.get(`/api/user/account/list`, { params: params }) }
 export const reqGetAccountSteted = params => { return axios.get(`/api/user/account/${params.id}`,{params:params}) }
+export default api

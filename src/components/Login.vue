@@ -41,7 +41,23 @@
     },
     methods: {
       handleLogin() {
-        this.$refs.AccountFrom.validate((valid) => {
+
+        //请求用户角色信息axios...存
+        let authArr = []
+        for (let r of this.$router.options.routes) {
+          authArr.push(r.path)
+          if(r.children && r.children.length) {
+            for (let i of r.children) {
+              authArr.push(i.path)
+            }
+          }
+        }
+        // authArr.splice(3,4)
+        sessionStorage.setItem('authArr', JSON.stringify(authArr))        
+        this.$router.push({ path: '/' });
+
+        
+     /*   this.$refs.AccountFrom.validate((valid) => {
           if (valid) {
 
             this.logining = true;
@@ -81,7 +97,7 @@
             console.log('error submit!!');
             return false;
           }
-        });
+        });*/
       }
     }
   }

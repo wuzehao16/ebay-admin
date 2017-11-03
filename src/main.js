@@ -12,8 +12,8 @@ Vue.use(ElementUI)
 
 router.beforeEach((to, from, next) => {
   // console.log('to:' + to.path)
-
-  if (to.path.startsWith('/login')) {
+  next()
+/*  if (to.path.startsWith('/login')) {
     window.sessionStorage.removeItem('access-user')
     next()
   } else {
@@ -27,7 +27,7 @@ router.beforeEach((to, from, next) => {
 	  }
       next()
     }
-  }
+  }*/
 })
 
 

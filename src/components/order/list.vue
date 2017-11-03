@@ -68,10 +68,10 @@
     	<el-table-column property="goods_name" label="商品名称" width='150'></el-table-column>
     	<el-table-column property="goods_price" label="单价（元）" width='120'></el-table-column>
     	<el-table-column property="goods_amount" label="数量"></el-table-column>
-    	<el-table-column label="总价（元）" width='120'>
-    		<template scope="scope">
+    	<el-table-column property="orderAmount" label="总价（元）" width='120'>
+    		<!-- <template scope="scope">
     			{{ (scope.row.goods_price * 10000 * scope.row.goods_amount / 10000).toFixed(2) }}
-    		</template>
+    		</template> -->
     	</el-table-column>
   
     	<el-table-column prop="orderStatus" label="订单状态" width="120" :filters="[{ text: '待付款', value: 0 }, { text: '待发货', value: 1 }, { text: '已签收', value: 2 }, { text: '已拒签', value: 3 }]" :filter-method="filterOrderStatusTag" filter-placement="bottom-end">

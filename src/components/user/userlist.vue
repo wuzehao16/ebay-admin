@@ -135,7 +135,7 @@
 <script>
   import util from '../../common/util'
   import {reqGetUserList2, reqDeleteUser, reqAddUser, reqEditUser } from '../../api/api';
-
+  import {reqUserList} from '../../api'
   export default{
     data(){
       return {
@@ -202,9 +202,9 @@
       },
       //获取用户列表
       getUsers() {
-		let para = {
-		  page: this.userPage,
-		  page_size: this.page_size,
+    		let para = {
+    		  page: this.userPage,
+    		  page_size: this.page_size,
           name: this.filterUsers.name,
           tel: this.filterUsers.tel,
           wechat_id: this.filterUsers.wechat_id,
@@ -297,13 +297,21 @@
       },
     },
     mounted() {
-      this.getUsers();
+      this.getUsers()
+
+
+      reqUserList().then((res) => {
+
+      }).
+        catch((err) => {
+          console.log(err)
+        })
     }
   }
 </script>
 
 <style>
-  .demo-table-expand label {
+/*  .demo-table-expand label {
     font-weight: bold;
-  }
+  }*/
 </style>

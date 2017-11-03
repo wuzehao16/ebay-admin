@@ -31,8 +31,10 @@
           <i class="iconfont icon-menuunfold" v-show="collapsed"></i>
         </div>
 
-        <el-menu default-active="0"  class="el-menu-vertical-demo" :collapse='collapsed' router>
-          <template v-for="(item,index) in $router.options.routes" v-if="item.menuShow">
+        <el-menu default-active="0"  class="el-menu-vertical-demo"
+           :default-active="$route.path" :collapse='collapsed' router>
+          <template v-for="(item,index) in $router.options.routes" 
+            v-if="item.menuShow && authArr.includes(item.path)"> 
             <el-submenu v-if="!item.leaf" :index="index+''">
               <template slot="title">
                 <i :class="item.iconCls"></i>
@@ -81,6 +83,7 @@
         sysUserName: '',
         sysUserAvatar: '',
         collapsed: false,
+        authArr: []
       }
     },
     methods: {
@@ -115,6 +118,7 @@
         user = JSON.parse(user);
         this.sysUserName = user.name || '';
       }
+      this.authArr = JSON.parse(window.sessionStorage.getItem("authArr"))
     }
   }
 

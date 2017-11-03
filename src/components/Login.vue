@@ -59,6 +59,21 @@
               } else {
                 sessionStorage.setItem('access-user', JSON.stringify(user));
                 this.$router.push({ path: '/' });
+
+                //请求用户角色信息axios...存
+                let authArr = []
+                for (let r of this.$router.options.routes) {
+                  authArr.push(r.path)
+                  if(r.children && r.children.length) {
+                    for (let i of r.children) {
+                      authArr.push(i.path)
+                    }
+                  }
+                }
+                // authArr.splice(3,4)
+                sessionStorage.setItem('authArr', JSON.stringify(authArr))
+
+
               }
             });
 

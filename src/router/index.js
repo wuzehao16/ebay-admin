@@ -64,10 +64,9 @@ let router = new Router({
       component: Login
     },
     {
-      path: '/',
+      path: '/dashboard',
       name: 'home',
       component: Home,
-      redirect: '/dashboard',
       leaf: true, // 只有一个节点
       menuShow: true,
       iconCls: 'iconfont icon-home', // 图标样式class
@@ -190,6 +189,7 @@ let router = new Router({
         {path: '/wechat/replylist', component: WechatReply, name: '自动回复设置', menuShow: true}
       ]
     },
+    {path: '*', redirect: '/dashboard'}    
 
 /*
     {
@@ -226,21 +226,6 @@ let router = new Router({
       ]
     }*/
   ]
-})
-
-router.beforeEach((to, from, next) => {
-  // console.log('to:' + to.path)
-  if (to.path.startsWith('/login')) {
-    window.sessionStorage.removeItem('access-user')
-    next()
-  } else {
-    let user = JSON.parse(window.sessionStorage.getItem('access-user'))
-    if (!user) {
-      next({path: '/login'})
-    } else {
-      next()
-    }
-  }
 })
 
 export default router

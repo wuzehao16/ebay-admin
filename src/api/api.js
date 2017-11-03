@@ -1,6 +1,6 @@
-
+import Mock from '../mock'
+Mock.init()
 import axios from 'axios'
-
 let base = '' 
 
 export const requestLogin = params => { return axios.post(`${base}/login`, params).then(res => res.data) }
@@ -75,3 +75,6 @@ export const reqWechatReplyAdd = params => { return axios.get(`${base}/wechat/re
 
 export const reqGoodsList = params => { return axios.get(`${base}/goods/list`, { params: params }) }
 export const reqEbayGoods = params => { return axios.get(`${base}/goods/from_ebay`, { params: params }) }
+
+
+// export * default api

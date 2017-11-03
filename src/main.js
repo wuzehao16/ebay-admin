@@ -7,12 +7,8 @@ import 'element-ui/lib/theme-default/index.css'
 import '@/assets/iconfont.css'
 import router from './router'
 
-import Mock from './mock'
-Mock.init()
-
 Vue.config.productionTip = false
 Vue.use(ElementUI)
-
 
 router.beforeEach((to, from, next) => {
   // console.log('to:' + to.path)

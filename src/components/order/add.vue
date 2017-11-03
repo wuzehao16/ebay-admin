@@ -18,19 +18,19 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品名称'>
-                <el-input v-model="orderInfo.goods_name" placeholder="商品名称"></el-input>
+                <el-input v-model="orderInfo.productName" placeholder="商品名称"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='商品单价（元）'>
-                <el-input v-model.number="orderInfo.goods_price" placeholder="商品单价"></el-input>
+                <el-input v-model.number="orderInfo.productPrice" placeholder="商品单价"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='数量'>
-                <el-input v-model.number="orderInfo.goods_amount" placeholder="数量"></el-input>
+                <el-input v-model.number="orderInfo.productQuantity" placeholder="数量"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -61,7 +61,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='购买用户'>
-                <el-input v-model="orderInfo.user_name" placeholder="购买用户"></el-input>
+                <el-input v-model="orderInfo.name" placeholder="购买用户"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -78,7 +78,7 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='收货电话'>
-                <el-input v-model="orderInfo.consignee_tel" placeholder="收货电话"></el-input>
+                <el-input v-model="orderInfo.phone" placeholder="收货电话"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -150,7 +150,7 @@
 </template>
 <script>
 import util from '../../common/util'
-import { reqAddOrder } from '../../api/api';
+import { reqAddOrder } from '../../api/index';
 import { regionData } from 'element-china-area-data'
 
 export default {
@@ -158,14 +158,14 @@ export default {
     return {
       orderInfo: {
 	    order_id: '',
-	    goods_name: '',
-	    goods_amount: 0,
-	    goods_price: 0,
+	    productName: '',
+	    productQuantity: 0,
+	    productPrice: 0,
 	    order_status: 0,
 	    order_source: 0,
 	    ebay_order_no: '',
 	    ebay_status: 0,
-	    user_name: '',
+	    name: '',
 	    user_type: 0,
 	    tel: '',
 	    create_time: '',
@@ -174,7 +174,7 @@ export default {
 	    logistics_status: 0,
 	    pay_type: '微信支付',
 	    consignee: '',
-	    consignee_tel: '',
+	    phone: '',
 	    consignee_id: '',
 	    consignee_address: [],
 	    address_detail: ''   	
@@ -207,7 +207,7 @@ export default {
   },
   computed: {
   	calGoodsTotalPrice() {
-  		return (this.orderInfo.goods_amount * this.orderInfo.goods_price).toFixed(2)
+  		return (this.orderInfo.productQuantity * this.orderInfo.productPrice).toFixed(2)
   	},
   	calOrderTotalPrice() {
   		return (parseFloat(this.calGoodsTotalPrice) + this.orderInfo.goods_tax + this.orderInfo.logistics_fees).toFixed(2)

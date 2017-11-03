@@ -13,7 +13,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='订单编号'>
-                <el-input v-model="orderInfo.order_id" placeholder="订单编号" disabled></el-input>
+                <el-input v-model="orderInfo.orderNo" placeholder="订单编号" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>

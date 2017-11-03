@@ -1,5 +1,5 @@
-import Mock from '../mock'
-Mock.init()
+// import Mock from '../mock'
+// Mock.init()
 import axios from 'axios'
 let base = '' 
 

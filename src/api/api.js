@@ -4,15 +4,14 @@ export const requestLogin = params => { return axios.post(`api/login`, params).t
 
 export const reqSaveUserProfile = params => { return axios.post(`api/user/profile`, params).then(res => res.data) }
 
-export const reqGetUserList = params => { return axios.get(`api/user/list`, { params: params }) }
+export const reqGetUserList = params => { return axios.get(`api/ebay/user/list`, { params: params }) }
+export const reqDeleteUser = params => { return axios.delete(`api/ebay/user/${params.id}/delete`) }
+export const reqEditUser = params => { return axios.post(`api/ebay/user/${params.id}/update`, params) }
+
+
 
 export const reqGetUserList2 = params => { return axios.get(`api/userb/list`, { params: params }) }
 
-export const reqDeleteUser = params => { return axios.get(`api/user/delete`, { params: params }) }
-
-export const reqAddUser = params => { return axios.get(`api/user/add`, { params: params }) }
-
-export const reqEditUser = params => { return axios.get(`api/user/edit`, { params: params }) }
 
 export const reqGetBookListPage = params => { return axios.get(`api/book/list`, { params: params }) }
 
@@ -70,5 +69,5 @@ export const reqWechatReplyEdit = params => { return axios.get(`api/wechat/reply
 export const reqWechatReplyDelete = params => { return axios.get(`api/wechat/replydelete`, { params: params }) }
 export const reqWechatReplyAdd = params => { return axios.get(`api/wechat/replyadd`, { params: params }) }
 
-export const reqGoodsList = params => { return axios.get(`api/goods/list`, { params: params }) }
+export const reqGoodsList = params => { return axios.get(`api/seller/product/list`, { params: params }) }
 export const reqEbayGoods = params => { return axios.get(`api/goods/from_ebay`, { params: params }) }

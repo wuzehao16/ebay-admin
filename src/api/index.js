@@ -7,7 +7,12 @@ export const reqGetUserList = params => { return axios.get(`sell/user/list`, { p
 //订单列表
 
 
-export const reqGetOrderList = params => { return axios.get(`/api/seller/order/list`, { params: params }) }
+export const reqGetOrderList = params => { return axios.get(`/api/seller/order/orderlist`, { params: params }) }
+export const reqCancelOrder = params => { return axios.get(`/api/seller/order/cancel`, { params: params }) }
+
+export const reqProductName = params => { return axios.get(`/api/seller/product/list`, { params: params }) }
+
+
 
 export const reqGetOrder = params => { return axios.get(`/order/getorder`, { params: params }) }
 

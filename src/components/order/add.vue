@@ -18,19 +18,26 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品名称'>
-                <el-input v-model="orderInfo.productName" placeholder="商品名称"></el-input>
+                <!-- <el-input v-model="orderInfo.productName" placeholder="商品名称"></el-input> -->
+                <el-autocomplete
+                  v-model="orderInfo.productName"
+                  :fetch-suggestions="querySearchAsync"
+                  placeholder="商品名称"
+                  @select="handleSelect"
+                  style="width:271px;"
+                ></el-autocomplete>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='商品单价（元）'>
-                <el-input v-model.number="orderInfo.productPrice" placeholder="商品单价"></el-input>
+                <el-input v-model.number="orderInfo.item.productPrice" placeholder="商品单价" width="111"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='数量'>
-                <el-input v-model.number="orderInfo.productQuantity" placeholder="数量"></el-input>
+                <el-input v-model.number="orderInfo.item.productQuantity" placeholder="数量"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -149,79 +156,122 @@
   </el-row>
 </template>
 <script>
-import util from '../../common/util'
-import { reqAddOrder } from '../../api/index';
-import { regionData } from 'element-china-area-data'
+import util from "../../common/util";
+import { reqAddOrder, reqProductName } from "../../api/index";
+import { regionData } from "element-china-area-data";
 
 export default {
   data() {
     return {
       orderInfo: {
-	    order_id: '',
-	    productName: '',
-	    productQuantity: 0,
-	    productPrice: 0,
-	    order_status: 0,
-	    order_source: 0,
-	    ebay_order_no: '',
-	    ebay_status: 0,
-	    name: '',
-	    user_type: 0,
-	    tel: '',
-	    create_time: '',
-	    goods_tax: 0,
-	    logistics_fees: 0,
-	    logistics_status: 0,
-	    pay_type: '微信支付',
-	    consignee: '',
-	    phone: '',
-	    consignee_id: '',
-	    consignee_address: [],
-	    address_detail: ''   	
+        order_id: "",
+        order_status: 0,
+        order_source: 0,
+        ebayNo: "",
+        ebay_status: 0,
+        name: "",
+        user_type: 0,
+        create_time: "",
+        goods_tax: 0,
+        logistics_fees: 0,
+        logistics_status: 0,
+        pay_type: "微信支付",
+        consignee: "",
+        phone: "",
+        consignee_id: "",
+        consignee_address: [],
+        address_detail: "",
+        address:"",
+        item:{
+          id: 0,
+          orderId: "",
+          productIcon: "",
+          productId: 0,
+          productName: "",
+          productPrice: 0,
+          productQuantity: 0,
+        }
       },
-	  orderInfo_bak: {},
+      product: [],
+      orderInfo_bak: {},
       addressOptions: regionData,
       selectedOptions: []
-    }
+    };
   },
   methods: {
     handleAddressChange(val) {
-      console.log(val)
+      console.log(val);
     },
     addSubmit() {
-    	console.log(this.orderInfo)
-    	reqAddOrder(this.orderInfo).then((res) => {
-            this.$message({
-              message: '提交成功',
-              type: 'success'
-            });
-    	})
+      console.log(this.orderInfo);
+      reqAddOrder(this.orderInfo).then(res => {
+        this.$message({
+          message: "提交成功",
+          type: "success"
+        });
+      });
     },
     resetForm(formName) {
-    	this.orderInfo = Object.assign( {}, this.orderInfo_bak)
+      this.orderInfo = Object.assign({}, this.orderInfo_bak);
     },
     toOrderList() {
-    	this.$router.push('/order/list')
-    }
+      this.$router.push("/order/list");
+    },
+    //远程拉取商品名列表
+    querySearchAsync(queryString, cb) {
+      var that = this;
+      var product = this.product;
+      var results = queryString ? fetch(queryString) : product;
 
+      // clearTimeout(this.timeout);
+
+      function fetch(queryString) {
+        let params = { productNane: that.orderInfo.productName };
+        reqProductName(params).then(res => {
+          let Arr = res.data.data.content;
+          let results = that.createStateFilter(Arr)
+          cb(results);
+        });
+      }
+
+      // this.timeout = setTimeout(() => {
+      //   cb(results);
+      // }, 3000 * Math.random());
+    },
+    createStateFilter(Arr) {
+        let newArray = [];
+        for (var n in Arr) {
+          newArray[n] = {};
+          newArray[n].value = Arr[n].productNane;
+          newArray[n].id = Arr[n].id;
+        }
+        return newArray
+    },
+    handleSelect(item) {
+      console.log(item);
+      this.orderInfo.item.id = item.id;
+      this.orderInfo.item.productName = item.value;
+    }
   },
   computed: {
-  	calGoodsTotalPrice() {
-  		return (this.orderInfo.productQuantity * this.orderInfo.productPrice).toFixed(2)
-  	},
-  	calOrderTotalPrice() {
-  		return (parseFloat(this.calGoodsTotalPrice) + this.orderInfo.goods_tax + this.orderInfo.logistics_fees).toFixed(2)
-  	}
+    calGoodsTotalPrice() {
+      return (this.orderInfo.item.productQuantity * this.orderInfo.item.productPrice
+      ).toFixed(2);
+    },
+    calOrderTotalPrice() {
+      return (parseFloat(this.calGoodsTotalPrice) +
+        this.orderInfo.goods_tax +
+        this.orderInfo.logistics_fees
+      ).toFixed(2);
+    }
   },
   mounted() {
-  	Object.assign( this.orderInfo_bak, this.orderInfo)
+    Object.assign(this.orderInfo_bak, this.orderInfo);
   }
-}
-
+};
 </script>
 <style>
 .demo-table-expand label {
   font-weight: bold;
 }
-
 </style>

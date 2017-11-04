@@ -130,14 +130,25 @@ export default {
 	          background: 'rgba(0, 0, 0, 0.7)'
 	        })
 			for (let i in this.else_key) {
+				console.log(i)
 				console.log(this.else_key[i], this.else_value[i])
-				this.pro_info.items.push({
-					attrName: this.else_key[i],
-					attrValue: this.else_value[i]
-				})
+				if (!this.isEdit) {
+					this.pro_info.items.push({
+						attrName: this.else_key[i],
+						attrValue: this.else_value[i]
+					})					
+				} else {
+					let j = Number.parseInt(i) - 1
+					this.pro_info.items[j].attrName = this.else_key[i]
+					this.pro_info.items[j].attrValue = this.else_value[i]
+				}
+
+
 			}
 			this.pro_info.productPrice = Number.parseFloat(this.pro_info.productPrice)
 			this.isEdit ? this.pro_info.productId = this.productId : ''
+			console.log(this.pro_info)
+
 			reqSaveGoods(this.pro_info).then((res) => {
 				console.log('kdjfdkj')
 				if (res.data.msg == '成功') {
@@ -204,7 +215,7 @@ export default {
 	            productPic: p.pic.join('@'),
 	            productPrice: p.price,
 	            productIcon: p.icon,
-	            items: []
+	            items: p.productAttr
 	          }
 	          for (let i in p.productAttr) {
 	            let j = Number.parseInt(i) + 1

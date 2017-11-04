@@ -1,4 +1,5 @@
 import axios from 'axios'
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
 export const requestLogin = params => { return axios.post(`api/login`, params).then(res => res.data) }
 
@@ -72,5 +73,8 @@ export const reqWechatReplyAdd = params => { return axios.get(`api/wechat/replya
 export const reqGoodsList = params => { return axios.get(`api/seller/product/list`, { params: params }) }
 export const reqSaveGoods = params => { return axios.post(`api/seller/product/save`, params) }
 export const reqGoodsDetail = params => { return axios.get(`api/buyer/product/detail`, { params: params }) }
+export const reqOnSaleGoods = params => { return axios.post(`api/seller/product/on_sale`, params,  {headers: {'Content-Type':'text/plain'}}) }
+export const reqOffSaleGoods = params => { return axios.post(`api/seller/product/off_sale`, params, {headers: {'Content-Type':'text/plain'}}) }
+
 
 export const reqEbayGoods = params => { return axios.get(`api/goods/from_ebay`, { params: params }) }

@@ -64,8 +64,14 @@
             {{ scope.row.updated ? formatDate(scope.row.updated) : '--' }}
           </template>
       </el-table-column>
-	    <el-table-column label="操作" width='160' fixed="right">
+	    <el-table-column label="操作" width='240' fixed="right">
         	<template scope="scope">
+          <template v-if="scope.row.auditStatus == '1'">
+              <el-button size="small" v-if="scope.row.productStatus == '下架'"
+                  @click="onSale(scope.row)">上架</el-button>
+              <el-button size="small" type="danger" v-else
+                  @click="offSale(scope.row)">下架</el-button>
+          </template>
             	<el-button size="small" @click="goEdit(scope.row.id)">编辑</el-button>
             	<el-button size="small" type="primary" @click="goPreview(scope.row.id)">预览</el-button>
         	</template>
@@ -82,7 +88,7 @@
 
 <script>
   import util from '../../common/util'
-  import { reqGoodsList } from '../../api/api';
+  import { reqGoodsList, reqOnSaleGoods, reqOffSaleGoods } from '../../api/api';
   export default{
     data(){
       return {
@@ -102,8 +108,41 @@
       }
     },
     methods: {
+      onSale(row) {
+        this.$confirm('确认删除该用户吗?', '提示', {type: 'warning'}).then(() => {
+          reqOnSaleGoods(row.id).then((res) => {
+            if (res.data.msg == '成功') {
+              row.productStatus = '正常'
+              this.$message({
+                message: '该商品已成功上架',
+                type: 'success'
+              })
+            } else {
+              this.$message.error(res.data.msg)
+            }
+          })
+        }).catch((e) => {
+          console.log(e)
+        })
+      },
+      offSale(row) {
+        this.$confirm('确认删除该用户吗?', '提示', {type: 'warning'}).then(() => {
+          reqOffSaleGoods(row.id).then((res) => {
+            if (res.data.msg == '成功') {
+              row.productStatus = '下架'
+              this.$message({
+                message: '该商品已成功下架',
+                type: 'success'
+              })
+            } else {
+              this.$message.error(res.data.msg)
+            }
+          })
+        }).catch((e) => {
+          console.log(e)
+        })
+      },
       goEdit(id) {
-        console.log(id)
         this.$router.push({
             name: '商品新增',
             params: {

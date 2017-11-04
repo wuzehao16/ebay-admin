@@ -26,22 +26,28 @@
 		  </el-form-item> -->
 		  <el-form-item>
 			  <el-select v-model="filterOrders.orderStatus" placeholder="订单状态" clearable>
-	    		<el-option key="0" label="待付款" value="0"></el-option>
-	    		<el-option key="1" label="待发货" value="1"></el-option>
-	    		<el-option key="2" label="已签收" value="2"></el-option>
-	    		<el-option key="3" label="已拒签" value="3"></el-option>
+	    		<el-option key="1" label="待支付" value="1"></el-option>
+	    		<el-option key="2" label="已取消" value="2"></el-option>
+	    		<el-option key="3" label="已支付" value="3"></el-option>
+	    		<el-option key="4" label="已发货" value="4"></el-option>
+	    		<el-option key="5" label="已完成" value="5"></el-option>
+	    		<el-option key="6" label="已评价" value="6"></el-option>
+	    		<el-option key="7" label="退款中" value="7"></el-option>
+	    		<el-option key="8" label="已退款" value="8"></el-option>
+	    		<el-option key="9" label="已删除" value="9"></el-option>
 			  </el-select>
 		  </el-form-item>
 		  <el-form-item>
-			  <el-select v-model="filterOrders.payStatus" placeholder="Ebay状态" clearable>
-	    		<el-option key="0" label="已下单" value="0"></el-option>
-	    		<el-option key="1" label="已付款" value="1"></el-option>
-	    		<el-option key="2" label="已发货" value="2"></el-option>
-	    		<el-option key="3" label="已取消" value="3"></el-option>
+			  <el-select v-model="filterOrders.ebayStatus" placeholder="Ebay状态" clearable>
+	    		<el-option key="1" label="待支付" value="1"></el-option>
+	    		<el-option key="2" label="已取消" value="2"></el-option>
+	    		<el-option key="3" label="已支付" value="3"></el-option>
+	    		<el-option key="4" label="已发货" value="4"></el-option>
+	    		<el-option key="5" label="已完成-海外仓已签收" value="5"></el-option>
 			  </el-select>
 		  </el-form-item><br/>		  
 	      <el-form-item>
-	        <el-input v-model="filterOrders.goods_name" placeholder="商品名称"></el-input>
+	        <el-input v-model="filterOrders.productName" placeholder="商品名称"></el-input>
 	      </el-form-item>
 	      <el-form-item>
 	        <el-input v-model="filterOrders.buyerPhone" placeholder="手机号码"></el-input>
@@ -65,54 +71,73 @@
     <el-table ref="singleTable" :data="orders" v-loading='orderLoading' highlight-current-row @current-change="setHighlight" height='600' style="width: 100%">
     	<el-table-column type="index" width="60"> </el-table-column>
     	<el-table-column property="orderNo" label="订单编号" width='200'></el-table-column>
-    	<el-table-column property="goods_name" label="商品名称" width='150'></el-table-column>
-    	<el-table-column property="goods_price" label="单价（元）" width='120'></el-table-column>
-    	<el-table-column property="goods_amount" label="数量"></el-table-column>
+    	<el-table-column property="productName" label="商品名称" width='250'></el-table-column>
+    	<el-table-column property="productPrice" label="单价（元）" width='120'></el-table-column>
+    	<el-table-column property="productQuantity" label="数量"></el-table-column>
     	<el-table-column property="orderAmount" label="总价（元）" width='120'>
     		<!-- <template scope="scope">
-    			{{ (scope.row.goods_price * 10000 * scope.row.goods_amount / 10000).toFixed(2) }}
+    			{{ (scope.row.productPrice * 10000 * scope.row.productQuantity / 10000).toFixed(2) }}
     		</template> -->
     	</el-table-column>
   
-    	<el-table-column prop="orderStatus" label="订单状态" width="120" :filters="[{ text: '待付款', value: 0 }, { text: '待发货', value: 1 }, { text: '已签收', value: 2 }, { text: '已拒签', value: 3 }]" :filter-method="filterOrderStatusTag" filter-placement="bottom-end">
+    	<el-table-column prop="orderStatus" label="订单状态" width="120" :filters="[{ text: '待支付', value: 1 }, { text: '已取消', value: 2 }, { text: '已支付', value: 3 }, { text: '已发货', value: 4 },
+			{ text: '已完成', value: 5 }, { text: '已评价', value: 6 }, { text: '退款中', value: 7 }, { text: '已退款', value: 8 },{text:'已删除',value:9}]" :filter-method="filterOrderStatusTag" filter-placement="bottom-end">
         	<template scope="scope">
-            	<el-tag :type="scope.row.orderStatus == 0 ? 'primary' : 'success'" close-transition>
-            		<template v-if='scope.row.orderStatus == 0'>
-            			待付款
-            		</template>
-            		<template v-else-if='scope.row.orderStatus == 1'>
-            			待发货
+            	<el-tag :type="scope.row.orderStatus == 1 ? 'primary' : 'success'" close-transition>
+            		<template v-if='scope.row.orderStatus == 1'>
+            			待支付
             		</template>
             		<template v-else-if='scope.row.orderStatus == 2'>
-            			已签收
+            			已取消
+            		</template>
+            		<template v-else-if='scope.row.orderStatus == 3'>
+            			已支付
+            		</template>
+            		<template v-else-if='scope.row.orderStatus == 4'>
+            			已发货
+            		</template>
+            		<template v-else-if='scope.row.orderStatus == 5'>
+            			已完成
+            		</template>
+            		<template v-else-if='scope.row.orderStatus == 6'>
+            			已评价
+            		</template>
+            		<template v-else-if='scope.row.orderStatus == 7'>
+            			退款中
+            		</template>
+            		<template v-else-if='scope.row.orderStatus == 8'>
+            			已退款
             		</template>
             		<template v-else>
-            			已拒签
+            			已删除
             		</template>
             	</el-tag>
         	</template>
     	</el-table-column> 
-    	<el-table-column property="ebay_order_no" label="Ebay订单号" width='200'></el-table-column>
-    	<el-table-column prop="payStatus" label="Ebay状态" width="120" :filters="[{ text: '已下单', value: 0 }, { text: '已付款', value: 1 }, { text: '已发货', value: 2 }, { text: '已取消', value: 3 }]" :filter-method="filterEbayStatusTag" filter-placement="bottom-end">
+    	<el-table-column property="ebayNo" label="Ebay订单号" width='200'></el-table-column>
+    	<el-table-column property="ebayStatus" label="Ebay状态" width="180" :filters="[{ text: '待支付', value: 1 }, { text: '已取消', value: 2 }, { text: '已支付', value: 3 }, { text: '已发货', value: 4 },{ text: '已完成-海外仓已签收', value: 5 }]" :filter-method="filterEbayStatusTag" filter-placement="bottom-end">
         	<template scope="scope">
-            	<el-tag :type="scope.row.payStatus == 0 ? 'primary' : 'success'" close-transition>
-            		<template v-if='scope.row.payStatus == 0'>
-            			已下单
+            	<el-tag :type="scope.row.ebayStatus == 1 ? 'primary' : 'success'" close-transition>
+            		<template v-if='scope.row.ebayStatus == 1'>
+            			待支付
             		</template>
-            		<template v-else-if='scope.row.payStatus == 1'>
-            			已付款
+            		<template v-else-if='scope.row.ebayStatus == 2'>
+            			已取消
             		</template>
-            		<template v-else-if='scope.row.payStatus == 2'>
+            		<template v-else-if='scope.row.ebayStatus == 3'>
+            			已支付
+            		</template>
+								<template v-else-if='scope.row.ebayStatus == 4'>
             			已发货
             		</template>
             		<template v-else>
-            			已取消
+            			已完成-海外仓已签收
             		</template>
             	</el-tag>
         	</template>
     	</el-table-column> 
     	
-    	<el-table-column property="buyerName" label="用户姓名" width='100'></el-table-column>
+    	<el-table-column property="buyerName" label="买家姓名" width='100'></el-table-column>
     	<el-table-column prop="user_type" label="会员类型" width="120" :filters="[{ text: '分销商', value: 0 }, { text: '普通用户', value: 1 }]" :filter-method="filterTag" filter-placement="bottom-end">
         	<template scope="scope">
             	<el-tag :type="scope.row.user_type == 0 ? 'primary' : 'success'" close-transition>{{scope.row.user_type == 0 ? '分销商':'普通用户'}}</el-tag>
@@ -124,13 +149,14 @@
     			{{ scope.row.order_source == "0" ? 'PC端':'移动端' }}
     		</template>
     	</el-table-column>    	
-    	<el-table-column property="create_time" label="创建时间" width='150'></el-table-column>
+    	<el-table-column property="created" label="创建时间" width='150' :formatter="dateFormat"></el-table-column>
 
 
-	    <el-table-column fixed="right" label="操作" width='160'>
+	    <el-table-column fixed="right" label="操作" width='200'>
         	<template scope="scope">
             	<el-button size="small" type="primary" @click='showDetail(scope.row)'>详情</el-button>
             	<el-button size="small" @click="showEdit(scope.row)">编辑</el-button>
+							<el-button size="small" type="danger" @click="cancelOrder(scope.row)">取消</el-button>
         	</template>
     	</el-table-column>
   	</el-table>
@@ -147,7 +173,7 @@
 </template>
 <script>
   import util from '../../common/util'
-  import { reqGetOrderList } from '../../api/index';
+  import { reqGetOrderList , reqCancelOrder} from '../../api/index';
 
   export default{
     data(){
@@ -156,11 +182,12 @@
         	order_source: '',
         	user_type: '',
         	orderStatus: '',
-        	payStatus: '',
-        	goods_name: '',
+        	ebayStatus: '',
+        	productName: '',
         	buyerPhone: '',
         	buyerName: '',
-        	orderNo: ''
+					orderNo: '',
+					ebayNo:""
         },
         page_size: 20,
         orderLoading: false,
@@ -170,6 +197,14 @@
       }
     },
     methods: {
+			dateFormat:function(row, column) {  
+					let date = row[column.property];  
+					if (date == undefined) {  
+							return "";  
+					}
+					let t = new Date(date)
+					return t.toLocaleDateString();  
+      }, 
       setHighlight(val) {
       	this.currentRow = val
       },
@@ -219,7 +254,37 @@
       },
       showAdd() {
       	this.$router.push('/order/add')
-      }
+			},
+			//取消订单
+			cancelOrder(p) {
+				let orderId = p.orderNo;
+				let params = {
+					orderId:orderId
+				}
+				this.$confirm('是否取消订单?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+					type: 'warning'
+				
+        }).then( ()=>{
+					
+					reqCancelOrder(params).then(res => {
+						if(res.data.code == 0) {
+							 this.$message({
+								type: 'success',
+								message: '取消订单成功!'
+							});
+						}else{
+							console.log(1)
+							let action = res.data.msg
+							this.$alert(`${ action }`, '提示', {
+								confirmButtonText: '确定',
+							});
+						}
+					})
+					}
+        )
+			}
     },
     mounted() {
       this.getOrders();

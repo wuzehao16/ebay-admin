@@ -18,19 +18,19 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品名称'>
-                <el-input v-model="orderInfo.goods_name" placeholder="商品名称"></el-input>
+                <el-input v-model="orderInfo.productName" placeholder="商品名称"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='商品单价（元）'>
-                <el-input v-model="orderInfo.goods_price" placeholder="商品单价"></el-input>
+                <el-input v-model="orderInfo.productPrice" placeholder="商品单价"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='数量'>
-                <el-input v-model="orderInfo.goods_amount" placeholder="数量"></el-input>
+                <el-input v-model="orderInfo.productQuantity" placeholder="数量"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -170,7 +170,7 @@ export default {
   },
   computed: {
   	calGoodsTotalPrice() {
-  		return this.orderInfo.goods_amount * this.orderInfo.goods_price
+  		return this.orderInfo.productQuantity * this.orderInfo.productPrice
   	},
   	calOrderTotalPrice() {
   		return this.calGoodsTotalPrice + this.orderInfo.goods_tax + this.orderInfo.logistics_fees

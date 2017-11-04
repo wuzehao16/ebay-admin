@@ -109,7 +109,7 @@
               return "";  
           }
           let t = new Date(date)
-          return t.getFullYear()+'.'+t.getMonth()+'.'+t.getDay();  
+          return t.toLocaleDateString();  
       }, 
       setHighlight(val) {
       	this.currentRow = val

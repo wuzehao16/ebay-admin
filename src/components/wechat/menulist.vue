@@ -14,24 +14,24 @@
     <el-col :span="24" class="warp-main">
     <div v-show="showflag" class="label-menu">一级菜单：</div>
     <div v-show="!showflag" class="label-menu">二级菜单：<span style="color:#20a0ff;">{{ label_menu }}</span>的子菜单 <el-button @click="showFather">返回一级菜单</el-button></div>
-    <el-table ref="singleTable" :data="menus" v-loading='loading' highlight-current-row style="width: 100%">
+    <el-table ref="singleTable" :data="menus" v-loading='loading'  style="width: 100%">
     	<el-table-column type="expand">
     		<template scope="props">
     			<el-form label-position="right" inline class="demo-table-expand">
     				<el-form-item label="菜单名称">
-                		<el-input v-model="props.row.menu_name" placeholder="菜单名称"></el-input>
+                		<el-input v-model="props.row.wxMenuName" placeholder="菜单名称"></el-input>
     				</el-form-item>
     				<el-form-item label="菜单类型">
-						  <el-radio-group v-model="props.row.menu_type">
-						    <el-radio :label="0">点击事件</el-radio>
-						    <el-radio :label="1">URL地址</el-radio>
+						  <el-radio-group v-model="props.row.wxMenuType">
+						    <el-radio label="0">点击事件</el-radio>
+						    <el-radio label="1">URL地址</el-radio>
 						  </el-radio-group>
     				</el-form-item>
-    				<el-form-item label="KEY" v-show="props.row.menu_type == 0">
-                		<el-input v-model="props.row.menu_key" placeholder="KEY"></el-input>
+    				<el-form-item label="KEY" v-show="props.row.wxMenuType == 0">
+                		<el-input v-model="props.row.wxMenuContent" placeholder="KEY"></el-input>
     				</el-form-item>
-    				<el-form-item label="链接地址" v-show="props.row.menu_type == 1">
-                		<el-input v-model="props.row.menu_url" placeholder="链接地址"></el-input>
+    				<el-form-item label="链接地址" v-show="props.row.wxMenuType == 1">
+                		<el-input v-model="props.row.wxMenuContent" placeholder="链接地址"></el-input>
     				</el-form-item>
     				<el-form-item>
         				<el-button @click="editSubmit(props.row)">保存</el-button>
@@ -40,10 +40,10 @@
     		</template>
     	</el-table-column>
     	<el-table-column type="index" width="60"> </el-table-column>
-    	<el-table-column property="menu_id" label="编号" width='200'></el-table-column>
-    	<el-table-column property="menu_name" label="菜单名称"></el-table-column>
-    	<el-table-column property="create_time" label="创建时间" width='200'></el-table-column>
-    	<el-table-column property="update_time" label="更新时间" width='200'></el-table-column>
+    	<el-table-column property="wxMenuSeriNo" label="排序号" width='200'></el-table-column>
+    	<el-table-column property="wxMenuName" label="菜单名称"></el-table-column>
+    	<el-table-column property="crtTime" label="创建时间" width='200' :formatter="dateFormat"></el-table-column>
+    	<el-table-column property="uptTime" label="更新时间" width='200' :formatter="dateFormat"></el-table-column>
     
 	    <el-table-column fixed="right" label="操作" width='220'>
         	<template scope="scope">
@@ -58,19 +58,28 @@
         <el-form :model="addForm" label-width="80px"  ref="addForm">
 
 			<el-form-item label="菜单名称">
-	    		<el-input v-model="addForm.menu_name" placeholder="菜单名称"></el-input>
+	    		<el-input v-model="addForm.wxMenuName" placeholder="菜单名称"></el-input>
 			</el-form-item>
-			<el-form-item label="菜单类型">
-			  <el-radio-group v-model="addForm.menu_type">
-			    <el-radio :label="0">点击事件</el-radio>
-			    <el-radio :label="1">URL地址</el-radio>
+      <el-form-item label="菜单排序" >
+	    		<el-input v-model="addForm.wxMenuSeriNo" placeholder="排序号"></el-input>
+			</el-form-item>
+      <el-form-item label="是否有效">
+			  <el-radio-group v-model="addForm.wxMenuFlag">
+			    <el-radio :label="2">无效</el-radio>
+			    <el-radio :label="1">有效</el-radio>
 			  </el-radio-group>						
 			</el-form-item>
-			<el-form-item label="KEY" v-show="addForm.menu_type == 0">
-	    		<el-input v-model="addForm.menu_key" placeholder="KEY"></el-input>
+			<el-form-item label="菜单类型">
+			  <el-radio-group v-model="addForm.wxMenuType">
+			    <el-radio :label="1">点击事件</el-radio>
+			    <el-radio :label="2">URL地址</el-radio>
+			  </el-radio-group>						
 			</el-form-item>
-			<el-form-item label="链接地址" v-show="addForm.menu_type == 1">
-	    		<el-input v-model="addForm.menu_url" placeholder="链接地址"></el-input>
+			<el-form-item label="KEY" v-show="addForm.wxMenuType == 1">
+	    		<el-input v-model="addForm.wxMenuContent" placeholder="KEY"></el-input>
+			</el-form-item>
+			<el-form-item label="链接地址" v-show="addForm.wxMenuType == 2">
+	    		<el-input v-model="addForm.wxMenuContent" placeholder="链接地址"></el-input>
 			</el-form-item>
 
         </el-form>
@@ -86,127 +95,147 @@
 
 
 <style>
-  .demo-table-expand {
-    font-size: 0;
-  }
-  .demo-table-expand label {
-    width: 90px;
-    color: #99a9bf;
-  }
-  .demo-table-expand .el-form-item {
-    margin-right: 0;
-    margin-bottom: 20px;
-    width: 50%;
-  }
-  .label-menu{
-    margin-bottom: 20px;
-    font-weight: bold;  	
-  }
-  .label-menu span{
-
-  }
+.demo-table-expand {
+  font-size: 0;
+}
+.demo-table-expand label {
+  width: 90px;
+  color: #99a9bf;
+}
+.demo-table-expand .el-form-item {
+  margin-right: 0;
+  margin-bottom: 20px;
+  width: 50%;
+}
+.label-menu {
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+.label-menu span {
+}
 </style>
 
 
 <script>
-  import { reqGetWechatMenus, reqEditWechatMenu, reqDeleteWechatMenu,reqAddWechatMenu, reqSyncWechatMenu } from '../../api/api';
+import {
+  reqGetWechatMenus,
+  reqEditWechatMenu,
+  reqDeleteWechatMenu,
+  reqAddWechatMenu,
+  reqSyncWechatMenu
+} from "../../api/index";
 
-  export default{
-    data(){
-      return {
-      	syncLoading: false,
-      	label_menu: "",
-        loading: false,
-        menus: [],
-        showflag: true,
-       	father_menu_id: "",
+export default {
+  data() {
+    return {
+      syncLoading: false,
+      label_menu: "",
+      loading: false,
+      menus: [],
+      showflag: true,
+      wxMenuParent: "",
 
-        //新增相关数据
-        addFormVisible: false,//新增界面是否显示
-        addLoading: false,
-        addForm: {
-          menu_name: '',
-          menu_type: 0,
-          menu_key: '',
-          menu_url: ''
-        }       	
-            
+      //新增相关数据
+      addFormVisible: false, //新增界面是否显示
+      addLoading: false,
+      addForm: {
+        wxMenuName: "",
+        wxMenuType: 0,
+        wxMenuContent: "",
+        wxMenuContent: "",
+        wxMenuSeriNo:0,
+        wxMenuFlag:0
       }
-    },
-    methods: {
-      syncMenu() {
-      	this.syncLoading = true
-      	reqSyncWechatMenu().then((res) => {
-            this.$message({
-              message: '已同步微信菜单',
-              type: 'success'
-            })
-            this.syncLoading = false
-      	})
-      },
-      getMenuList() {
-	    this.loading = true
-		reqGetWechatMenus().then((res) => {
-			this.menus = res.data.menus
-      		this.loading = false
-		})
-      },
-      editSubmit(row) {
-      	row = Object.assign(row,{father_menu_id: this.father_menu_id})
-    	reqEditWechatMenu(row).then((res) => {
-            this.$message({
-              message: '提交成功',
-              type: 'success'
-            });
-    	})      	
-      },
-      deleteSubmit(row,index) {
-      	row = Object.assign(row,{father_menu_id: this.father_menu_id,index: index})
-    	reqDeleteWechatMenu(row).then((res) => {
-    		this.menus.splice(index,1)
-            this.$message({
-              message: '提交成功',
-              type: 'success'
-            });
-    	})       	
-      },
-      showChildren(row) {
-      	this.label_menu = row.menu_name
-      	this.menus = row.children
-      	this.showflag = false
-      	this.father_menu_id = row.menu_id
-      },
-      showFather() {
-      	this.getMenuList()
-      	this.showflag = true
-      	this.father_menu_id = ""
-      },
-      showAddDialog() {
-        this.addFormVisible = true
-        this.addForm = {
-          menu_name: '',
-          menu_type: 0,
-          menu_key: '',
-          menu_url: ''
-        }
-      },
-      addSubmit() {
-      	this.addLoading = true
-      	Object.assign(this.addForm, {father_menu_id: this.father_menu_id})
-      	reqAddWechatMenu(this.addForm).then((res) => {
-            this.$message({
-              message: '提交成功',
-              type: 'success'
-            })
-            this.addLoading = false
-            this.addFormVisible = false
-            this.showFather()
-    	}) 
+    };
+  },
+  methods: {
+    dateFormat: function(row, column) {
+      let date = row[column.property];
+      if (date == undefined) {
+        return "";
       }
+      let t = new Date(date);
+      return t.toLocaleDateString();
     },
-    mounted() {
-      this.getMenuList()
+    syncMenu() {
+      this.syncLoading = true;
+      reqSyncWechatMenu().then(res => {
+        this.$message({
+          message: "已同步微信菜单",
+          type: "success"
+        });
+        this.syncLoading = false;
+      });
+    },
+    getMenuList(id) {
+      this.loading = true;
+      let params = {id:id}
+      reqGetWechatMenus(params).then(res => {
+        this.menus = res.data.data;
+        this.loading = false;
+      });
+    },
+    editSubmit(row) {
+      row = Object.assign(row, { wxMenuParent: this.wxMenuParent });
+      reqEditWechatMenu(row).then(res => {
+        this.$message({
+          message: "提交成功",
+          type: "success"
+        });
+      });
+    },
+    deleteSubmit(row, index) {
+      row = Object.assign(row, {
+        wxMenuParent: this.wxMenuParent,
+        index: index
+      });
+      reqDeleteWechatMenu(row).then(res => {
+        this.menus.splice(index, 1);
+        this.$message({
+          message: "提交成功",
+          type: "success"
+        });
+      });
+    },
+    showChildren(row) {
+      this.label_menu = row.wxMenuName;
+      this.menus = row.children;
+      this.showflag = false;
+      this.wxMenuParent = row.id;
+      console.log(this.wxMenuParent)
+      this.getMenuList(row.id);
+    },
+    showFather() {
+      this.getMenuList();
+      this.showflag = true;
+      this.wxMenuParent = "";
+    },
+    showAddDialog() {
+      this.addFormVisible = true;
+      this.addForm = {
+        wxMenuName: "",
+        wxMenuType: 0,
+        wxMenuContent: "",
+        wxMenuContent: ""
+      };
+    },
+    addSubmit() {
+      this.addLoading = true;
+      Object.assign(this.addForm, { wxMenuParent: this.wxMenuParent });
+      reqAddWechatMenu(this.addForm).then(res => {
+        this.$message({
+          message: "提交成功",
+          type: "success"
+        });
+        this.addLoading = false;
+        this.addFormVisible = false;
+        this.showFather();
+      });
     }
+  },
+  mounted() {
+    this.getMenuList();
   }
+};
 </script>
 

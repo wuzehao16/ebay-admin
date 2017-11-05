@@ -41,7 +41,7 @@
 	  </el-col>
 
 
-    <el-table ref="singleTable" :data="withdraw_list" v-loading='loading' highlight-current-row @current-change="setHighlight" height='600' style="width: 100%">
+    <el-table ref="singleTable" :data="withdraw_list" v-loading='loading'  @current-change="setHighlight" height='600' style="width: 100%">
     	<el-table-column type="index" width="60"> </el-table-column>
     	<el-table-column property="withdraw_id" label="交易号" width='200'></el-table-column>
     	<el-table-column property="user_name" label="用户姓名" width='120'></el-table-column>

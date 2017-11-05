@@ -37,7 +37,7 @@
 	  </el-col>
 
 
-    <el-table ref="singleTable" :data="places" v-loading='orderLoading' highlight-current-row @current-change="setHighlight" height='600' style="width: 100%">
+    <el-table ref="singleTable" :data="places" v-loading='orderLoading'  @current-change="setHighlight" height='600' style="width: 100%">
     	<el-table-column type="index" width="60"> </el-table-column>
     	<el-table-column property="order_id" label="订单编号" width='200'></el-table-column>
     	<el-table-column property="goods_name" label="商品名称" width='150'></el-table-column>

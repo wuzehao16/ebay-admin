@@ -64,7 +64,7 @@
 		<el-table
 			ref="singleTable"
 			:data="ebay_goods"
-			highlight-current-row
+			
 			@current-change="handleCurrentChange"
 			style="width: 100%" height='300'>
 		<el-table-column

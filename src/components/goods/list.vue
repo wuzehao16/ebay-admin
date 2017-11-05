@@ -31,7 +31,7 @@
 	      </el-form-item>
 	    </el-form>
 	  </el-col>
-    <el-table ref="singleTable" :data="goods" v-loading='loading' highlight-current-row @current-change="setHighlight" style="width: 100%">
+    <el-table ref="singleTable" :data="goods" v-loading='loading'  @current-change="setHighlight" style="width: 100%">
     	<el-table-column property="id" label="商品编号" width='100'></el-table-column>
     	<el-table-column  label="ItemId" width='100'>
         <template scope="scope">

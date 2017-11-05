@@ -31,7 +31,7 @@
 	  </el-col>
 
 
-    <el-table ref="singleTable" :data="users" v-loading='userLoading' highlight-current-row @current-change="setHighlight" style="width: 100%">
+    <el-table ref="singleTable" :data="users" v-loading='userLoading'  @current-change="setHighlight" style="width: 100%">
     	<el-table-column property="id" label="会员编号" width="100"></el-table-column>
     	<el-table-column property="userName" label="会员姓名" width="100"></el-table-column>
     	<el-table-column property="userPhone" label="手机号码" width='130'></el-table-column>

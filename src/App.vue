@@ -25,4 +25,7 @@ a{
   text-align: left;
   color: #2c3e50;
 }
+.el-table__body-wrapper.el-table__body tr.current-row>td {
+    background: #edf7ff!important;
+}
 </style>

@@ -13,7 +13,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='订单编号'>
-                <el-input v-model="orderInfo.order_id" placeholder="订单编号" disabled></el-input>
+                <el-input v-model="orderInfo.orderNo" placeholder="订单编号" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -51,7 +51,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='异常类型'>
-      				  <el-select v-model.number="orderInfo.ex_type" placeholder="异常类型" disabled>
+      				  <el-select v-model.number="orderInfo.errorType" placeholder="异常类型" disabled>
       		    		<el-option v-for="item in exTypeOptions" :key="item.value" :label="item.label" :value="item.value">
       		    		</el-option>
       				  </el-select>
@@ -67,7 +67,7 @@
             <el-col :span='16'>
               <el-form-item label='异常描述'>
 				<el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
-				  v-model="orderInfo.ex_description" disabled>
+				  v-model="orderInfo.errorMemo" disabled>
 				</el-input>
               </el-form-item>
             </el-col>
@@ -76,7 +76,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='异常状态'>
-				  <el-select v-model="orderInfo.ex_status" placeholder="异常状态">
+				  <el-select v-model="orderInfo.errorStatus" placeholder="异常状态">
 		    		<el-option v-for="item in exStatusOptions" :key="item.value" :label="item.label" :value="item.value">
 		    		</el-option>
 				  </el-select>
@@ -91,16 +91,25 @@
               </el-form-item>
             </el-col>            
           </el-row>
-
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
-              <el-form-item label='解决说明'>
-				<el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
-				  v-model="handle.des">
-				</el-input>
+              <el-form-item label='处理人'>
+                <el-input  placeholder="处理人"
+                  v-model="handle.handerby">
+                </el-input>
               </el-form-item>
             </el-col>
           </el-row> 
+          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+            <el-col :span='16'>
+              <el-form-item label='解决说明'>
+                <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
+                  v-model="handle.sloveMemo">
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row> 
+
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16' :offset='10'>
 			 	<el-button type="success" @click='editSubmit'>提交</el-button>
@@ -113,14 +122,14 @@
 		<el-col :span='16' :offset='4'>
 		  <label style="font-weight:bold;margin: 20px 0;">异常订单处理跟踪记录：</label><br/><br/>
 		  <el-table :data="orderInfo.handle_records" border style="width: 100%;margin-bottom:40px;">
-		    <el-table-column prop="des" label="解决说明"></el-table-column>
-		    <el-table-column prop="time" label="跟进时间" width="180"></el-table-column>
+		    <el-table-column prop="sloveMemo" label="解决说明"></el-table-column>
+		    <el-table-column prop="updated" label="跟进时间" width="180"></el-table-column>
 		    <el-table-column label="处理方式" width="100">
 		    	<template scope="scope">
 		    		{{ scope.row.manner == 0 ? "退款" : "协商" }}
 		    	</template>
 		    </el-table-column>
-		    <el-table-column prop="handler" label="处理人" width="90"></el-table-column>
+		    <el-table-column prop="handerby" label="处理人" width="90"></el-table-column>
 		  </el-table>
 		</el-col>
 
@@ -130,7 +139,7 @@
 </template>
 <script>
 import util from '../../common/util'
-import { reqEditExOrder } from '../../api/api';
+import { reqEditExOrder } from '../../api/index';
 
 export default {
   data() {
@@ -138,48 +147,57 @@ export default {
       orderInfo: {
       },
   	  handle: {
-  	  	des: '',
-  	  	handler: '',
+  	  	sloveMemo: '',
+  	  	handerby: '',
   	  	manner: '',
-  	  	time: ''
+  	  	updated: ''
   	  },
       handle_bak: {},
       orderInfo_bak: {},
-
-      exTypeOptions: [{
-      		value: 0,
-      		label: "系统异常"
-      	},{
-      		value: 1,
-      		label: "Ebay缺货"
-      	},{
-      		value: 2,
-      		label: "卖家取消订单"
-      	}
+            exTypeOptions: [
+        {
+          value: 0,
+          label: "系统异常"
+        },
+        {
+          value: 1,
+          label: "Ebay缺货"
+        },
+        {
+          value: 2,
+          label: "卖家取消订单"
+        }
       ],
-      exStatusOptions: [{
-      		value: 0,
-      		label: "待解决"
-      	},{
-      		value: 1,
-      		label: "已解决"
-      	},{
-      		value: 2,
-      		label: "已挂起"
-      	}
-      ],
+      exStatusOptions: [
+        {
+          value: 0,
+          label: "待解决"
+        },
+        {
+          value: 1,
+          label: "已解决"
+        },
+        {
+          value: 2,
+          label: "未解决"
+        },
+        {
+          value: 3,
+          label: "已挂起"
+        }
+      ]
     }
   },
   methods: {
     editSubmit() {
-      this.handle.handler = "Jimmy"
-      this.handle.time = "2017-10-22 12:12:12"
-      this.orderInfo.handle_records.push(this.handle)
+      Object.assign( this.orderInfo, this.handle) 
+      console.log(this.orderInfo)
     	reqEditExOrder(this.orderInfo).then((res) => {
         this.$message({
           message: '提交成功',
           type: 'success'
         });
+        this.toOrderList();
     	})
     },
     resetOrder() {
@@ -192,7 +210,8 @@ export default {
 
   },
   mounted() {
-  	this.orderInfo = this.$route.params.ex_order
+    this.orderInfo = this.$route.params.ex_order
+    this.handle = this.orderInfo
     Object.assign( this.orderInfo_bak, this.$route.params.ex_order )
 	  Object.assign( this.handle_bak, this.handle )
   }

@@ -33,12 +33,6 @@ export const reqEditOrder = params => { return axios.get(`api/order/edit`, { par
 
 export const reqAddOrder = params => { return axios.get(`api/order/add`, { params: params }) }
 
-//订单异常
-export const reqGetExOrderList = params => { return axios.get(`api/ex_order/list`, { params: params }) }
-
-export const reqEditExOrder = params => { return axios.get(`api/ex_order/edit`, { params: params }) }
-
-export const reqAddExOrder = params => { return axios.get(`api/ex_order/add`, { params: params }) }
 
 //分销结算
 export const reqGetPlaceList = params => { return axios.get(`api/place_settle/list`, { params: params }) }

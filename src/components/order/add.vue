@@ -32,12 +32,12 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='商品单价（元）'>
-                <el-input v-model.number="orderInfo.item.productPrice" placeholder="商品单价" width="111"></el-input>
+                <el-input v-model.number="orderInfo.items[0].productPrice" placeholder="商品单价" width="111"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='数量'>
-                <el-input v-model.number="orderInfo.item.productQuantity" placeholder="数量"></el-input>
+                <el-input v-model.number="orderInfo.items[0].productQuantity" placeholder="数量"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -182,7 +182,8 @@ export default {
         consignee_address: [],
         address_detail: "",
         address:"",
-        item:{
+        openid:"1",
+        items:[{
           id: 0,
           orderId: "",
           productIcon: "",
@@ -190,7 +191,7 @@ export default {
           productName: "",
           productPrice: 0,
           productQuantity: 0,
-        }
+        }]
       },
       product: [],
       orderInfo_bak: {},
@@ -222,9 +223,6 @@ export default {
       var that = this;
       var product = this.product;
       var results = queryString ? fetch(queryString) : product;
-
-      // clearTimeout(this.timeout);
-
       function fetch(queryString) {
         let params = { productNane: that.orderInfo.productName };
         reqProductName(params).then(res => {
@@ -233,10 +231,6 @@ export default {
           cb(results);
         });
       }
-
-      // this.timeout = setTimeout(() => {
-      //   cb(results);
-      // }, 3000 * Math.random());
     },
     createStateFilter(Arr) {
         let newArray = [];
@@ -249,13 +243,13 @@ export default {
     },
     handleSelect(item) {
       console.log(item);
-      this.orderInfo.item.id = item.id;
-      this.orderInfo.item.productName = item.value;
+      this.orderInfo.items[0].productId = item.id;
+      this.orderInfo.items[0].productName = item.value;
     }
   },
   computed: {
     calGoodsTotalPrice() {
-      return (this.orderInfo.item.productQuantity * this.orderInfo.item.productPrice
+      return (this.orderInfo.items[0].productQuantity * this.orderInfo.items[0].productPrice
       ).toFixed(2);
     },
     calOrderTotalPrice() {

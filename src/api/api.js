@@ -56,7 +56,9 @@ export const reqWithdrawAudit = params => { return axios.post(`api/user/account/
 
 export const reqGetWithdrawIssue = params => { return axios.get(`api/withdraw/issue`, { params: params }) }
 //对账管理
-export const reqReconciliationList = params => { return axios.get(`api/reconciliation/list`, { params: params }) }
+export const reqCheckList = params => { return axios.get(`api/user/account/check/list`, { params: params }) }
+
+
 export const reqReconciliationEdit = params => { return axios.get(`api/reconciliation/edit`, { params: params }) }
 export const reqReconciliationDetail = params => { return axios.get(`api/reconciliation/detail`, { params: params }) }
 

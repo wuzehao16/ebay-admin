@@ -42,16 +42,18 @@
 	  </el-col>
 
 
-    <el-table ref="singleTable" :data="withdraw_list" v-loading='loading'  @current-change="setHighlight" height='600' style="width: 100%">
+    <el-table ref="singleTable" :data="withdraw_list" v-loading='loading'  @current-change="setHighlight" style="width: 100%">
     	<el-table-column type="index" width="60"> </el-table-column>
     	<el-table-column property="tradeNo" label="交易号" width='200'></el-table-column>
     	<el-table-column property="user.userName" label="用户姓名" width='120'></el-table-column>
     	<el-table-column property="user.userPhone" label="手机号码" width='140'></el-table-column>
     	<el-table-column label="交易状态" width='140'>
     		<template scope="scope">
-    			<template v-if="scope.row.withdraw_status == 0">处理中</template>
-    			<template v-if="scope.row.withdraw_status == 1">成功</template>
-    			<template v-if="scope.row.withdraw_status == 2">失败</template>
+          <template v-if="scope.row.accountItem">
+            <template v-if="scope.row.accountItem.tradeStatus == '0'">失败</template>
+            <template v-if="scope.row.accountItem.tradeStatus == '1'">成功</template>
+            <template v-if="scope.row.accountItem.tradeStatus == '2'">处理中</template>             
+          </template>
     		</template>
     	</el-table-column>
     	<el-table-column property="drawAmount" label="提现金额（元）" width='140'></el-table-column>
@@ -77,12 +79,21 @@
     			<template v-if="scope.row.issue_status == 1">已发放</template>
     		</template>
     	</el-table-column>
-    	<el-table-column property="created" label="申请时间" width='200'>
+    	<el-table-column label="申请时间" width='200'>
         <template scope="scope">
-          {{ formatDate(scope.row.created) }}
+          {{ fTimestamp(scope.row.created) }}
         </template> 
       </el-table-column>
-    	<el-table-column property="collected_time" label="到账时间" width='200'></el-table-column>
+    	<el-table-column label="到账时间" width='200'>
+        <template scope="scope">
+            <template v-if="scope.row.accountItem">
+              <template v-if="scope.row.accountItem.tradeStatus == '1'">
+                {{ fTimestamp(scope.row.accountItem.updated) }}
+              </template>
+            </template>
+            <template v-else>--</template>
+        </template>
+      </el-table-column>
 	    <el-table-column fixed="right" label="操作" width='160'>
         	<template scope="scope">
             	<el-button size="small" @click="showAudit(scope.row, true)">查看</el-button>
@@ -105,7 +116,6 @@
 </template>
 <script>
   import {  reqWithdrawList, reqGetWithdrawIssue } from '../../api/api';
-  import util from '../../common/util'
   export default{
     data(){
       return {
@@ -124,16 +134,11 @@
       }
     },
     methods: {
-      formatDate(val) {
-        let t = '--'
-        t ? t = util.formatDate.format(new Date(val), 'yyyy-MM-dd hh:mm') : ''
-        return t
-      },
       setHighlight(val) {
       	this.currentRow = val
       },
       setPageChange(val) {
-      	this.filters.page = val
+      	this.filters.page = val - 1 
       	this.getWithdrawList()
       },
       getWithdrawList() {
@@ -141,6 +146,7 @@
     		reqWithdrawList(this.filters).then((res) => {
           let w = res.data.data
           if (w) {
+            console.log(w)
             this.total = w.total
             this.withdraw_list = w.content
             this.loading = false            
@@ -160,7 +166,7 @@
       },
       showAudit(row, isDetail) {
         let d = row
-        d.created = this.formatDate(d.created)
+        d.created = this.fTimestamp(d.created)
         console.log(d)
       	this.$router.push({
       		name: '提现审核',

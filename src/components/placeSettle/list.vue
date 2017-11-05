@@ -37,7 +37,7 @@
 	  </el-col>
 
 
-    <el-table ref="singleTable" :data="places" v-loading='orderLoading'  @current-change="setHighlight" height='600' style="width: 100%">
+    <el-table ref="singleTable" :data="places" v-loading='loading'  @current-change="setHighlight" height='600' style="width: 100%">
     	<el-table-column type="index" width="60"> </el-table-column>
     	<el-table-column property="orderNo" label="订单编号" width='200'></el-table-column>
     	<el-table-column property="productName" label="商品名称" width='150'></el-table-column>
@@ -67,12 +67,12 @@
     	</el-table-column>
     	<el-table-column  label="结算时间" width='150'>
         <template scope="scope">
-         {{ formatDate(scope.row.created) }}
+         {{ fTimestamp(scope.row.created) }}
         </template>
       </el-table-column>
     	<el-table-column  label="付款时间" width='150'>
         <template scope="scope">
-         {{ formatDate(scope.row.updated) }}
+         {{ fTimestamp(scope.row.updated) }}
         </template>        
       </el-table-column>
 	    <el-table-column fixed="right" label="操作" width='160'>
@@ -92,7 +92,6 @@
   </el-row>
 </template>
 <script>
-  import util from '../../common/util'
   import { reqDistrList } from '../../api/api';
 
   export default{
@@ -112,13 +111,6 @@
       }
     },
     methods: {
-      formatDate(val) {
-        let t = '--'
-        if (val) {
-         t = util.formatDate.format(new Date(val), 'yyyy-MM-dd hh:mm') 
-        }
-        return t
-      },
       setHighlight(val) {
       	this.currentRow = val
       },

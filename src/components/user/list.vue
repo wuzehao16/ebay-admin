@@ -21,7 +21,7 @@
         </el-col>
 
       <!--列表-->
-      <el-table :data="users" highlight-current-row v-loading="loading" style="width: 100%;">
+      <el-table :data="users"  v-loading="loading" style="width: 100%;">
         <el-table-column type="index" width="60">
         </el-table-column>
         <el-table-column prop="name" label="姓名" width="120" sortable>

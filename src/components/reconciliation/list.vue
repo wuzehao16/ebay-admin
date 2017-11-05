@@ -44,7 +44,7 @@
 	  </el-col>
 
 
-    <el-table ref="singleTable" :data="re_list" v-loading='loading' highlight-current-row @current-change="setHighlight" height='600' style="width: 100%">
+    <el-table ref="singleTable" :data="re_list" v-loading='loading'  @current-change="setHighlight" height='600' style="width: 100%">
     	<el-table-column type="index" width="60"> </el-table-column>
     	<el-table-column property="trade_id" label="交易号" width='200'></el-table-column>
     	<el-table-column label="交易类型" width='140'>

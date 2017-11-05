@@ -11,7 +11,7 @@
         <el-button @click="showAddDialog">新增</el-button>
     </el-col>
     <el-col :span="24" class="warp-main">
-    <el-table ref="singleTable" :data="replys" v-loading='loading' highlight-current-row style="width: 100%">
+    <el-table ref="singleTable" :data="replys" v-loading='loading'  style="width: 100%">
     	<el-table-column type="expand">
     		<template scope="props">
     			<el-form label-position="right" inline class="demo-table-expand">

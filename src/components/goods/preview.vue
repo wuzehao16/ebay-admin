@@ -1,5 +1,4 @@
 <template>
-
   <el-row class="warp">
     <el-col :span="24" class="warp-breadcrum">
       <el-breadcrumb separator="/">
@@ -10,21 +9,54 @@
     </el-col>
 	<div class="phone" :style="{'background-image': 'url(' + require('../../assets/images/phone.png') + ')'}">
 	<!-- app域名 -->
-		<iframe v-bind:src="'http://localhost:8089/?pc_preview=' + id + '#/product/detail' " frameborder="0"></iframe>
+		<iframe v-bind:src="'http://localhost:8089/?pc_preview=' + product.id + '#/product/detail' " frameborder="0"></iframe>
 	</div>
+  <div class="bt-box" v-if="product.auditStatus == '0'">
+    <el-button type="primary" @click='auditSubmit("1")'>审核通过</el-button>
+    <el-button type="warning" @click='auditSubmit("2")'>驳回</el-button>   
+  </div>
   </el-row>  
-
 </template>
 <script>
+import {reqSaveGoods} from '../../api/api'
 export default {
   data() {
   	return {
-  		id: 'xx'
+  		product: {}
   	}
   },
+  methods: {
+    auditSubmit(val) {
+        let info = '', resInfo = ''
+        if (val == '1') {
+          info = '确认审核通过该商品吗？'
+          resInfo = '该商品已由您通过审核！'
+        } else {
+          info = '确认驳回该商品的提审吗？'
+          resInfo = '该商品已被您驳回！'
+        }
+        this.product.auditStatus = val
+        this.$confirm(info, '提示', {type: 'warning'}).then(() => {
+          reqSaveGoods(this.product).then((res) => {
+            if (res.data.code == 0) {
+              this.$message({
+                type: 'success',
+                message: resInfo
+              })              
+            } else {
+              this.$message.error(res.data.msg)              
+            }
+          }).catch((err) => {
+            console.log(err)
+          })
+        }).catch((e) => {
+          this.product.auditStatus = '0'
+        })
+    }
+  },
   mounted() {
-  	if (this.$route.params.productId) {
-  		this.id = this.$route.params.productId
+  	if (this.$route.params.product) {
+  		this.product = this.$route.params.product
   	} else {
   		this.$router.push('/goods/list')
   	}
@@ -33,6 +65,10 @@ export default {
 </script>
 
 <style>
+.bt-box {
+  width: 365px;
+  margin: 20px auto;
+}
 .phone {
     margin: 60px 20px 0;
     background-repeat: no-repeat;

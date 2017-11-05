@@ -76,5 +76,9 @@ export const reqGoodsDetail = params => { return axios.get(`api/buyer/product/de
 export const reqOnSaleGoods = params => { return axios.post(`api/seller/product/on_sale`, params,  {headers: {'Content-Type':'text/plain'}}) }
 export const reqOffSaleGoods = params => { return axios.post(`api/seller/product/off_sale`, params, {headers: {'Content-Type':'text/plain'}}) }
 
+export const reqDistrList = params => { return axios.get(`api/distribution/list`, {params: params}) }
+export const reqDistrDetail = params => { return axios.get(`api/distribution/${params.id}`) }
+export const reqDistrEdit = params => { return axios.post(`api/distribution/${params.id}/edit`, params) }
+
 
 export const reqEbayGoods = params => { return axios.get(`api/goods/from_ebay`, { params: params }) }

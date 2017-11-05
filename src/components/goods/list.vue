@@ -4,7 +4,7 @@
       <el-breadcrumb separator="/">
         <el-breadcrumb-item :to="{ path: '/' }"><b>首页</b></el-breadcrumb-item>
         <el-breadcrumb-item>商品管理</el-breadcrumb-item>
-        <el-breadcrumb-item>已译商品列表</el-breadcrumb-item>
+        <el-breadcrumb-item>商品列表</el-breadcrumb-item>
       </el-breadcrumb>
     </el-col>
     <el-col :span="24" class="warp-main">
@@ -73,7 +73,7 @@
                   @click="offSale(scope.row)">下架</el-button>
           </template>
             	<el-button size="small" @click="goEdit(scope.row.id)">编辑</el-button>
-            	<el-button size="small" type="primary" @click="goPreview(scope.row.id)">预览</el-button>
+            	<el-button size="small" type="primary" @click="goPreview(scope.row)">审核</el-button>
         	</template>
     	</el-table-column>
   	</el-table>
@@ -102,14 +102,12 @@
         },
         goods: [],
         totalGoods: 0,
-        page: 1,
-        page_size: 10,
         loading: false,
       }
     },
     methods: {
       onSale(row) {
-        this.$confirm('确认删除该用户吗?', '提示', {type: 'warning'}).then(() => {
+        this.$confirm('确认上架该商品吗?', '提示', {type: 'warning'}).then(() => {
           reqOnSaleGoods(row.id).then((res) => {
             if (res.data.msg == '成功') {
               row.productStatus = '正常'
@@ -126,7 +124,7 @@
         })
       },
       offSale(row) {
-        this.$confirm('确认删除该用户吗?', '提示', {type: 'warning'}).then(() => {
+        this.$confirm('确认下架该商品吗?', '提示', {type: 'warning'}).then(() => {
           reqOffSaleGoods(row.id).then((res) => {
             if (res.data.msg == '成功') {
               row.productStatus = '下架'
@@ -150,11 +148,12 @@
             }
         })
       },
-      goPreview(id) {
+      goPreview(row) {
+        console.log(row)
         this.$router.push({
             name: '商品预览',
             params: {
-              productId: id
+              product: row
             }
         })
       },

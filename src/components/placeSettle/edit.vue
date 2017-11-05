@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <el-row class="warp">
     <el-col :span="24" class="warp-breadcrum">
       <el-breadcrumb separator="/">
@@ -190,3 +190,4 @@ export default {
 }
 
 </script>
+ -->

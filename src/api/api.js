@@ -50,8 +50,10 @@ export const reqGetAccountList = params => { return axios.get(`api/account/list`
 export const reqGetAccountSteted = params => { return axios.get(`api/account/account_stated`, { params: params }) }
 
 //提现管理
-export const reqGetWithdrawList = params => { return axios.get(`api/withdraw/list`, { params: params }) }
-export const reqGetWithdrawAudit = params => { return axios.get(`api/withdraw/audit`, { params: params }) }
+export const reqWithdrawList = params => { return axios.get(`api/user/account/withdraw/list`, { params: params }) }
+export const reqWithdrawAudit = params => { return axios.post(`api/user/account/withdraw/${params.id}/edit`, params) }
+
+
 export const reqGetWithdrawIssue = params => { return axios.get(`api/withdraw/issue`, { params: params }) }
 //对账管理
 export const reqReconciliationList = params => { return axios.get(`api/reconciliation/list`, { params: params }) }

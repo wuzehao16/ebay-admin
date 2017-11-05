@@ -33,11 +33,7 @@
 	  </el-col>
     <el-table ref="singleTable" :data="goods" v-loading='loading'  @current-change="setHighlight" style="width: 100%">
     	<el-table-column property="id" label="商品编号" width='100'></el-table-column>
-    	<el-table-column  label="ItemId" width='100'>
-        <template scope="scope">
-          无。。。
-        </template> 
-      </el-table-column>
+    	<el-table-column prop="ebayItemid"  label="ItemId" width='100'></el-table-column>
       <el-table-column property="productNane" label="商品名称" width='200'></el-table-column>
     	<el-table-column property="productStatus" label="商品状态" width='100'></el-table-column>
     	<el-table-column property="userWxOpenid" label="译者微信ID" width="140"></el-table-column>
@@ -56,12 +52,12 @@
     	</el-table-column>
     	<el-table-column label="翻译时间" width="150">
           <template scope="scope">
-            {{ scope.row.created ? formatDate(scope.row.created) : '--' }}
+            {{ fTimestamp(scope.row.created) }}
           </template> 
       </el-table-column>
-    	<el-table-column  label="审核时间">
+    	<el-table-column  label="审核时间" width="150">
           <template scope="scope">
-            {{ scope.row.updated ? formatDate(scope.row.updated) : '--' }}
+            {{ fTimestamp(scope.row.audited) }}
           </template>
       </el-table-column>
 	    <el-table-column label="操作" width='240' fixed="right">
@@ -98,7 +94,7 @@
         	userWxOpenid: '',
         	productStatus: '',
           page: 0,
-          size: 15
+          size: 10
         },
         goods: [],
         totalGoods: 0,
@@ -178,6 +174,10 @@
         		this.totalGoods = res.data.data.totalElements
         		this.goods = res.data.data.content
           }
+
+
+          console.log(this.goods[0])
+
       		this.loading = false
       	}).catch((err) => {
           this.loading = false
@@ -186,9 +186,6 @@
       },
       showAdd() {
       	this.$router.push('/goods/add')
-      },
-      formatDate(val) {
-        return util.formatDate.format(new Date(val), 'yyyy-MM-dd hh:mm')
       }
     },
     mounted() {

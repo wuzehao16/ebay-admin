@@ -6,6 +6,13 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-default/index.css'
 import '@/assets/iconfont.css'
 import router from './router'
+import util from './common/util'
+
+Vue.prototype.fTimestamp  = function(time) {
+    let t = '--'
+    time ? t = util.formatDate.format(new Date(time), 'yyyy-MM-dd hh:mm') : ''
+    return t
+}
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)

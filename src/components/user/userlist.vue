@@ -51,7 +51,7 @@
     	<el-table-column property="userWxOpenid" label="微信号"></el-table-column>
     	<el-table-column label="日期" width="160">
           <template scope="scope">
-          {{ scope.row.created ? formatDate(scope.row.created) : '--' }}
+          {{ fTimestamp(scope.row.created) }}
           </template> 
           
       </el-table-column>
@@ -114,7 +114,7 @@
         	userWxOpenid: '',
         	userCtype: '',
           page: 0,
-          size: 15
+          size: 10
         },
         users: [],
         totalUsers: 0,
@@ -130,9 +130,6 @@
         	usertype: '',
         	wechat_id: ''
         },
-
-
- 
       }
     },
     methods: {
@@ -145,9 +142,6 @@
       setPageChange(val) {
       	this.filterUsers.page = val - 1
       	this.getUsers()
-      },
-      formatDate(val) {
-        return util.formatDate.format(new Date(val), 'yyyy-MM-dd hh:mm')
       },
       //获取用户列表
       getUsers() {

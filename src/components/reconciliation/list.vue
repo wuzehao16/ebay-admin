@@ -191,6 +191,7 @@ console.log(res)
     		})
       },
       showEdit(row) {
+        console.log(row)
       	this.$router.push({
       		name: '对账处理',
       		params: {

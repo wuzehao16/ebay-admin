@@ -16,7 +16,6 @@
 		    <el-button type="primary" :loading="gettingGoods" :disabled="gettingGoods" @click="onSearch">提取</el-button>
 		  </el-form-item>
 		</el-form>
-
 		<template v-if="selected_ebay">
 		  <el-form ref="pro_info" :model="pro_info"  label-width="100px" >
 			  <el-form-item label="商品名称：">
@@ -24,7 +23,7 @@
 			    <el-input type="textarea" v-model="pro_info.productNane" placeholder="请翻译商品名称"></el-input>
 			  </el-form-item>
 			  <el-form-item label="商品价格：">
-				<label>{{ ebay.price.currency + " : " + ebay.price.value }}</label>
+				<label v-if='ebay.price'>{{ ebay.price.currency + " : " + ebay.price.value }}</label>
 			    <el-input type="textarea" v-model="pro_info.productPrice" placeholder="人民币价格￥"></el-input>
 			  </el-form-item>
 		
@@ -32,94 +31,56 @@
 				  <el-carousel :interval="41000" type="card" height="200px">
 				    <el-carousel-item v-for="(item, index) in pro_info.productPic.split('@')" :key="item">
 				      <li :style="{background:'url(' + item + ') center no-repeat'}" style="height:100%;list-style-type:none;" >
-				      	<i class="el-icon-close" style="position:absolute;" @click="delPic(index)"></i>
+				  <!--     	<i class="el-icon-close" style="position:absolute;" @click="delPic(index)"></i> -->
 				      </li>
 				    </el-carousel-item>
 				  </el-carousel>
 			  </el-form-item>
-
 			  <h2>其它参数：</h2>
-			  <template v-for="item in items">
-				  <el-form-item :label="'参数' + item + '名称：' ">
-					<label>{{ item }}xlujljdlsj:</label>	
-				    <el-input type="textarea" v-model="else_key[item]" :placeholder="'请翻译参数' + item + '名称' "></el-input>
+			  <template v-for="(item, index) in ebay.localizedAspects">
+				  <el-form-item :label="'参数' + (index + 1) + '名称：' ">
+					<label>{{ item.name }}</label>	
+				    <el-input type="textarea" v-model="else_key[index]" :placeholder="'请翻译参数' + (index + 1) + '名称' "></el-input>
 				  </el-form-item> 
-				  <el-form-item :label="'参数' + item + '内容：' ">
-					<label>{{ item }}lukjludjj kljafdoul jljl </label>	
-				    <el-input type="textarea" v-model="else_value[item]" :placeholder="'请翻译参数' + item + '内容' "></el-input>
+				  <el-form-item :label="'参数' + (index + 1) + '内容：' ">
+					<label>{{ item.value }}</label>	
+				    <el-input type="textarea" v-model="else_value[index]" :placeholder="'请翻译参数' + (index + 1) + '内容' "></el-input>
 				  </el-form-item>
 			  </template>
-		    <el-button type="primary" @click="onSave">提审</el-button>
-
+			<div style="text-align: center;">
+		    	<el-button type="primary" @click="onSave">提审</el-button>
+			</div>
 		  </el-form>
 		</template>
-
-
-
     </el-col>
-
-
-<!-- 列表选择ID -->
-	<!-- <el-dialog title="请选择：" :visible.sync="dialogTableVisible">
-		<el-table
-			ref="singleTable"
-			:data="ebay_goods"
-			
-			@current-change="handleCurrentChange"
-			style="width: 100%" height='300'>
-		<el-table-column
-		  type="index"
-		  width="60">
-		</el-table-column>
-		<el-table-column
-		  property="item_id"
-		  label="ItemId">
-		</el-table-column>
-		<el-table-column
-		  property="e_goods_name"
-		  label="商品名称">
-		</el-table-column>
-		</el-table>
-		<div slot="footer" class="dialog-footer">
-		  <el-button type="primary" @click.native="closeConfirm">确定</el-button>
-		</div>
-	</el-dialog> -->
   </el-row>	
-
-
-
 </template>
-
 
 <script>
 import { reqSaveGoods, reqGoodsDetail, reqEbayGoods } from '../../api/api'
-
 export default {
 	data() {
 		return {
 			gettingGoods: false,
 			crumbName: '商品新增',
-			items: 3,
 			else_key: [],
 			else_value: [],
 			isEdit: false,
 			productId: '',
-
 			itemId: '',
 			ebay: {},
 
-			ebay_goods: [],
-			dialogTableVisible: false,
 	        selected_ebay: false,
 	        pro_info: {//后台新增不需要openid
 	        	productNane: '',
 	        	productPrice: '',
+	        	ebayItemid: '',
 	        	items: [],
 	        	auditStatus: '0',
-	        	productPic: 'http://i5.hunantv.com/p1/20111122/1107306679.jpg@https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=275060115,3572286152&fm=27&gp=0.jpg@https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=638139655,3405095075&fm=27&gp=0.jpg',//多个图片以@连接
-	        	productIcon: 'http://i5.hunantv.com/p1/20111122/1107306679.jpg'
-	        },
-	        pro_info_bak: null
+	        	productStatus: '下架',
+	        	productPic: '',//多个图片以@连接
+	        	productIcon: ''
+	        }
 		}
 	},
 	methods: {
@@ -131,33 +92,43 @@ export default {
 	          background: 'rgba(0, 0, 0, 0.7)'
 	        })
 			for (let i in this.else_key) {
+				console.log(i)
 				if (!this.isEdit) {
 					this.pro_info.items.push({
 						attrName: this.else_key[i],
 						attrValue: this.else_value[i]
 					})					
 				} else {
-					let j = Number.parseInt(i) - 1
-					this.pro_info.items[j].attrName = this.else_key[i]
-					this.pro_info.items[j].attrValue = this.else_value[i]
+					this.pro_info.items[i].attrName = this.else_key[i]
+					this.pro_info.items[i].attrValue = this.else_value[i]
 				}
-
-
 			}
 			this.pro_info.productPrice = Number.parseFloat(this.pro_info.productPrice)
+			this.pro_info.ebayItemid = this.itemId
 			this.isEdit ? this.pro_info.productId = this.productId : ''
 			reqSaveGoods(this.pro_info).then((res) => {
+				loading.close()
 				if (res.data.msg == '成功') {
-					loading.close()
 					this.$message({
 						type: 'success',
 						message: '提审成功，系统为您跳转回列表页'
 					})
 					this.$router.push('/goods/list')
+				} else {
+					this.$message.error(res.data.msg)
 				}
+			}).catch((err) => {
+				loading.close()
+				this.$message.error('提交失败')
 			})
 		},
 		onSearch() {
+	        const loading2 = this.$loading({
+	          lock: true,
+	          text: 'Loading',
+	          spinner: 'el-icon-loading',
+	          background: 'rgba(0, 0, 0, 0.7)'
+	        })			
 			if (this.itemId.match(/^[ ]*$/)) {
 				this.$message.error("请输入Ebay商品ID")
 			} else {
@@ -169,109 +140,51 @@ export default {
 					} else if (res.data.itemId) {
 						this.ebay = res.data
 						this.selected_ebay = true
-						console.log(this.ebay)
-
-
-
+						console.log('ebay', this.ebay)
+						this.pro_info.productIcon = this.ebay.image.imageUrl
 						let imgArr = []
+						imgArr.push(this.pro_info.productIcon)
 						for (let i of this.ebay.additionalImages) {
 							imgArr.push(i.imageUrl)
 						}
 						this.pro_info.productPic = imgArr.join("@")
-						console.log(this.pro_info.productPic)
-
-
-					
-
-
-
 					}
-
-
-
+					loading2.close()
 					this.gettingGoods = false
 				})
-					.catch(err => { this.gettingGoods = false })
-				
+					.catch(err => { 
+						loading2.close()
+						this.gettingGoods = false 
+					})
 			}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*			this.selected_ebay = null
-			reqEbayGoods(this.searchForm).then((res) => {
-				let arr = res.data.ebay_goods
-				if ( arr.length === 0 ){
-					this.$message("没有此商品！")
-				} else if ( arr.length === 1 ) {
-					this.initGoodsDes(arr[0].e_des)
-					this.selected_ebay = arr[0]
-				} else {
-					//展示列表
-					this.ebay_goods = res.data.ebay_goods
-					this.dialogTableVisible = true
-				}
-			})*/
-		},
-		handleCurrentChange(val) {
-			if (val) {
-				this.initGoodsDes(val.e_des)
-			}
-			this.selected_ebay = val
-		},
-		closeConfirm() {
-			this.selected_ebay ? this.dialogTableVisible = false : this.$message("请选择商品！")
 		},
 		delPic(index) {
 			this.selected_ebay.e_pics.splice(index, 1)
-		},
-		initGoodsDes(arr) {
-			this.pro_info.goods_des = []
-			for ( let i = 0; i < arr.length; i++ ) {
-				this.pro_info.goods_des.push({
-					key: '',
-					value: ""
-				})
-			}			
 		}
 	},
 	mounted() {
 		this.productId = this.$route.params.productId
 		if (this.productId) {
+	        this.itemId = this.$route.params.ebayItemid
+	        this.onSearch()
 			this.isEdit = true
-			this.selected_ebay = true
 			this.crumbName = '商品编辑'
 			reqGoodsDetail({productId: this.productId}).then((res) => {
 	          let p = res.data.data
-	          this.items = p.productAttr.length
+	          console.log('p', p)
 	          this.pro_info = {
 	            auditStatus: '0',//待审核
+	            productStatus: '下架',
 	            productNane: p.name,
-	            productPic: p.pic.join('@'),
+	            productPic: (p.pic ? p.pic.join('@') : ''),
 	            productPrice: p.price,
 	            productIcon: p.icon,
 	            items: p.productAttr
 	          }
 	          for (let i in p.productAttr) {
-	            let j = Number.parseInt(i) + 1
-	            this.else_key[j] = p.productAttr[i].attrName
-	            this.else_value[j] = p.productAttr[i].attrValue
-	          }				
+	            this.else_key[i] = p.productAttr[i].attrName
+	            this.else_value[i] = p.productAttr[i].attrValue
+	          }
 			})
 		}
 	}

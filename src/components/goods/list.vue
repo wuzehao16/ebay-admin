@@ -68,7 +68,7 @@
               <el-button size="small" type="danger" v-else
                   @click="offSale(scope.row)">下架</el-button>
           </template>
-            	<el-button size="small" @click="goEdit(scope.row.id)">编辑</el-button>
+            	<el-button size="small" @click="goEdit(scope.row)">编辑</el-button>
             	<el-button size="small" type="primary" @click="goPreview(scope.row)">审核</el-button>
         	</template>
     	</el-table-column>
@@ -136,11 +136,12 @@
           console.log(e)
         })
       },
-      goEdit(id) {
+      goEdit(row) {
         this.$router.push({
             name: '商品新增',
             params: {
-              productId: id
+              productId: row.id,
+              ebayItemid: row.ebayItemid
             }
         })
       },

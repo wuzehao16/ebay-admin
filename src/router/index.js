@@ -3,11 +3,8 @@ import Router from 'vue-router'
 import Home from '@/components/Home'
 import Dashboard from '@/components/Dashboard'
 
-import BookList from '@/components/book/list'
-import BookCategoryList from '@/components/bookcategory/list'
-
 import UserList2 from '@/components/user/userlist'
-import UserList from '@/components/user/list'
+
 import OrderList from '@/components/order/list'
 import OrderEdit from '@/components/order/edit'
 import OrderDetail from '@/components/order/detail'
@@ -190,40 +187,6 @@ let router = new Router({
     },
     {path: '*', redirect: '/login'}
 
-/*
-    {
-      path: '/',
-      component: Home,
-      name: '用户管理',
-      menuShow: true,
-      leaf: true, // 只有一个节点
-      iconCls: 'iconfont icon-users', // 图标样式class
-      children: [
-        {path: '/user/list', component: UserList, name: '用户列表', menuShow: true}
-      ]
-    },
-    {
-      path: '/',
-      component: Home,
-      name: '图书管理',
-      menuShow: true,
-      iconCls: 'iconfont icon-books',
-      children: [
-        {path: '/book/list', component: BookList, name: '图书列表', menuShow: true},
-        {path: '/book/category', component: BookCategoryList, name: '图书分类', menuShow: true}
-      ]
-    },
-    {
-      path: '/',
-      component: Home,
-      name: '设置',
-      menuShow: true,
-      iconCls: 'iconfont icon-setting1',
-      children: [
-        {path: '/user/profile', component: UserProfile, name: '个人信息', menuShow: true},
-        {path: '/user/changepwd', component: UserChangePwd, name: '修改密码', menuShow: true}
-      ]
-    }*/
   ]
 })
 

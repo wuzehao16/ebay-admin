@@ -100,8 +100,7 @@
             	<el-button v-if="scope.row.auditStatus == '0'" size="small" type="primary" 
             		@click="showAudit(scope.row)">审核</el-button>
             	<el-button v-if="scope.row.audit_status == 1 && scope.row.issue_status == 0" 
-            		size="small" type="primary" 
-            		@click="issueWithdraw(scope.row)">发放</el-button>
+            		size="small" type="primary">发放</el-button>
         	</template>
     	</el-table-column>
   	</el-table>
@@ -115,7 +114,7 @@
   </el-row>
 </template>
 <script>
-  import {  reqWithdrawList, reqGetWithdrawIssue } from '../../api/api';
+  import {  reqWithdrawList } from '../../api';
   export default{
     data(){
       return {
@@ -152,17 +151,6 @@
             this.loading = false            
           }
     		})
-      },
-      issueWithdraw(row) {
-    	reqGetWithdrawIssue(row).then((res) => {
-    		console.log(res)
-            this.$message({
-              message: '提交成功',
-              type: 'success'
-            });
-            row.issue_status = 1  
-    	})
-
       },
       showAudit(row, isDetail) {
         let d = row

@@ -175,7 +175,7 @@
 
 
 <script>
-  import {  reqWechatReplyEdit, reqWechatReplyDelete,reqWechatReplyAdd, reqWechatReply } from '../../api/api';
+  import {  reqWechatReplyEdit, reqWechatReplyDelete,reqWechatReplyAdd, reqWechatReply } from '../../api';
 
   export default{
     data(){

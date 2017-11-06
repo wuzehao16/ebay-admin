@@ -1,28 +1,14 @@
-import axios from 'axios'
+/*import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+
 
 export const requestLogin = params => { return axios.post(`/sell/login`, params).then(res => res.data) }
 
 export const reqSaveUserProfile = params => { return axios.post(`/sell/user/profile`, params).then(res => res.data) }
 
-export const reqGetUserList = params => { return axios.get(`/sell/ebay/user/list`, { params: params }) }
+export const reqGetUserList = params => { return axios.get(`${base}/sell/ebay/user/list`, { params: params }) }
 export const reqDeleteUser = params => { return axios.delete(`/sell/ebay/user/${params.id}/delete`) }
 export const reqEditUser = params => { return axios.post(`/sell/ebay/user/${params.id}/update`, params) }
-
-
-
-export const reqGetUserList2 = params => { return axios.get(`/sell/userb/list`, { params: params }) }
-
-
-export const reqGetBookListPage = params => { return axios.get(`/sell/book/list`, { params: params }) }
-
-export const reqDeleteBook = params => { return axios.get(`/sell/book/delete`, { params: params }) }
-
-export const reqEditBook = params => { return axios.get(`/sell/book/edit`, { params: params }) }
-
-export const reqBatchDeleteBook = params => { return axios.get(`/sell/book/batchdelete`, { params: params }) }
-
-export const reqAddBook = params => { return axios.get(`/sell/book/add`, { params: params }) }
 
 //订单管理
 export const reqGetOrderList = params => { return axios.get(`/sell/order/list`, { params: params }) }
@@ -33,11 +19,6 @@ export const reqEditOrder = params => { return axios.get(`/sell/order/edit`, { p
 
 export const reqAddOrder = params => { return axios.get(`/sell/order/add`, { params: params }) }
 
-//分销结算
-export const reqGetPlaceList = params => { return axios.get(`/sell/place_settle/list`, { params: params }) }
-export const reqGetPlaceEdit = params => { return axios.get(`/sell/place_settle/edit`, { params: params }) }
-export const reqGetPlaceSettle = params => { return axios.get(`/sell/place_settle/settle`, { params: params }) }
-
 //账户管理
 export const reqGetAccountList = params => { return axios.get(`/sell/account/list`, { params: params }) }
 export const reqGetAccountSteted = params => { return axios.get(`/sell/account/account_stated`, { params: params }) }
@@ -46,8 +27,6 @@ export const reqGetAccountSteted = params => { return axios.get(`/sell/account/a
 export const reqWithdrawList = params => { return axios.get(`/sell/user/account/withdraw/list`, { params: params }) }
 export const reqWithdrawAudit = params => { return axios.post(`/sell/user/account/withdraw/${params.id}/edit`, params) }
 
-
-export const reqGetWithdrawIssue = params => { return axios.get(`/sell/withdraw/issue`, { params: params }) }
 //对账管理
 export const reqCheckList = params => { return axios.get(`/sell/user/account/check/list`, { params: params }) }
 
@@ -79,3 +58,4 @@ export const reqEbayGoods = params => { return axios.get(`/sell/ebay/getGoodsInf
 export const reqDistrList = params => { return axios.get(`/sell/distribution/list`, {params: params}) }
 export const reqDistrDetail = params => { return axios.get(`/sell/distribution/${params.id}`) }
 export const reqDistrEdit = params => { return axios.post(`/sell/distribution/${params.id}/edit`, params) }
+*/

@@ -115,7 +115,7 @@
             <el-col :span='16'>
               <el-form-item label='审核结论'>
                 <el-radio-group v-model='distrInfo.auditStatus'>
-                    <el-radio v-for="i in auditStatusOptions" 
+                    <el-radio v-for="i in auditStatusOptions"  :key="i.value"
                     :label="i.value">{{ i.label }}</el-radio>
                 </el-radio-group>
               </el-form-item>
@@ -146,7 +146,7 @@
   </el-row>
 </template>
 <script>
-import { reqDistrEdit, reqDistrDetail } from '../../api/api';
+import { reqDistrEdit, reqDistrDetail } from '../../api';
 
 export default {
   data() {

@@ -112,7 +112,7 @@
   </el-row>
 </template>
 <script>
-import { reqCheckList } from "../../api/api";
+import { reqCheckList } from "../../api";
 import util from "../../common/util";
 export default {
   data() {

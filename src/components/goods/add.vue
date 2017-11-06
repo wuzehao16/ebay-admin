@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { reqSaveGoods, reqGoodsDetail, reqEbayGoods } from '../../api/api'
+import { reqSaveGoods, reqGoodsDetail, reqEbayGoods } from '../../api'
 export default {
 	data() {
 		return {

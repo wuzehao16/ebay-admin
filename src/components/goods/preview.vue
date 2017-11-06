@@ -18,7 +18,7 @@
   </el-row>  
 </template>
 <script>
-import {reqSaveGoods} from '../../api/api'
+import {reqSaveGoods} from '../../api'
 export default {
   data() {
   	return {

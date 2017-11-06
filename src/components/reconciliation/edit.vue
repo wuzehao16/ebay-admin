@@ -32,7 +32,7 @@
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='联系电话'>
+              <el-form-item label='联系电话'v-if="reconc.user">
                 <el-input v-model="reconc.user.userPhone" placeholder="联系电话" disabled></el-input>
               </el-form-item>
             </el-col>
@@ -75,7 +75,7 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='Ebay状态'>
-				<el-select v-model.number="reconc.ebayStatus" placeholder="Ebay状态" disabled>
+				<el-select v-model="reconc.ebayStatus" placeholder="Ebay状态" disabled>
 	    		<el-option key="0" label="处理中" value="0"></el-option>
 	    		<el-option key="1" label="成功" value="1"></el-option>
 	    		<el-option key="2" label="失败" value="2"></el-option>
@@ -87,7 +87,7 @@
           <el-row type="flex" class="row-bg"  :gutter='20'>
             <el-col :span='8' :offset="4">
               <el-form-item label='核对状态'>
-				<el-select v-model.number="reconc.checkStatus" placeholder="核对状态">
+				<el-select v-model="reconc.checkStatus" placeholder="核对状态">
 	    		<el-option key="0" label="异常" value="0"></el-option>
 	    		<el-option key="1" label="修复中" value="1"></el-option>
 	    		<el-option key="2" label="正常" value="2"></el-option>
@@ -100,7 +100,7 @@
             <el-col :span='16'>
               <el-form-item label='审核意见'>
 				<el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
-				  v-model="reconc.deal_opinion">
+				  v-model="reconc.handleMemo">
 				</el-input>
               </el-form-item>
             </el-col>
@@ -119,58 +119,67 @@
   </el-row>
 </template>
 <script>
-import { reqReconciliationEdit } from '../../api/api';
+import { reqReconciliationEdit } from "../../api/api";
 
 export default {
   data() {
     return {
       reconc: {
-        ebayStatus:"",
-        platformStatus:"",
-        user:{}
+        ebayStatus: "",
+        platformStatus: "",
+        handleMemo: "",
+        user: {}
       },
       reconc_bak: {},
-      tradeTypeOptions: [{
-      		value: 0,
-      		label: '收入'
-      	},{
-      		value: 1,
-      		label: '支出'
-      	}
-      ],
-    }
+      tradeTypeOptions: [
+        {
+          value: 0,
+          label: "收入"
+        },
+        {
+          value: 1,
+          label: "支出"
+        }
+      ]
+    };
   },
   methods: {
     editSubmit() {
-      console.log(this.reconc)
-      let params = {id:this.reconc.id,params:this.reconc}
-    	reqReconciliationEdit(params).then((res) => {
-            this.$message({
-              message: '提交成功',
-              type: 'success'
-            });
-    	})
+      console.log(this.reconc);
+      let params = {
+        id: this.reconc.id,
+        params: {
+          handleMemo: this.reconc.handleMemo,
+          checkStatus:this.reconc.checkStatus
+        }
+      };
+      reqReconciliationEdit(params).then(res => {
+        this.$message({
+          message: "提交成功",
+          type: "success"
+        });
+        this.toOrderList();
+      });
     },
     resetOrder() {
-    	this.reconc = Object.assign( {}, this.reconc_bak)    	
+      this.reconc = Object.assign({}, this.reconc_bak);
     },
     toOrderList() {
-    	this.$router.push('/reconciliation/list')
+      this.$router.push("/reconciliation/list");
     },
-    timeStampToTime(){
-      if(this.reconc.ebayTime){
-        this.reconc.ebayTime =this.fTimestamp(this.reconc.ebayTime)
+    timeStampToTime() {
+      if (this.reconc.ebayTime) {
+        this.reconc.ebayTime = this.fTimestamp(this.reconc.ebayTime);
       }
-      if(this.reconc.platformTime){
-        this.reconc.platformTime = this.fTimestamp(this.reconc.platformTime)
+      if (this.reconc.platformTime) {
+        this.reconc.platformTime = this.fTimestamp(this.reconc.platformTime);
       }
     }
   },
   mounted() {
-    this.reconc = this.$route.params.reconciliation
+    this.reconc = this.$route.params.reconciliation;
     this.timeStampToTime();
-	Object.assign( this.reconc_bak, this.$route.params.reconciliation )
+    Object.assign(this.reconc_bak, this.$route.params.reconciliation);
   }
-}
-
+};
 </script>

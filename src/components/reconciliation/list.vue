@@ -46,7 +46,7 @@
 
     <el-table ref="singleTable" :data="re_list" v-loading='loading'  @current-change="setHighlight" height='600' style="width: 100%">
     	<el-table-column type="index" width="60"> </el-table-column>
-    	<el-table-column property="tradeNo" label="交易号" width='200'></el-table-column>
+    	<el-table-column property="tradeNo" label="交易号" width='120'></el-table-column>
     	<el-table-column label="交易类型" width='140'>
     		<template scope="scope">
         <template v-if="scope.row.accountItem">
@@ -80,6 +80,7 @@
     	<el-table-column label="E-交易时间" width='200'>
           <template scope="scope">{{ fTimestamp(scope.row.ebayTime) }}</template> 
       </el-table-column>
+      <el-table-column prop="handleMemo" label="处理意见" min-width='400'></el-table-column>
       <el-table-column prop="checkStatus" fixed="right" label="核对状态" width="120" :filters="[{ text: '异常', value: '0' }, { text: '修复中', value: '1' }, { text: '正常', value: '2' }]" :filter-method="filterTag" filter-placement="bottom-end">
           <template scope="scope">
             <template v-if="scope.row.checkStatus == '1'">
@@ -111,111 +112,113 @@
   </el-row>
 </template>
 <script>
-  import {  reqCheckList } from '../../api/api';
-  import util from '../../common/util'
-  export default{
-    data(){
-      return {
-        trade_time: '',
-        filters: {
-        	tradeNo: '',
-        	userName: '',
-        	auditStatus: '',
-        	startDate: '',
-        	endDate: '',
+import { reqCheckList } from "../../api/api";
+import util from "../../common/util";
+export default {
+  data() {
+    return {
+      trade_time: "",
+      filters: {
+        tradeNo: "",
+        userName: "",
+        auditStatus: "",
+        startDate: "",
+        endDate: "",
 
-          page: 0,
-          size: 10
-        },
-        loading: false,
-        total: 0,
-        re_list: [],
-        //选择时间相关
-        pickerOptions: {
-          shortcuts: [{
-            text: '最近一周',
+        page: 0,
+        size: 10
+      },
+      loading: false,
+      total: 0,
+      re_list: [],
+      //选择时间相关
+      pickerOptions: {
+        shortcuts: [
+          {
+            text: "最近一周",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }, {
-            text: '最近一个月',
+          },
+          {
+            text: "最近一个月",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }, {
-            text: '最近三个月',
+          },
+          {
+            text: "最近三个月",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }]
-        },         
-      }
-    },
-    methods: {
-      filterTag(value, row) {
-        if (value == '1' || value == '2' ) {
-          return row.checkStatus == value;
-        } else {
-          return row.checkStatus != '1' && row.checkStatus != '2' 
-        }
-      },
-      setHighlight(val) {
-      	this.currentRow = val
-      },
-      setPageChange(val) {
-        if (this.filters.page == val - 1) { return false }
-      	this.filters.page = val - 1
-      	this.getReconList()
-      },
-      getReconList() {
-   	    this.loading = true
-    		reqCheckList(this.filters).then((res) => {
-
-console.log(res)
-          let r = res.data.data
-          if (r) {
-      			this.total = r.total
-      			this.re_list = r.content
-            
           }
-      		this.loading = false
-    		})
-      },
-      showEdit(row) {
-        console.log(row)
-      	this.$router.push({
-      		name: '对账处理',
-      		params: {
-      			reconciliation: row
-      		}
-      	})
+        ]
+      }
+    };
+  },
+  methods: {
+    filterTag(value, row) {
+      if (value == "1" || value == "2") {
+        return row.checkStatus == value;
+      } else {
+        return row.checkStatus != "1" && row.checkStatus != "2";
       }
     },
-    watch: {
-      trade_time(val) {
-        if (val[0]) {
-          this.filters.startDate = this.fTimestamp(val[0]).substring(0, 10)
-          this.filters.endDate = this.fTimestamp(val[1]).substring(0, 10)
-        } else {
-          this.filters.startDate = ''
-          this.filters.endDate = ''
-        }
-      }
+    setHighlight(val) {
+      this.currentRow = val;
     },
-    mounted() {
+    setPageChange(val) {
+      if (this.filters.page == val - 1) {
+        return false;
+      }
+      this.filters.page = val - 1;
       this.getReconList();
-
-
+    },
+    getReconList() {
+      this.loading = true;
+      reqCheckList(this.filters).then(res => {
+        console.log(res);
+        let r = res.data.data;
+        if (r) {
+          this.total = r.total;
+          this.re_list = r.content;
+        }
+        this.loading = false;
+      });
+    },
+    showEdit(row) {
+      console.log(row);
+      this.$router.push({
+        name: "对账处理",
+        params: {
+          reconciliation: row
+        }
+      });
     }
+  },
+  watch: {
+    trade_time(val) {
+      if (val[0]) {
+        this.filters.startDate = this.fTimestamp(val[0]).substring(0, 10);
+        this.filters.endDate = this.fTimestamp(val[1]).substring(0, 10);
+      } else {
+        this.filters.startDate = "";
+        this.filters.endDate = "";
+      }
+    }
+  },
+  mounted() {
+    this.getReconList();
   }
+};
 </script>
 

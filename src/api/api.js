@@ -33,13 +33,6 @@ export const reqEditOrder = params => { return axios.get(`/sell/order/edit`, { p
 
 export const reqAddOrder = params => { return axios.get(`/sell/order/add`, { params: params }) }
 
-//订单异常
-export const reqGetExOrderList = params => { return axios.get(`/sell/ex_order/list`, { params: params }) }
-
-export const reqEditExOrder = params => { return axios.get(`/sell/ex_order/edit`, { params: params }) }
-
-export const reqAddExOrder = params => { return axios.get(`/sell/ex_order/add`, { params: params }) }
-
 //分销结算
 export const reqGetPlaceList = params => { return axios.get(`/sell/place_settle/list`, { params: params }) }
 export const reqGetPlaceEdit = params => { return axios.get(`/sell/place_settle/edit`, { params: params }) }
@@ -58,8 +51,7 @@ export const reqGetWithdrawIssue = params => { return axios.get(`/sell/withdraw/
 //对账管理
 export const reqCheckList = params => { return axios.get(`/sell/user/account/check/list`, { params: params }) }
 
-
-export const reqReconciliationEdit = params => { return axios.get(`/sell/reconciliation/edit`, { params: params }) }
+export const reqReconciliationEdit = params => { return axios.post(`/sell/user/account/check/${params.id}/edit`,  params.params ) }
 export const reqReconciliationDetail = params => { return axios.get(`/sell/reconciliation/detail`, { params: params }) }
 
 //微信管理

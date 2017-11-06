@@ -149,13 +149,17 @@
     			{{ scope.row.order_source == "0" ? 'PC端':'移动端' }}
     		</template>
     	</el-table-column>    	
-    	<el-table-column property="created" label="创建时间" width='150' :formatter="dateFormat"></el-table-column>
+    	<el-table-column  label="创建时间" width='150' >
+				<template scope="scope">
+					{{fTimestamp(scope.row.created)}}
+				</template>
+			</el-table-column>
 
 
 	    <el-table-column fixed="right" label="操作" width='200'>
         	<template scope="scope">
-            	<el-button size="small" type="primary" @click='showDetail(scope.row)'>详情</el-button>
-            	<el-button size="small" @click="showEdit(scope.row)">编辑</el-button>
+            	<el-button size="small" type="primary" @click='showDetail(scope)'>详情</el-button>
+            	<el-button size="small" @click="showEdit(scope)">编辑</el-button>
 							<el-button size="small" type="danger" @click="cancelOrder(scope.row)">取消</el-button>
         	</template>
     	</el-table-column>
@@ -231,24 +235,25 @@
       	Object.assign(pa, this.filterOrders)
   	    this.orderLoading = true
       	reqGetOrderList(pa).then((res) => {
-      		this.total = res.data.total
-      		this.orders = res.data.data
+      		this.total = res.data.data.total
+      		this.orders = res.data.data.content
       		this.orderLoading = false
       	})
       },
-      showEdit(row) {
+      showEdit(scope) {
       	this.$router.push({
       		name:'订单编辑',
       		params:{
-      			order: row
+      			order: this.orders[scope.$index]
       		}
       	})
       },
-      showDetail(row) {
+      showDetail(scope) {
+				console.log(this.orders[scope.$index])
       	this.$router.push({
       		name:'订单详情',
       		params:{
-      			order: row
+      			order: this.orders[scope.$index]
       		}
       	})      	
       },

@@ -48,7 +48,7 @@
 	    <el-table-column fixed="right" label="操作" width='220'>
         	<template scope="scope">
             	<el-button size="small" type="primary" v-show="showflag" @click="showChildren(scope.row)">二级菜单</el-button>
-            	<el-button size="small" @click="deleteSubmit(scope.row,scope.$index)">删除</el-button>
+            	<el-button size="small" type="danger" @click="deleteSubmit(scope.row,scope.$index)">删除</el-button>
         	</template>
     	</el-table-column>
   	</el-table>

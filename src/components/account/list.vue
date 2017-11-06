@@ -65,7 +65,8 @@
         	userName: '',
           userPhone: '',
           data:[],
-        	udpateDate: ""
+          startDate:"",
+          endDate:""
         },
         page_size: 20,
         loading: false,
@@ -125,9 +126,14 @@
       		page: this.orderPage -1,
       		page_size: this.page_size
         }
-        if(this.filterAccounts.data && this.filterAccounts.data.length >0){
-        this.filterAccounts.udpateDate = this.filterAccounts.data[0].getTime()+'-'+this.filterAccounts.data[1].getTime()
+        if(this.filterAccounts.data && this.filterAccounts.data.length >0 && this.filterAccounts.data[0]!=null){
+        this.filterAccounts.startDate = this.filterAccounts.data[0].toJSON().split("T")[0]
+        this.filterAccounts.endDate = this.filterAccounts.data[1].toJSON().split("T")[0]
+        } else{
+          this.filterAccounts.startDate = "";
+          this.filterAccounts.endData = "";
         }
+        console.log(this.filterAccounts);
       	Object.assign(pa, this.filterAccounts)
   	    this.loading = true
 	  

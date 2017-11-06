@@ -32,10 +32,10 @@
 
 
     <el-table ref="singleTable" :data="users" v-loading='userLoading'  @current-change="setHighlight" style="width: 100%">
-    	<el-table-column property="id" label="会员编号" width="100"></el-table-column>
-    	<el-table-column property="userName" label="会员姓名" width="100"></el-table-column>
-    	<el-table-column property="userPhone" label="手机号码" width='130'></el-table-column>
-    	<el-table-column prop="userCtype" label="会员类型" width="120" :filters="[{ text: '分销商', value: '1' }, { text: '普通用户', value: '2' }]" :filter-method="filterTag" filter-placement="bottom-end">
+    	<el-table-column property="id" label="会员编号" min-width="100"></el-table-column>
+    	<el-table-column property="userName" label="会员姓名" min-width="100"></el-table-column>
+    	<el-table-column property="userPhone" label="手机号码" min-width='130'></el-table-column>
+    	<el-table-column prop="userCtype" label="会员类型" min-width="120" :filters="[{ text: '分销商', value: '1' }, { text: '普通用户', value: '2' }]" :filter-method="filterTag" filter-placement="bottom-end">
         	<template scope="scope">
             <template v-if="scope.row.userCtype == '2'">
               <el-tag type='primary' close-transition>普通用户</el-tag>
@@ -49,7 +49,7 @@
         	</template>
     	</el-table-column>
     	<el-table-column property="userWxOpenid" label="微信号"></el-table-column>
-    	<el-table-column label="日期" width="160">
+    	<el-table-column label="日期" min-width="160">
           <template scope="scope">
           {{ fTimestamp(scope.row.created) }}
           </template> 

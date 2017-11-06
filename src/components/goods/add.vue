@@ -8,12 +8,12 @@
       </el-breadcrumb>
     </el-col>
     <el-col :span="24" class="warp-main">
-		<el-form inline :model="searchForm" class="demo-form-inline" v-if="!isEdit">
+		<el-form inline class="demo-form-inline" v-if="!isEdit">
 		  <el-form-item label="Ebay原链">
-		    <el-input v-model="searchForm.item_id" placeholder="ItemId"></el-input>
+		    <el-input v-model="itemId" placeholder="ItemId"></el-input>
 		  </el-form-item>
 		  <el-form-item>
-		    <el-button type="primary" @click="onSearch">提取</el-button>
+		    <el-button type="primary" v-loading="gettingGoods" :disabled="gettingGoods" @click="onSearch">提取</el-button>
 		  </el-form-item>
 		</el-form>
 
@@ -92,11 +92,12 @@
 
 
 <script>
-import { reqSaveGoods, reqGoodsDetail } from '../../api/api'
+import { reqSaveGoods, reqGoodsDetail, reqEbayGoods } from '../../api/api'
 
 export default {
 	data() {
 		return {
+			gettingGoods: false,
 			crumbName: '商品新增',
 			items: 3,
 			else_key: [],
@@ -104,9 +105,9 @@ export default {
 			isEdit: false,
 			productId: '',
 
-			searchForm: {
-				item_id: ''
-			},
+			itemId: '',
+			ebay: {},
+
 			ebay_goods: [],
 			dialogTableVisible: false,
 	        selected_ebay: false,
@@ -162,7 +163,47 @@ export default {
 			})
 		},
 		onSearch() {
-			this.selected_ebay = true
+			if (this.itemId.match(/^[ ]*$/)) {
+				this.$message.error("请输入Ebay商品ID")
+			} else {
+				this.gettingGoods = true
+				let itemId = 'v1|' + this.itemId + '|0'
+				reqEbayGoods({itemId}).then((res) => {
+					console.log(res)
+					if (res.data.errors) {
+						this.$message.error('找不到该商品！')
+					} else if (res.data.itemId) {
+						this.ebay = res.data
+						this.selected_ebay = true
+						
+					}
+
+
+
+					this.gettingGoods = false
+				})
+					.catch(err => { this.gettingGoods = false })
+				
+			}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*			this.selected_ebay = null
 			reqEbayGoods(this.searchForm).then((res) => {
 				let arr = res.data.ebay_goods

@@ -73,12 +73,12 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='收货姓名'>
-                <el-input v-model="orderInfo.consignee" placeholder="收货姓名"></el-input>
+                <el-input v-model="orderInfo.buyerName" placeholder="收货姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='收货电话'>
-                <el-input v-model="orderInfo.consignee_tel" placeholder="收货电话"></el-input>
+                <el-input v-model="orderInfo.buyerPhone" placeholder="收货电话"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -100,11 +100,11 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
               <el-form-item label='订单状态'>
-                <el-radio-group v-model='orderInfo.order_status'>
-                  <el-radio :label="0">待付款</el-radio>
-                  <el-radio :label="1">待发货</el-radio>
-                  <el-radio :label="2">待签收</el-radio>
-                  <el-radio :label="3">已签收</el-radio>
+                <el-radio-group v-model='orderInfo.orderStatus'>
+                  <el-radio :label="'0'">待付款</el-radio>
+                  <el-radio :label="'1'">待发货</el-radio>
+                  <el-radio :label="'2'">待签收</el-radio>
+                  <el-radio :label="'3'">已签收</el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-col>
@@ -112,11 +112,11 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
               <el-form-item label='Ebay状态'>
-                <el-radio-group v-model='orderInfo.ebay_status'>
-                  <el-radio :label="0">待付款</el-radio>
-                  <el-radio :label="1">已付款</el-radio>
-                  <el-radio :label="2">已发货</el-radio>
-                  <el-radio :label="3">已签收</el-radio>
+                <el-radio-group v-model='orderInfo.ebayStatus'>
+                  <el-radio :label="'0'">待付款</el-radio>
+                  <el-radio :label="'1'">已付款</el-radio>
+                  <el-radio :label="'2'">已发货</el-radio>
+                  <el-radio :label="'3'">已签收</el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-col>
@@ -125,10 +125,10 @@
             <el-col :span='16'>
               <el-form-item label='物流状态'>
                 <el-radio-group v-model='orderInfo.logistics_status'>
-                  <el-radio :label="0">海外仓已入库</el-radio>
-                  <el-radio :label="1">海外仓已出库</el-radio>
-                  <el-radio :label="2">清关中</el-radio>
-                  <el-radio :label="3">派送中</el-radio>
+                  <el-radio :label="'0'">海外仓已入库</el-radio>
+                  <el-radio :label="'1'">海外仓已出库</el-radio>
+                  <el-radio :label="'2'">清关中</el-radio>
+                  <el-radio :label="'3'">派送中</el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-col>

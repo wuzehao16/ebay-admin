@@ -80,7 +80,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='收货姓名'>
-                <el-input v-model="orderInfo.consignee" placeholder="收货姓名"></el-input>
+                <el-input v-model="orderInfo.buyerName" placeholder="收货姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -107,7 +107,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
               <el-form-item label='订单状态'>
-                <el-radio-group v-model='orderInfo.order_status'>
+                <el-radio-group v-model='orderInfo.orderStatus'>
                   <el-radio :label="0">待付款</el-radio>
                   <el-radio :label="1">待发货</el-radio>
                   <el-radio :label="2">待签收</el-radio>
@@ -119,7 +119,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
               <el-form-item label='Ebay状态'>
-                <el-radio-group v-model='orderInfo.ebay_status'>
+                <el-radio-group v-model='orderInfo.ebayStatus'>
                   <el-radio :label="0">待付款</el-radio>
                   <el-radio :label="1">已付款</el-radio>
                   <el-radio :label="2">已发货</el-radio>
@@ -165,10 +165,10 @@ export default {
     return {
       orderInfo: {
         order_id: "",
-        order_status: 0,
+        orderStatus: 0,
         order_source: 0,
         ebayNo: "",
-        ebay_status: 0,
+        ebayStatus: 0,
         name: "",
         user_type: 0,
         create_time: "",
@@ -176,7 +176,7 @@ export default {
         logistics_fees: 0,
         logistics_status: 0,
         pay_type: "微信支付",
-        consignee: "",
+        buyerName: "",
         phone: "",
         consignee_id: "",
         consignee_address: [],

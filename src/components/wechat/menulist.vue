@@ -45,7 +45,7 @@
     	<el-table-column property="crtTime" label="创建时间" width='200' :formatter="dateFormat"></el-table-column>
     	<el-table-column property="uptTime" label="更新时间" width='200' :formatter="dateFormat"></el-table-column>
     
-	    <el-table-column fixed="right" label="操作" width='220'>
+	    <el-table-column fixed="right" label="操作" width='260'>
         	<template scope="scope">
             	<el-button size="small" type="primary" v-show="showflag" @click="showChildren(scope.row)">二级菜单</el-button>
             	<el-button size="small" type="danger" @click="deleteSubmit(scope.row,scope.$index)">删除</el-button>

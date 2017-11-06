@@ -166,7 +166,7 @@
   	</el-table>
   	<!--工具条-->
     <el-col :span="24" class="toolbar">
-        <el-pagination layout="prev, pager, next" @current-change="setPageChange" :page-size="page_size" :total="total" style="float:right;">
+        <el-pagination layout="prev, pager, next" @current-change="setPageChange" :page-size="size" :total="total" style="float:right;">
         </el-pagination>
     </el-col>
 
@@ -193,7 +193,7 @@
 					orderNo: '',
 					ebayNo:""
         },
-        page_size: 20,
+        size: 20,
         orderLoading: false,
         orderPage: 1,
         total: 0,
@@ -229,13 +229,13 @@
       getOrders() {
 
       	let pa = {
-      		page: this.orderPage,
-      		page_size: this.page_size
+      		page: this.orderPage - 1,
+      		size: this.size
       	}
       	Object.assign(pa, this.filterOrders)
   	    this.orderLoading = true
       	reqGetOrderList(pa).then((res) => {
-      		this.total = res.data.data.total
+      		this.total = res.data.data.totalElements
       		this.orders = res.data.data.content
       		this.orderLoading = false
       	})

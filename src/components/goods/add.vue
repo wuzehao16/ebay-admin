@@ -13,18 +13,18 @@
 		    <el-input v-model="itemId" placeholder="ItemId"></el-input>
 		  </el-form-item>
 		  <el-form-item>
-		    <el-button type="primary" v-loading="gettingGoods" :disabled="gettingGoods" @click="onSearch">提取</el-button>
+		    <el-button type="primary" :loading="gettingGoods" :disabled="gettingGoods" @click="onSearch">提取</el-button>
 		  </el-form-item>
 		</el-form>
 
 		<template v-if="selected_ebay">
 		  <el-form ref="pro_info" :model="pro_info"  label-width="100px" >
 			  <el-form-item label="商品名称：">
-				<label>YSL YSL MARRY ME MARRY ME</label>
+				<label>{{ ebay.title }}</label>
 			    <el-input type="textarea" v-model="pro_info.productNane" placeholder="请翻译商品名称"></el-input>
 			  </el-form-item>
 			  <el-form-item label="商品价格：">
-				<label>Price：$4432.23</label>
+				<label>{{ ebay.price.currency + " : " + ebay.price.value }}</label>
 			    <el-input type="textarea" v-model="pro_info.productPrice" placeholder="人民币价格￥"></el-input>
 			  </el-form-item>
 		
@@ -60,7 +60,7 @@
 
 
 <!-- 列表选择ID -->
-	<el-dialog title="请选择：" :visible.sync="dialogTableVisible">
+	<!-- <el-dialog title="请选择：" :visible.sync="dialogTableVisible">
 		<el-table
 			ref="singleTable"
 			:data="ebay_goods"
@@ -83,7 +83,7 @@
 		<div slot="footer" class="dialog-footer">
 		  <el-button type="primary" @click.native="closeConfirm">确定</el-button>
 		</div>
-	</el-dialog>
+	</el-dialog> -->
   </el-row>	
 
 
@@ -131,8 +131,6 @@ export default {
 	          background: 'rgba(0, 0, 0, 0.7)'
 	        })
 			for (let i in this.else_key) {
-				console.log(i)
-				console.log(this.else_key[i], this.else_value[i])
 				if (!this.isEdit) {
 					this.pro_info.items.push({
 						attrName: this.else_key[i],
@@ -148,10 +146,7 @@ export default {
 			}
 			this.pro_info.productPrice = Number.parseFloat(this.pro_info.productPrice)
 			this.isEdit ? this.pro_info.productId = this.productId : ''
-			console.log(this.pro_info)
-
 			reqSaveGoods(this.pro_info).then((res) => {
-				console.log('kdjfdkj')
 				if (res.data.msg == '成功') {
 					loading.close()
 					this.$message({
@@ -169,13 +164,27 @@ export default {
 				this.gettingGoods = true
 				let itemId = 'v1|' + this.itemId + '|0'
 				reqEbayGoods({itemId}).then((res) => {
-					console.log(res)
 					if (res.data.errors) {
 						this.$message.error('找不到该商品！')
 					} else if (res.data.itemId) {
 						this.ebay = res.data
 						this.selected_ebay = true
-						
+						console.log(this.ebay)
+
+
+
+						let imgArr = []
+						for (let i of this.ebay.additionalImages) {
+							imgArr.push(i.imageUrl)
+						}
+						this.pro_info.productPic = imgArr.join("@")
+						console.log(this.pro_info.productPic)
+
+
+					
+
+
+
 					}
 
 

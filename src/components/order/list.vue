@@ -149,7 +149,11 @@
     			{{ scope.row.order_source == "0" ? 'PC端':'移动端' }}
     		</template>
     	</el-table-column>    	
-    	<el-table-column property="created" label="创建时间" width='150' :formatter="dateFormat"></el-table-column>
+    	<el-table-column  label="创建时间" width='150' >
+				<template scope="scope">
+					{{fTimestamp(scope.row.created)}}
+				</template>
+			</el-table-column>
 
 
 	    <el-table-column fixed="right" label="操作" width='200'>

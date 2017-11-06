@@ -27,7 +27,7 @@
           </el-row>        
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='用户姓名'>
+              <el-form-item label='用户姓名' v-if="reconc.user">
                 <el-input v-model="reconc.user.userName" placeholder="用户姓名" disabled></el-input>
               </el-form-item>
             </el-col>
@@ -53,12 +53,12 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='平-交易时间' >
-                <el-input v-model="reconc.platform_time" placeholder="平-交易时间" disabled></el-input>
+                <el-input v-model="reconc.platformTime" placeholder="平-交易时间" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='E-交易时间'>
-                <el-input v-model="reconc.platformTime" placeholder="E-交易时间" disabled></el-input>
+                <el-input v-model="reconc.ebayTime"  placeholder="E-交易时间" disabled></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -87,8 +87,10 @@
           <el-row type="flex" class="row-bg"  :gutter='20'>
             <el-col :span='8' :offset="4">
               <el-form-item label='核对状态'>
-				<el-select v-model.number="reconc.reconc_status" placeholder="核对状态">
-	    		<el-option v-for="item in reconcStatusOptions" :key="item.value" :label="item.label" :value="item.value">
+				<el-select v-model.number="reconc.checkStatus" placeholder="核对状态">
+	    		<el-option key="0" label="异常" value="0"></el-option>
+	    		<el-option key="1" label="修复中" value="1"></el-option>
+	    		<el-option key="2" label="正常" value="2"></el-option>
 	    		</el-option>
 	    		</el-select>
               </el-form-item>
@@ -124,20 +126,10 @@ export default {
     return {
       reconc: {
         ebayStatus:"",
-        platformStatus:""
+        platformStatus:"",
+        user:{}
       },
       reconc_bak: {},
-      reconcStatusOptions: [{
-      		value: 0,
-      		label: '异常'
-      	},{
-      		value: 1,
-      		label: '修复中'
-      	},{
-      		value: 2,
-      		label: '正常'
-      	}
-      ],
       tradeTypeOptions: [{
       		value: 0,
       		label: '收入'
@@ -150,7 +142,9 @@ export default {
   },
   methods: {
     editSubmit() {
-    	reqReconciliationEdit(this.reconc).then((res) => {
+      console.log(this.reconc)
+      let params = {id:this.reconc.id,params:this.reconc}
+    	reqReconciliationEdit(params).then((res) => {
             this.$message({
               message: '提交成功',
               type: 'success'
@@ -162,11 +156,19 @@ export default {
     },
     toOrderList() {
     	this.$router.push('/reconciliation/list')
+    },
+    timeStampToTime(){
+      if(this.reconc.ebayTime){
+        this.reconc.ebayTime =this.fTimestamp(this.reconc.ebayTime)
+      }
+      if(this.reconc.platformTime){
+        this.reconc.platformTime = this.fTimestamp(this.reconc.platformTime)
+      }
     }
-
   },
   mounted() {
-  	this.reconc = this.$route.params.reconciliation
+    this.reconc = this.$route.params.reconciliation
+    this.timeStampToTime();
 	Object.assign( this.reconc_bak, this.$route.params.reconciliation )
   }
 }

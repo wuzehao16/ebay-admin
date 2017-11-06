@@ -53,7 +53,7 @@ export const reqGetWithdrawIssue = params => { return axios.get(`api/withdraw/is
 export const reqCheckList = params => { return axios.get(`api/user/account/check/list`, { params: params }) }
 
 
-export const reqReconciliationEdit = params => { return axios.get(`api/reconciliation/edit`, { params: params }) }
+export const reqReconciliationEdit = params => { return axios.post(`api/user/account/check/${params.id}/edit`,  params.params ) }
 export const reqReconciliationDetail = params => { return axios.get(`api/reconciliation/detail`, { params: params }) }
 
 //微信管理

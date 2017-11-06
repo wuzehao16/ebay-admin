@@ -72,8 +72,8 @@
     			<template v-if="scope.row.ebayStatus == '2'">失败</template>
     		</template>
     	</el-table-column>
-    	<el-table-column property="platformAmount" label="平-交易金额（元）" width='140'></el-table-column>
-    	<el-table-column property="ebayAmount" label="E-交易金额（元）" width='140'></el-table-column>
+    	<el-table-column property="platformAmount" label="平-交易金额（元）" width='160'></el-table-column>
+    	<el-table-column property="ebayAmount" label="E-交易金额（元）" width='160'></el-table-column>
     	<el-table-column label="平-交易时间" width='200'>
           <template scope="scope">{{ fTimestamp(scope.row.platformTime) }}</template> 
       </el-table-column>

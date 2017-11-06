@@ -87,24 +87,27 @@
         </el-form>
 
 		<el-col :span='16' :offset='4'>
-		  <label style="font-weight:bold;margin: 20px 0;">异常订单处理跟踪记录：</label><br/><br/>
-		  <el-table :data="rcList" border style="width: 100%;margin-bottom:40px;">
-		    <el-table-column prop="sloveMemo" label="解决说明"></el-table-column>
-		    <el-table-column prop="updated" label="跟进时间" width="180":formatter="dateFormat"></el-table-column>
-		    <el-table-column label="处理方式" width="100">
-		    	<template scope="scope">
-		    		{{ scope.row.manner == 0 ? "退款" : "协商" }}
-		    	</template>
-		    </el-table-column>
-		    <el-table-column prop="createdby" label="处理人" width="90"></el-table-column>
-		    <el-table-column width="120" label="操作">
+      <label style="font-weight:bold;margin: 20px 0;">异常订单处理跟踪记录：</label><br/><br/>
+      <el-table :data="rcList" border style="width: 100%;margin-bottom:40px;">
+        <el-table-column prop="sloveMemo" label="解决说明"></el-table-column>
+        <el-table-column  label="跟进时间" width="180">
+          <template scope="scope">
+            {{ fTimestamp(scope.row.updated) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="处理方式" width="100">
+          <template scope="scope">
+            {{ scope.row.manner == 0 ? "退款" : "协商" }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="createdby" label="处理人" width="90"></el-table-column>
+        <!-- <el-table-column width="120" label="操作">
           <template slot-scope="scope">
             <el-button @click="editOrderRc(scope)" type="text" size="small">编辑</el-button>
             <el-button type="text" size="small" @click="deleteOrderRc(scope)">删除</el-button>
           </template>        
-          </el-table-column>        
-              
-		  </el-table>
+        </el-table-column>         -->
+      </el-table>
 		</el-col>
 
       </el-col>
@@ -126,60 +129,55 @@ export default {
       rcList: [],
       exTypeOptions: [
         {
-          value: 0,
+          value: "0",
           label: "系统异常"
         },
         {
-          value: 1,
+          value: "1",
           label: "Ebay缺货"
         },
         {
-          value: 2,
+          value: "2",
           label: "卖家取消订单"
         }
       ],
       exStatusOptions: [
         {
-          value: 0,
+          value: "0",
           label: "待解决"
         },
         {
-          value: 1,
+          value: "1",
           label: "已解决"
         },
         {
-          value: 2,
+          value: "2",
           label: "未解决"
         },
         {
-          value: 3,
+          value: "3",
           label: "已挂起"
         }
       ]
     };
   },
   methods: {
-    dateFormat: function(row, column) {
-      let date = row[column.property];
-      if (date == undefined) {
-        return "";
-      }
-      let t = new Date(date);
-      return t.toLocaleDateString();
-    },
     getRcList() {
+      //获取订单轨迹
       let params = { errorNo: this.orderInfo.errorNo };
       reqGetExOrderRcList(params).then(res => {
         this.rcList = res.data.data.content;
       });
     },
     
-    //编辑订单轨迹
+    
     editOrderRc(scope) {
+      //编辑订单轨迹
       console.log(scope);
     },
-    //删除订单轨迹
+    
     deleteOrderRc(scope) {
+      //删除订单轨迹
       let params = {
         id: scope.row.id
       };

@@ -70,7 +70,7 @@
   	</el-table>
   	<!--工具条-->
     <el-col :span="24" class="toolbar">
-        <el-pagination layout="prev, pager, next" @current-change="setPageChange" :page-size="filterUsers.size" :total="totalUsers" style="float:right;">
+        <el-pagination layout="total, sizes, prev, pager, next" @current-change="setPageChange" @size-change="setSizeChange" :page-size="filterUsers.size" :total="totalUsers" style="float:right;">
         </el-pagination>
     </el-col>
 
@@ -103,131 +103,137 @@
   </el-row>
 </template>
 <script>
-  import util from '../../common/util'
-  import {reqGetUserList, reqDeleteUser, reqEditUser} from '../../api/api'
-  export default{
-    data(){
-      return {
-        filterUsers: {
-        	userName: '',
-        	userPhone: '',
-        	userWxOpenid: '',
-        	userCtype: '',
-          page: 0,
-          size: 10
-        },
-        users: [],
-        totalUsers: 0,
-        userLoading: false,
+import util from "../../common/util";
+import { reqGetUserList, reqDeleteUser, reqEditUser } from "../../api/api";
+export default {
+  data() {
+    return {
+      filterUsers: {
+        userName: "",
+        userPhone: "",
+        userWxOpenid: "",
+        userCtype: "",
+        page: 0,
+        size: 10
+      },
+      users: [],
+      totalUsers: 0,
+      userLoading: false,
 
-        //编辑相关数据
-        editUserFormVisible: false,
-        editUserForm: {
-        	id: '',
-        	name: '',
-        	sex: '',
-        	tel: '',
-        	usertype: '',
-        	wechat_id: ''
-        },
+      //编辑相关数据
+      editUserFormVisible: false,
+      editUserForm: {
+        id: "",
+        name: "",
+        sex: "",
+        tel: "",
+        usertype: "",
+        wechat_id: ""
       }
+    };
+  },
+  methods: {
+    setHighlight(val) {
+      this.currentRow = val;
     },
-    methods: {
-      setHighlight(val) {
-      	this.currentRow = val
-      },
-      filterTag(value, row) {
-        return row.userCtype === value;
-      },
-      setPageChange(val) {
-      	this.filterUsers.page = val - 1
-      	this.getUsers()
-      },
-      //获取用户列表
-      getUsers() {
-        this.userLoading = true
-        reqGetUserList(this.filterUsers).then((res) => {
-          let result = res.data.data
-          if (res.data.msg == '成功') {
-            this.totalUsers = result.totalElements
-            this.users = result.content
+    filterTag(value, row) {
+      return row.userCtype === value;
+    },
+    setSizeChange(val) {
+      this.filterUsers.size = val - 1;
+      this.getUsers();
+    },
+    setPageChange(val) {
+      this.filterUsers.page = val - 1;
+      this.getUsers();
+    },
+    //获取用户列表
+    getUsers() {
+      this.userLoading = true;
+      reqGetUserList(this.filterUsers)
+        .then(res => {
+          let result = res.data.data;
+          if (res.data.msg == "成功") {
+            this.totalUsers = result.totalElements;
+            this.users = result.content;
           }
-          this.userLoading = false
-        }).catch((err) => {
-          this.$message.error(res.data.msg)
-          this.userLoading = false
+          this.userLoading = false;
         })
-      },
-      //删除用户
-      delUser: function (index, row) {
-        this.$confirm('确认删除该用户吗?', '提示', {type: 'warning'}).then(() => {
-          reqDeleteUser(row).then((res) => {
-            if (res.data.msg == '成功') {
-              this.users.splice(index, 1)
+        .catch(err => {
+          this.$message.error(res.data.msg);
+          this.userLoading = false;
+        });
+    },
+    //删除用户
+    delUser: function(index, row) {
+      this.$confirm("确认删除该用户吗?", "提示", { type: "warning" })
+        .then(() => {
+          reqDeleteUser(row).then(res => {
+            if (res.data.msg == "成功") {
+              this.users.splice(index, 1);
               this.$message({
-                message: '删除成功',
-                type: 'success'
-              })
+                message: "删除成功",
+                type: "success"
+              });
             } else {
-              this.$message.error(res.data.msg)
+              this.$message.error(res.data.msg);
             }
           });
-        }).catch((e) => {
-        	console.log(e)
-        });
-      },
-      showEditUserDialog: function (index, row) {
-        // this.$refs[formName].resetFields()
-      	this.editUserFormVisible = true
-      	this.editUserForm = Object.assign({}, row)
-      },
-      //编辑用户信息后提交
-      editUserSubmit: function() {
-      	this.$refs.editUserForm.validate( (valid) => {
-      		if (valid) {
-      			this.$confirm('确认提交吗？', '提示', {}).then(() => {
-	              reqEditUser(this.editUserForm).then((res) => {
-                  console.log(res)
-                  if (res.data.msg == '成功') {
-                    this.$message({
-                      message: '提交成功',
-                      type: 'success'
-                    })
-                    this.editUserFormVisible = false
-                    this.getUsers()                
-                  }
-
-	              })
-      			})
-      		}
-      	})
-      },
-      changeActive(row) {
-        let pa = {
-          id: row.id,
-          isActive: (row.isActive == 'Y' ? 'N' : 'Y')
-        }
-        reqEditUser(pa).then((res) => {
-          if (res.data.msg == '成功') {
-            this.$message({
-              message: '修改成功',
-              type: 'success'
-            })
-            row.isActive == 'Y' ? row.isActive = 'N' : row.isActive = 'Y'
-          } else {
-            this.$message.error(res.data.msg)
-          }
         })
-      },
-      cancelEditUser: function(formName) {
-      	this.editUserFormVisible = false
-      }
- 
+        .catch(e => {
+          console.log(e);
+        });
     },
-    mounted() {
-      this.getUsers()
+    showEditUserDialog: function(index, row) {
+      // this.$refs[formName].resetFields()
+      this.editUserFormVisible = true;
+      this.editUserForm = Object.assign({}, row);
+    },
+    //编辑用户信息后提交
+    editUserSubmit: function() {
+      this.$refs.editUserForm.validate(valid => {
+        if (valid) {
+          this.$confirm("确认提交吗？", "提示", {}).then(() => {
+            reqEditUser(this.editUserForm).then(res => {
+              console.log(res);
+              if (res.data.msg == "成功") {
+                this.$message({
+                  message: "提交成功",
+                  type: "success"
+                });
+                this.editUserFormVisible = false;
+                this.getUsers();
+              }
+            });
+          });
+        }
+      });
+    },
+    changeActive(row) {
+      let pa = {
+        id: row.id,
+        isActive: row.isActive == "Y" ? "N" : "Y"
+      };
+      reqEditUser(pa).then(res => {
+        if (res.data.msg == "成功") {
+          this.$message({
+            message: "修改成功",
+            type: "success"
+          });
+          row.isActive == "Y" ? (row.isActive = "N") : (row.isActive = "Y");
+        } else {
+          this.$message.error(res.data.msg);
+        }
+      });
+    },
+    cancelEditUser: function(formName) {
+      this.editUserFormVisible = false;
     }
+  },
+  mounted() {
+    this.getUsers();
   }
+};
 </script>
 
 <style>

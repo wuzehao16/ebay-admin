@@ -108,78 +108,81 @@
 
   	<!--工具条-->
     <el-col :span="24" class="toolbar">
-        <el-pagination layout="prev, pager, next" @current-change="setPageChange" :page-size="filters.size" :total="total" style="float:right;">
+        <el-pagination layout="total, sizes, prev, pager, next" @current-change="setPageChange" @size-change="setSizeChange" :page-size="filters.size" :total="total" style="float:right;">
         </el-pagination>
     </el-col>
     </el-col>
   </el-row>
 </template>
 <script>
-  import {  reqWithdrawList, reqGetWithdrawIssue } from '../../api/api';
-  export default{
-    data(){
-      return {
-        filters: {
-        	userName: '',
-        	userPhone: '',
-        	auditStatus: '',
-        	perilRatio: '',
+import { reqWithdrawList, reqGetWithdrawIssue } from "../../api/api";
+export default {
+  data() {
+    return {
+      filters: {
+        userName: "",
+        userPhone: "",
+        auditStatus: "",
+        perilRatio: "",
 
-          page: 0,
-          size: 10
-        },
-        loading: false,
-        total: 0,
-        withdraw_list: []
-      }
+        page: 0,
+        size: 10
+      },
+      loading: false,
+      total: 0,
+      withdraw_list: []
+    };
+  },
+  methods: {
+    setHighlight(val) {
+      this.currentRow = val;
     },
-    methods: {
-      setHighlight(val) {
-      	this.currentRow = val
-      },
-      setPageChange(val) {
-      	this.filters.page = val - 1 
-      	this.getWithdrawList()
-      },
-      getWithdrawList() {
- 	      this.loading = true
-    		reqWithdrawList(this.filters).then((res) => {
-          let w = res.data.data
-          if (w) {
-            console.log(w)
-            this.total = w.total
-            this.withdraw_list = w.content
-            this.loading = false            
-          }
-    		})
-      },
-      issueWithdraw(row) {
-    	reqGetWithdrawIssue(row).then((res) => {
-    		console.log(res)
-            this.$message({
-              message: '提交成功',
-              type: 'success'
-            });
-            row.issue_status = 1  
-    	})
-
-      },
-      showAudit(row, isDetail) {
-        let d = row
-        d.created = this.fTimestamp(d.created)
-        console.log(d)
-      	this.$router.push({
-      		name: '提现审核',
-      		params: {
-      			withdraw_info: d,
-            isDetail: isDetail
-      		}
-      	})
-      }
-    },
-    mounted() {
+    setSizeChange(val) {
+      this.filters.size = val;
       this.getWithdrawList();
+    },
+    setPageChange(val) {
+      this.filters.page = val - 1;
+      this.getWithdrawList();
+    },
+    getWithdrawList() {
+      this.loading = true;
+      reqWithdrawList(this.filters).then(res => {
+        let w = res.data.data;
+        if (w) {
+          console.log(w);
+          this.total = w.total;
+          this.withdraw_list = w.content;
+          this.loading = false;
+        }
+      });
+    },
+    issueWithdraw(row) {
+      reqGetWithdrawIssue(row).then(res => {
+        console.log(res);
+        this.$message({
+          message: "提交成功",
+          type: "success"
+        });
+        row.issue_status = 1;
+      });
+    },
+    showAudit(row, isDetail) {
+      let d = row;
+      d.created = this.fTimestamp(d.created);
+      console.log(d);
+      this.$router.push({
+        name: "提现审核",
+        params: {
+          withdraw_info: d,
+          isDetail: isDetail
+        }
+      });
     }
+  },
+  mounted() {
+    this.getWithdrawList();
   }
+};
 </script>
 

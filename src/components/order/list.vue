@@ -160,13 +160,13 @@
         	<template scope="scope">
             	<el-button size="small" type="primary" @click='showDetail(scope)'>详情</el-button>
             	<el-button size="small" @click="showEdit(scope)">编辑</el-button>
-							<el-button size="small" type="danger" @click="cancelOrder(scope.row)">取消</el-button>
+							<el-button size="small" type="danger" @click="cancelOrder(scope.row)" :disabled="scope.row.orderStatus == 2">取消</el-button>
         	</template>
     	</el-table-column>
   	</el-table>
   	<!--工具条-->
     <el-col :span="24" class="toolbar">
-        <el-pagination layout="prev, pager, next" @current-change="setPageChange" :page-size="size" :total="total" style="float:right;">
+        <el-pagination layout="total, sizes, prev, pager, next" @current-change="setPageChange" @size-change="setSizeChange" :page-size="size" :total="total" style="float:right;">
         </el-pagination>
     </el-col>
 
@@ -224,7 +224,11 @@
       setPageChange(val) {
       	this.orderPage = val
       	this.getOrders()
-      },
+			},
+			setSizeChange(val) {
+				this.size = val;
+				this.getOrders()
+			},
       //获取用户列表
       getOrders() {
 
@@ -260,11 +264,12 @@
       showAdd() {
       	this.$router.push('/order/add')
 			},
-			//取消订单
 			cancelOrder(p) {
+				//取消订单
 				let orderId = p.orderNo;
 				let params = {
-					orderId:orderId
+					orderId:orderId,
+					openid:"1"
 				}
 				this.$confirm('是否取消订单?', '提示', {
           confirmButtonText: '确定',

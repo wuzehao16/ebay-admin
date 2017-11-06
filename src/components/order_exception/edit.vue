@@ -84,7 +84,7 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='处理方式'>
-                <el-radio-group v-model='handle.manner'>
+                <el-radio-group v-model='handle.handerType'>
                   <el-radio :label="0">退款</el-radio>
                   <el-radio :label="1">协商</el-radio>
                 </el-radio-group>
@@ -119,102 +119,222 @@
           </el-row>
         </el-form>
 
-		<el-col :span='16' :offset='4'>
-		  <label style="font-weight:bold;margin: 20px 0;">异常订单处理跟踪记录：</label><br/><br/>
-		  <el-table :data="orderInfo.handle_records" border style="width: 100%;margin-bottom:40px;">
-		    <el-table-column prop="sloveMemo" label="解决说明"></el-table-column>
-		    <el-table-column prop="updated" label="跟进时间" width="180"></el-table-column>
-		    <el-table-column label="处理方式" width="100">
-		    	<template scope="scope">
-		    		{{ scope.row.manner == 0 ? "退款" : "协商" }}
-		    	</template>
-		    </el-table-column>
-		    <el-table-column prop="handerby" label="处理人" width="90"></el-table-column>
-		  </el-table>
-		</el-col>
-
+        <el-col :span='16' :offset='4'>
+          <label style="font-weight:bold;margin: 20px 0;">异常订单处理跟踪记录：</label>
+          <el-button type="text" @click="addFormVisible = true">新增</el-button>
+          <br/><br/>
+          <el-table :data="rcList" border style="width: 100%;margin-bottom:40px;">
+            <el-table-column prop="sloveMemo" label="解决说明"></el-table-column>
+            <el-table-column  label="跟进时间" width="180">
+              <template scope="scope">
+                {{ fTimestamp(scope.row.updated) }}
+              </template>
+            </el-table-column>
+            <el-table-column label="处理方式" width="100">
+              <template scope="scope">
+                {{ scope.row.handerType == 0 ? "退款" : "协商" }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="createdby" label="处理人" width="90"></el-table-column>
+            <el-table-column width="120" label="操作">
+              <template slot-scope="scope">
+                <el-button @click="editOrderRc(scope)" type="text" size="small">编辑</el-button>
+                <el-button type="text" size="small" @click="deleteOrderRc(scope)">删除</el-button>
+              </template>        
+            </el-table-column>        
+          </el-table>
+        </el-col>
       </el-col>
     </el-col>
+      <!-- 新增 -->
+      <el-dialog title="收货地址" :visible.sync="addFormVisible">
+        <el-form :model="addForm">
+          <el-form-item label="处理人" :label-width="formLabelWidth">
+            <el-input v-model="addForm.createdby" auto-complete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="处理方式" :label-width="formLabelWidth">
+            <el-select v-model="addForm.handerType" placeholder="请选择活动区域">
+              <el-option label="退款" value="0"></el-option>
+              <el-option label="协商" value="1"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label='解决说明' :label-width="formLabelWidth">
+            <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
+              v-model="addForm.sloveMemo" >
+            </el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="addFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="addOrderRc()">确 定</el-button>
+        </div>
+      </el-dialog>
+
+    <!-- 编辑 -->
+      <el-dialog title="收货地址" :visible.sync="editFormVisible">
+        <el-form :model="addForm">
+          <el-form-item label="处理人" :label-width="formLabelWidth">
+            <el-input v-model="addForm.createdby" auto-complete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="处理方式" :label-width="formLabelWidth">
+            <el-select v-model="addForm.handerType" placeholder="请选择活动区域">
+              <el-option label="退款" value="0"></el-option>
+              <el-option label="协商" value="1"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label='解决说明' :label-width="formLabelWidth">
+            <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
+              v-model="addForm.sloveMemo" >
+            </el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="edit-footer">
+          <el-button @click="addFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="addOrderRc()">确 定</el-button>
+        </div>
+      </el-dialog>
   </el-row>
+
 </template>
 <script>
-import util from '../../common/util'
-import { reqEditExOrder } from '../../api/index';
+import util from "../../common/util";
+import {
+  reqaddExOrderRcList,
+  reqGetExOrderRcList,
+  reqDeleteExOrderRcList
+} from "../../api/index";
 
 export default {
   data() {
     return {
-      orderInfo: {
+      orderInfo: {},
+      rcList: [],
+      addFormVisible:false,
+      editFormVisible:false,
+      formLabelWidth:"120px",
+      addForm: {
+          createdby: '',
+          handerType: '',
+          sloveMemo:''
       },
-  	  handle: {
-  	  	sloveMemo: '',
-  	  	handerby: '',
-  	  	manner: '',
-  	  	updated: ''
-  	  },
+      editForm: {
+          createdby: '',
+          handerType: '',
+          sloveMemo:''
+      },
+      handle: {
+        sloveMemo: "",
+        handerby: "",
+        handerType: "",
+        updated: ""
+      },
       handle_bak: {},
       orderInfo_bak: {},
-            exTypeOptions: [
+      exTypeOptions: [
         {
-          value: 0,
+          value: "0",
           label: "系统异常"
         },
         {
-          value: 1,
+          value: "1",
           label: "Ebay缺货"
         },
         {
-          value: 2,
+          value: "2",
           label: "卖家取消订单"
         }
       ],
       exStatusOptions: [
         {
-          value: 0,
+          value: "0",
           label: "待解决"
         },
         {
-          value: 1,
+          value: "1",
           label: "已解决"
         },
         {
-          value: 2,
+          value: "2",
           label: "未解决"
         },
         {
-          value: 3,
+          value: "3",
           label: "已挂起"
         }
       ]
-    }
+    };
   },
   methods: {
     editSubmit() {
-      Object.assign( this.orderInfo, this.handle) 
-      console.log(this.orderInfo)
-    	reqEditExOrder(this.orderInfo).then((res) => {
+      Object.assign(this.orderInfo, this.handle);
+      console.log(this.orderInfo);
+      reqEditExOrder(this.orderInfo).then(res => {
         this.$message({
-          message: '提交成功',
-          type: 'success'
+          message: "提交成功",
+          type: "success"
         });
         this.toOrderList();
-    	})
+      });
     },
     resetOrder() {
-      this.orderInfo = Object.assign( {}, this.orderInfo_bak) 
-    	this.handle = Object.assign( {}, this.handle_bak)	
+      this.orderInfo = Object.assign({}, this.orderInfo_bak);
+      this.handle = Object.assign({}, this.handle_bak);
     },
     toOrderList() {
-    	this.$router.push('/orderException/list')
-    }
+      this.$router.push("/orderException/list");
+    },
+    getRcList() {
+      //获取订单轨迹
+      let params = { errorNo: this.orderInfo.errorNo };
+      reqGetExOrderRcList(params).then(res => {
+        this.rcList = res.data.data.content;
+      });
+    },
+    addOrderRc(scope) {
+      //新增订单轨迹
+      let params = Object.assign(this.orderInfo,this.addForm)
+      reqaddExOrderRcList(params).then(res => {
+        console.log(res)
+      })
+    },
+    editOrderRc(scope) {
+      //编辑订单轨迹
+      this.editFormVisible = true;
+    },
 
+    deleteOrderRc(scope) {
+      //删除订单轨迹
+      let params = {
+        id: scope.row.id
+      };
+      this.$confirm("确认删除订单跟踪记录吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        reqDeleteExOrderRcList(params).then(res => {
+          if (res.data.code == 0) {
+            this.$message({
+              type: "success",
+              message: "删除成功!"
+            });
+            this.rcList.splice(scope.$index, 1);
+          } else {
+            let action = res.data.msg;
+            this.$alert(`${action}`, "提示", {
+              confirmButtonText: "确定"
+            });
+          }
+        });
+      });
+    }
   },
   mounted() {
-    this.orderInfo = this.$route.params.ex_order
-    this.handle = this.orderInfo
-    Object.assign( this.orderInfo_bak, this.$route.params.ex_order )
-	  Object.assign( this.handle_bak, this.handle )
+    this.orderInfo = this.$route.params.ex_order;
+    this.handle = this.orderInfo;
+    Object.assign(this.orderInfo_bak, this.$route.params.ex_order);
+    Object.assign(this.handle_bak, this.handle);
+    this.getRcList();
   }
-}
-
+};
 </script>

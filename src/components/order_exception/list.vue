@@ -85,8 +85,15 @@
     	</el-table-column>
     	<el-table-column label="最后处理人" width='130' property="handerby">    		
     	</el-table-column>
-    	<el-table-column property="created" label="创建时间" width='150' :formatter="dateFormat"></el-table-column>
-    	<el-table-column label="最后更新时间" width='200' property="updated" :formatter="dateFormat"> 		
+    	<el-table-column label="创建时间" width='150' >
+          <template scope="scope">
+            {{ fTimestamp(scope.row.created) }}
+          </template>
+      </el-table-column>
+    	<el-table-column label="最后更新时间" width='200' >
+          <template scope="scope">
+            {{ fTimestamp(scope.row.updated) }}
+          </template>	
     	</el-table-column>
 	    <el-table-column fixed="right" label="操作" width='220'>
         	<template scope="scope">
@@ -98,7 +105,7 @@
   	</el-table>
   	<!--工具条-->
     <el-col :span="24" class="toolbar">
-        <el-pagination layout="prev, pager, next" @current-change="setPageChange" :page-size="page_size" :total="total" style="float:right;">
+        <el-pagination layout="total, sizes, prev, pager, next" @current-change="setPageChange" @size-change="setSizeChange" :page-size="size" :total="total" style="float:right;">
         </el-pagination>
     </el-col>
 
@@ -123,7 +130,7 @@ export default {
       exOrders: [],
       exOrderLoading: false,
       total: 0,
-      page_size: 15,
+      size: 15,
       exOrderPage: 1
     };
   },
@@ -145,6 +152,10 @@ export default {
     filterExStatusTag(value, row) {
       return row.errorType === value;
     },
+    setSizeChange(val) {
+      this.size = val;
+      this.getExOrders();
+    },
     setPageChange(val) {
       this.exOrderPage = val;
       this.getExOrders();
@@ -153,19 +164,19 @@ export default {
     getExOrders() {
       let params = {
         page: this.exOrderPage - 1,
-        page_size: this.page_size
+        size: this.size
       };
       Object.assign(params, this.filterExOrders);
       this.exOrderLoading = true;
       reqGetExOrderList(params).then(res => {
-        this.total = res.data.total;
+        this.total = res.data.data.totalElements;
         this.exOrders = res.data.data.content;
         console.log(this.exOrders);
         this.exOrderLoading = false;
       });
     },
     showEdit(row) {
-			console.log(row)
+      console.log(row);
       this.$router.push({
         name: "异常订单编辑",
         params: {
@@ -197,8 +208,8 @@ export default {
             this.$message({
               type: "success",
               message: "删除异常订单成功!"
-						});
-						this.getExOrders();
+            });
+            this.getExOrders();
           } else {
             console.log(1);
             let action = res.data.msg;

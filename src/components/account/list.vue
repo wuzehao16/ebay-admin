@@ -49,112 +49,127 @@
   	</el-table>
   	<!--工具条-->
     <el-col :span="24" class="toolbar">
-        <el-pagination layout="prev, pager, next" @current-change="setPageChange" :page-size="page_size" :total="total" style="float:right;">
+        <el-pagination layout="total, sizes, prev, pager, next" @current-change="setPageChange" @size-change="setSizeChange" :page-size="size" :total="total" style="float:right;">
         </el-pagination>
     </el-col>
     </el-col>
   </el-row>
 </template>
 <script>
-  import {  reqGetAccountList } from '../../api/index';
+import { reqGetAccountList } from "../../api/index";
 
-  export default{
-    data(){
-      return {
-        filterAccounts: {
-        	userName: '',
-          userPhone: '',
-          data:[],
-          startDate:"",
-          endDate:""
-        },
-        page_size: 20,
-        loading: false,
-        orderPage: 1,
-        total: 0,
-        accounts: [],
-        //更新时间相关
-        pickerOptions: {
-          shortcuts: [{
-            text: '最近一周',
+export default {
+  data() {
+    return {
+      filterAccounts: {
+        userName: "",
+        userPhone: "",
+        data: [],
+        startDate: "",
+        endDate: ""
+      },
+      size: 20,
+      loading: false,
+      orderPage: 1,
+      total: 0,
+      accounts: [],
+      //更新时间相关
+      pickerOptions: {
+        shortcuts: [
+          {
+            text: "最近一周",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }, {
-            text: '最近一个月',
+          },
+          {
+            text: "最近一个月",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }, {
-            text: '最近三个月',
+          },
+          {
+            text: "最近三个月",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }]
-        },        
-      }
-    },
-    methods: {
-      dateFormat:function(row, column) {  
-          let date = row[column.property];  
-          if (date == undefined) {  
-              return "";  
           }
-          let t = new Date(date)
-          return t.toLocaleDateString();  
-      }, 
-      setHighlight(val) {
-      	this.currentRow = val
-      },
-      setPageChange(val) {
-      	this.orderPage = val
-      	this.getAccounts()
-      },
-      //获取分销结算列表
-      getAccounts() {
-
-      	let pa = {
-      		page: this.orderPage -1,
-      		page_size: this.page_size
-        }
-        if(this.filterAccounts.data && this.filterAccounts.data.length >0 && this.filterAccounts.data[0]!=null){
-        this.filterAccounts.startDate = this.filterAccounts.data[0].toJSON().split("T")[0]
-        this.filterAccounts.endDate = this.filterAccounts.data[1].toJSON().split("T")[0]
-        } else{
-          this.filterAccounts.startDate = "";
-          this.filterAccounts.endData = "";
-        }
-        console.log(this.filterAccounts);
-      	Object.assign(pa, this.filterAccounts)
-  	    this.loading = true
-	  
-		reqGetAccountList(pa).then((res) => {
-			this.total = res.data.total
-			this.accounts = res.data.data.content
-      		this.loading = false
-		})
-      },
-      showStated(row) {
-      	this.$router.push({
-      		name:'账户明细',
-      		params:{
-      			account: row
-      		}
-      	})
+        ]
       }
+    };
+  },
+  methods: {
+    dateFormat: function(row, column) {
+      let date = row[column.property];
+      if (date == undefined) {
+        return "";
+      }
+      let t = new Date(date);
+      return t.toLocaleDateString();
     },
-    mounted() {
+    setHighlight(val) {
+      this.currentRow = val;
+    },
+    setSizeChange(val) {
+      this.size = val;
       this.getAccounts();
+    },
+    setPageChange(val) {
+      this.orderPage = val;
+      this.getAccounts();
+    },
+    //获取分销结算列表
+    getAccounts() {
+      let pa = {
+        page: this.orderPage - 1,
+        size: this.size
+      };
+      if (
+        this.filterAccounts.data &&
+        this.filterAccounts.data.length > 0 &&
+        this.filterAccounts.data[0] != null
+      ) {
+        this.filterAccounts.startDate = this.filterAccounts.data[0]
+          .toJSON()
+          .split("T")[0];
+        this.filterAccounts.endDate = this.filterAccounts.data[1]
+          .toJSON()
+          .split("T")[0];
+      } else {
+        this.filterAccounts.startDate = "";
+        this.filterAccounts.endData = "";
+      }
+      console.log(this.filterAccounts);
+      Object.assign(pa, this.filterAccounts);
+      this.loading = true;
+
+      reqGetAccountList(pa).then(res => {
+        this.total = res.data.data.total;
+        this.accounts = res.data.data.content;
+        this.loading = false;
+      });
+    },
+    showStated(row) {
+      this.$router.push({
+        name: "账户明细",
+        params: {
+          account: row
+        }
+      });
     }
+  },
+  mounted() {
+    this.getAccounts();
   }
+};
 </script>
 

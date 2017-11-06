@@ -88,7 +88,7 @@
     	<el-table-column property="created" label="创建时间" width='150' :formatter="dateFormat"></el-table-column>
     	<el-table-column label="最后更新时间" width='200' property="updated" :formatter="dateFormat"> 		
     	</el-table-column>
-	    <el-table-column fixed="right" label="操作" width='200'>
+	    <el-table-column fixed="right" label="操作" width='220'>
         	<template scope="scope">
             	<el-button size="small" type="primary" @click='showDetail(scope.row)'>详情</el-button>
             	<el-button size="small" @click="showEdit(scope.row)">编辑</el-button>

@@ -188,7 +188,7 @@ let router = new Router({
         {path: '/wechat/replylist', component: WechatReply, name: '自动回复设置', menuShow: true}
       ]
     },
-    {path: '*', redirect: '/dashboard'}    
+    {path: '*', redirect: '/login'}
 
 /*
     {

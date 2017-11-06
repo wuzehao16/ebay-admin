@@ -54,7 +54,7 @@
         }
         // authArr.splice(3,4)
         sessionStorage.setItem('authArr', JSON.stringify(authArr))        
-        this.$router.push({ path: '/' });
+        this.$router.push({ path: '/dashboard' });
 
         
      /*   this.$refs.AccountFrom.validate((valid) => {

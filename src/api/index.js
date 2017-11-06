@@ -18,10 +18,9 @@ export const reqDeleteExOrder = params => { return axios.post(`/sell/ebay/error/
 export const reqAddExOrder = params => { return axios.post(`/sell/ebay/error/create`, params) }
 //订单轨迹
 export const reqPutExOrderRcList = params => { return axios.post(`/sell/ebay/errorrc/save`, params) }
-export const reqEditExOrderRcList = params => { return axios.post(`/sell/ebay/errorrc/create`, params) }
+export const reqaddExOrderRcList = params => { return axios.post(`/sell/ebay/errorrc/create`, params) }
 export const reqDeleteExOrderRcList = params => { return axios.post(`/sell/ebay/errorrc/delete`, params) }
 export const reqGetExOrderRcList = params => { return axios.get(`/sell/ebay/errorrc/list`, { params: params }) }
-
 //微信
 export const reqGetWechatMenus = params => { return axios.get(`/sell/wechat/menu/list`, { params: params }) }
 export const reqEditWechatMenu = params => { return axios.patch(`/sell/wechat/menu`, params) }

@@ -105,7 +105,7 @@
 
   	<!--工具条-->
     <el-col :span="24" class="toolbar">
-        <el-pagination layout="prev, pager, next" @current-change="setPageChange" :page-size="filters.size" :total="total" style="float:right;">
+        <el-pagination layout="total, sizes, prev, pager, next" @current-change="setPageChange" @size-change="setSizeChange" :page-size="filters.size" :total="total" style="float:right;">
         </el-pagination>
     </el-col>
     </el-col>
@@ -175,6 +175,10 @@ export default {
     },
     setHighlight(val) {
       this.currentRow = val;
+    },
+    setSizeChange(val) {
+      this.filters.size = size;
+      this.getReconList();
     },
     setPageChange(val) {
       if (this.filters.page == val - 1) {

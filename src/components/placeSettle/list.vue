@@ -85,79 +85,84 @@
 
   	<!--工具条-->
     <el-col :span="24" class="toolbar">
-        <el-pagination layout="prev, pager, next" @current-change="setPageChange" :page-size="filters.size" :total="total" style="float:right;">
+        <el-pagination layout="total, sizes, prev, pager, next" @current-change="setPageChange" @size-change="setSizeChange" :page-size="filters.size" :total="total" style="float:right;">
         </el-pagination>
     </el-col>
     </el-col>
   </el-row>
 </template>
 <script>
-  import { reqDistrList } from '../../api';
+import { reqDistrList } from '../../api';
 
-  export default{
-    data(){
-      return {
-        filters: {
-        	orderNo: '',
-        	productName: '',
-        	buyUserName: '',
-        	auditStatus: '',
-          page: 0,
-          size: 20
-        },
-        loading: false,
-        total: 0,
-        places: []
-      }
+export default {
+  data() {
+    return {
+      filters: {
+        orderNo: "",
+        productName: "",
+        buyUserName: "",
+        auditStatus: "",
+        page: 0,
+        size: 20
+      },
+      loading: false,
+      total: 0,
+      places: []
+    };
+  },
+  methods: {
+    setHighlight(val) {
+      this.currentRow = val;
     },
-    methods: {
-      setHighlight(val) {
-      	this.currentRow = val
-      },
-      filterSettleStatusTag(value, row) {
-      	return row.auditStatus == value
-      },
-      setPageChange(val) {
-      	this.filters.page = val - 1
-      	this.getPlaces()
-      },
-      //获取分销结算列表
-      getPlaces() {
-  	    this.loading = true
-    		reqDistrList(this.filters).then((res) => {
-          let p = res.data.data
-          if (p) {
-      			this.total = p.totalElements
-      			this.places = p.content
-            console.log("kdjfdkf", this.places)
-          }
-      		this.loading = false
-    		}).catch((err) => {
-          this.loading = false
-        }) 	
-      },
-      showEdit(row) {
-      	this.$router.push({
-      		name:'结算审核',
-      		params:{
-            id: row.id,
-      			isEdit: true
-      		}
-      	})
-      },
-      showSettle(row) {
-      	this.$router.push({
-      		name:'结算审核',
-      		params:{
-      			id: row.id
-      		}
-      	})      	
-      }
+    filterSettleStatusTag(value, row) {
+      return row.auditStatus == value;
     },
-    mounted() {
+    setSizeChange(val) {
+      this.filters.size = val;
       this.getPlaces();
-
+    },
+    setPageChange(val) {
+      this.filters.page = val - 1;
+      this.getPlaces();
+    },
+    //获取分销结算列表
+    getPlaces() {
+      this.loading = true;
+      reqDistrList(this.filters)
+        .then(res => {
+          let p = res.data.data;
+          if (p) {
+            this.total = p.totalElements;
+            this.places = p.content;
+            console.log("kdjfdkf", this.places);
+          }
+          this.loading = false;
+        })
+        .catch(err => {
+          this.loading = false;
+        });
+    },
+    showEdit(row) {
+      this.$router.push({
+        name: "结算审核",
+        params: {
+          id: row.id,
+          isEdit: true
+        }
+      });
+    },
+    showSettle(row) {
+      this.$router.push({
+        name: "结算审核",
+        params: {
+          id: row.id
+        }
+      });
     }
+  },
+  mounted() {
+    this.getPlaces();
   }
+};
 </script>
 

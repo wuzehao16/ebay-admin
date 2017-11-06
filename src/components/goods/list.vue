@@ -27,17 +27,17 @@
 	        <el-button type="primary" @click="getGoods">查询</el-button>
 	      </el-form-item>
 	      <el-form-item>
-	        <el-button type="primary" @click="showAdd">新增</el-button>
+	        <el-button type="success" @click="showAdd">新增</el-button>
 	      </el-form-item>
 	    </el-form>
 	  </el-col>
     <el-table ref="singleTable" :data="goods" v-loading='loading'  @current-change="setHighlight" style="width: 100%">
-    	<el-table-column property="id" label="商品编号" width='100'></el-table-column>
-    	<el-table-column prop="ebayItemid"  label="ItemId" width='100'></el-table-column>
-      <el-table-column property="productNane" label="商品名称" width='200'></el-table-column>
-    	<el-table-column property="productStatus" label="商品状态" width='100'></el-table-column>
-    	<el-table-column property="userWxOpenid" label="译者微信ID" width="140"></el-table-column>
-    	<el-table-column prop="auditStatus" label="审核状态" width="120" :filters="[{ text: '待审核', value: '0' }, { text: '已通过', value: '1' }, { text: '不通过', value: '2' }]" :filter-method="filterAuditTag" filter-placement="bottom-end">
+    	<el-table-column property="id" label="商品编号" min-width='100'></el-table-column>
+    	<el-table-column prop="ebayItemid"  label="ItemId" min-width='100'></el-table-column>
+      <el-table-column property="productNane" label="商品名称" min-width='200'></el-table-column>
+    	<el-table-column property="productStatus" label="商品状态" min-width='100'></el-table-column>
+    	<el-table-column property="userWxOpenid" label="译者微信ID" min-width="140"></el-table-column>
+    	<el-table-column prop="auditStatus" label="审核状态" min-width="120" :filters="[{ text: '待审核', value: '0' }, { text: '已通过', value: '1' }, { text: '不通过', value: '2' }]" :filter-method="filterAuditTag" filter-placement="bottom-end">
         	<template scope="scope">
         		<template v-if='scope.row.auditStatus == "0"'>
         			<el-tag type='primary'>待审核</el-tag>
@@ -50,12 +50,12 @@
         		</template>
         	</template>
     	</el-table-column>
-    	<el-table-column label="翻译时间" width="150">
+    	<el-table-column label="翻译时间" min-width="150">
           <template scope="scope">
             {{ fTimestamp(scope.row.created) }}
           </template> 
       </el-table-column>
-    	<el-table-column  label="审核时间" width="150">
+    	<el-table-column  label="审核时间" min-width="150">
           <template scope="scope">
             {{ fTimestamp(scope.row.audited) }}
           </template>
@@ -75,7 +75,7 @@
   	</el-table>
   	<!--工具条-->
     <el-col :span="24" class="toolbar">
-        <el-pagination layout="prev, pager, next" @current-change="setPageChange" :page-size="filters.size" :total="totalGoods" style="float:right;">
+        <el-pagination layout="total, sizes, prev, pager, next" @current-change="setPageChange" @size-change="setSizeChange"  :page-size="filters.size" :total="totalGoods" style="float:right;">
         </el-pagination>
     </el-col>
     </el-col>
@@ -162,6 +162,10 @@
       },
       filterAuditTag(value, row) {
       	return row.auditStatus === value
+      },
+      setSizeChange(val) {
+        this.filters.size = val;
+        this.getGoods()
       },
       setPageChange(val) {
       	this.filters.page = val - 1

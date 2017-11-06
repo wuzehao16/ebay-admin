@@ -177,7 +177,7 @@
         });
       },
       showEditUserDialog: function (index, row) {
-        this.$refs[formName].resetFields()
+        // this.$refs[formName].resetFields()
       	this.editUserFormVisible = true
       	this.editUserForm = Object.assign({}, row)
       },

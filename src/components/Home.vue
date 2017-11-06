@@ -10,7 +10,7 @@
       </div>
       <div class="topbar-account topbar-btn">
         <el-dropdown trigger="click">
-          <span class="el-dropdown-link userinfo-inner"><i class="iconfont icon-user"></i> {{sysUserName}}  <i class="iconfont icon-down"></i></span>
+          <span class="el-dropdown-link userinfo-inner"><i class="iconfont icon-me"></i> {{sysUserName}}  <i class="iconfont icon-down"></i></span>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item><router-link to="/user/profile">个人信息</router-link></el-dropdown-item>
             <el-dropdown-item><router-link :to="'/user/changepwd'">修改密码</router-link></el-dropdown-item>
@@ -27,8 +27,8 @@
 
         <!--展开折叠开关-->
         <div class="menu-toggle" @click.prevent="collapse">
-          <i class="iconfont icon-menufold" v-show="!collapsed"></i>
-          <i class="iconfont icon-menuunfold" v-show="collapsed"></i>
+          <i class="iconfont icon-fold" v-show="!collapsed"></i>
+          <i class="iconfont icon-unfold" v-show="collapsed"></i>
         </div>
 
         <el-menu default-active="0"  class="el-menu-vertical-demo"

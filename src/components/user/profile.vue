@@ -28,7 +28,7 @@
 </template>
 
 <script>
-  import {reqSaveUserProfile} from '../../api/api';
+  import {reqSaveUserProfile} from '../../api';
   import {bus} from '../../bus.js'
 
   export default {

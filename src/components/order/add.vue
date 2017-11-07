@@ -105,7 +105,7 @@
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='18'>
+            <el-col :span='16'>
               <el-form-item label='订单状态'>
                 <el-radio-group v-model='orderInfo.orderStatus'>
                   <el-radio :label="'1'">待支付</el-radio>
@@ -122,7 +122,7 @@
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='18'>
+            <el-col :span='16'>
               <el-form-item label='Ebay状态'>
                 <el-radio-group v-model='orderInfo.ebayStatus'>
                   <el-radio :label="'1'">待支付</el-radio>
@@ -135,7 +135,7 @@
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='18'>
+            <el-col :span='16'>
               <el-form-item label='物流状态'>
                 <el-radio-group v-model='orderInfo.logisticsStatus'>
                   <el-radio :label="'1'">海外仓已入库</el-radio>

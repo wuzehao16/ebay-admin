@@ -62,7 +62,7 @@
 	        <el-button type="primary" @click="getOrders">查询</el-button>
 	      </el-form-item>
 	      <el-form-item>
-	        <el-button type="primary" @click="showAdd">新增</el-button>
+	        <el-button type="success" @click="showAdd">新增</el-button>
 	      </el-form-item>
 	    </el-form>
 	  </el-col>

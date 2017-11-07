@@ -9,7 +9,7 @@
     </el-col>
     <el-col :span="24" style="margin-top:20px;">
         <el-button @click="syncMenu" :loading="syncLoading">同步微信</el-button>
-        <el-button @click="showAddDialog">新增</el-button>
+        <el-button type="success" @click="showAddDialog">新增</el-button>
     </el-col>
     <el-col :span="24" class="warp-main">
     <div v-show="showflag" class="label-menu">一级菜单：</div>

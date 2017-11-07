@@ -19,10 +19,12 @@
 	      <el-form-item>
 	        <el-input v-model="filters.userWxOpenid" placeholder="译者微信ID"></el-input>
 	      </el-form-item>
-		  <el-select v-model="filters.productStatus" placeholder="商品状态" clearable>
-    		<el-option key="0" label="正常" value="正常"></el-option>
-    		<el-option key="1" label="下架" value="下架"></el-option>
-		  </el-select>
+        <el-form-item>
+          <el-select v-model="filters.productStatus" placeholder="商品状态" clearable>
+            <el-option key="0" label="正常" value="正常"></el-option>
+            <el-option key="1" label="下架" value="下架"></el-option>
+          </el-select>
+        </el-form-item>
 	      <el-form-item>
 	        <el-button type="primary" @click="getGoods">查询</el-button>
 	      </el-form-item>

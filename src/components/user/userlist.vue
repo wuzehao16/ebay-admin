@@ -20,10 +20,12 @@
 	      <el-form-item>
 	        <el-input v-model="filterUsers.userWxOpenid" placeholder="微信账号"></el-input>
 	      </el-form-item>
+        <el-form-item>
 		  <el-select v-model="filterUsers.userCtype" placeholder="会员类型" clearable>
     		<el-option key="0" label="分销商" value="1"></el-option>
     		<el-option key="1" label="普通用户" value="2"></el-option>
 		  </el-select>
+      </el-form-item>
 	      <el-form-item>
 	        <el-button type="primary" @click="getUsers">查询</el-button>
 	      </el-form-item>

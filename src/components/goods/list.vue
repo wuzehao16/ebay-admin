@@ -62,12 +62,12 @@
       </el-table-column>
 	    <el-table-column label="操作" width='240' fixed="right">
         	<template scope="scope">
-          <template v-if="scope.row.auditStatus == '1'">
-              <el-button size="small" v-if="scope.row.productStatus == '下架'"
-                  @click="onSale(scope.row)">上架</el-button>
-              <el-button size="small" type="danger" v-else
-                  @click="offSale(scope.row)">下架</el-button>
-          </template>
+              <template v-if="scope.row.auditStatus == '1'">
+                  <el-button size="small" v-if="scope.row.productStatus == '下架'"
+                      @click="onSale(scope.row)">上架</el-button>
+                  <el-button size="small" type="danger" v-else
+                      @click="offSale(scope.row)">下架</el-button>
+              </template >
             	<el-button size="small" @click="goEdit(scope.row)">编辑</el-button>
             	<el-button size="small" type="primary" @click="goPreview(scope.row)">审核</el-button>
         	</template>

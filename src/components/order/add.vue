@@ -105,37 +105,44 @@
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='16'>
+            <el-col :span='18'>
               <el-form-item label='订单状态'>
                 <el-radio-group v-model='orderInfo.orderStatus'>
-                  <el-radio :label="0">待付款</el-radio>
-                  <el-radio :label="1">待发货</el-radio>
-                  <el-radio :label="2">待签收</el-radio>
-                  <el-radio :label="3">已签收</el-radio>
+                  <el-radio :label="'1'">待支付</el-radio>
+                  <el-radio :label="'2'">已取消</el-radio>
+                  <el-radio :label="'3'">已支付</el-radio>
+                  <el-radio :label="'4'">已发货</el-radio>
+                  <el-radio :label="'5'">已完成</el-radio>
+                  <el-radio :label="'6'">已评价</el-radio>
+                  <el-radio :label="'7'">退款中</el-radio>
+                  <el-radio :label="'8'">已退款</el-radio>
+                  <el-radio :label="'9'">已删除</el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='16'>
+            <el-col :span='18'>
               <el-form-item label='Ebay状态'>
                 <el-radio-group v-model='orderInfo.ebayStatus'>
-                  <el-radio :label="0">待付款</el-radio>
-                  <el-radio :label="1">已付款</el-radio>
-                  <el-radio :label="2">已发货</el-radio>
-                  <el-radio :label="3">已签收</el-radio>
+                  <el-radio :label="'1'">待支付</el-radio>
+                  <el-radio :label="'2'">已取消</el-radio>
+                  <el-radio :label="'3'">已支付</el-radio>
+                  <el-radio :label="'4'">已发货</el-radio>
+                  <el-radio :label="'5'">已完成</el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='16'>
+            <el-col :span='18'>
               <el-form-item label='物流状态'>
-                <el-radio-group v-model='orderInfo.logistics_status'>
-                  <el-radio :label="0">海外仓已入库</el-radio>
-                  <el-radio :label="1">海外仓已出库</el-radio>
-                  <el-radio :label="2">清关中</el-radio>
-                  <el-radio :label="3">派送中</el-radio>
+                <el-radio-group v-model='orderInfo.logisticsStatus'>
+                  <el-radio :label="'1'">海外仓已入库</el-radio>
+                  <el-radio :label="'2'">海外仓已出库</el-radio>
+                  <el-radio :label="'3'">清关中</el-radio>
+                  <el-radio :label="'4'">派送中</el-radio>
+                  <el-radio :label="'5'">已签收</el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-col>
@@ -174,7 +181,7 @@ export default {
         create_time: "",
         goods_tax: 0,
         logistics_fees: 0,
-        logistics_status: 0,
+        logisticsStatus: 0,
         pay_type: "微信支付",
         buyerName: "",
         phone: "",

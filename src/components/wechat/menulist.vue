@@ -33,6 +33,9 @@
     				<el-form-item label="链接地址" v-show="props.row.wxMenuType == 1">
                 		<el-input v-model="props.row.wxMenuContent" placeholder="链接地址"></el-input>
     				</el-form-item>
+            <el-form-item label="排序号">
+                		<el-input v-model="props.row.wxMenuSeriNo" placeholder="排序号"></el-input>
+    				</el-form-item>
     				<el-form-item>
         				<el-button @click="editSubmit(props.row)">保存</el-button>
     				</el-form-item>
@@ -42,8 +45,16 @@
     	<el-table-column type="index" width="60"> </el-table-column>
     	<el-table-column property="wxMenuSeriNo" label="排序号" width='200'></el-table-column>
     	<el-table-column property="wxMenuName" label="菜单名称"></el-table-column>
-    	<el-table-column property="crtTime" label="创建时间" width='200' :formatter="dateFormat"></el-table-column>
-    	<el-table-column property="uptTime" label="更新时间" width='200' :formatter="dateFormat"></el-table-column>
+    	<el-table-column  label="创建时间" width='200'>
+        <template scope="scope">
+          {{fTimestamp(scope.row.crtTime)}}
+        </template>
+      </el-table-column>
+    	<el-table-column  label="更新时间" width='200'>
+        <template scope="scope">
+          {{fTimestamp(scope.row.uptTime)}}
+        </template>
+      </el-table-column>
     
 	    <el-table-column fixed="right" label="操作" width='260'>
         	<template scope="scope">
@@ -55,38 +66,47 @@
 	
       <!--新增界面-->
       <el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
-        <el-form :model="addForm" label-width="80px"  ref="addForm">
+          <el-form :model="addForm" label-width="80px"  ref="addForm">
 
-			<el-form-item label="菜单名称">
-	    		<el-input v-model="addForm.wxMenuName" placeholder="菜单名称"></el-input>
-			</el-form-item>
-      <el-form-item label="菜单排序" >
-	    		<el-input v-model="addForm.wxMenuSeriNo" placeholder="排序号"></el-input>
-			</el-form-item>
-      <el-form-item label="是否有效">
-			  <el-radio-group v-model="addForm.wxMenuFlag">
-			    <el-radio :label="2">无效</el-radio>
-			    <el-radio :label="1">有效</el-radio>
-			  </el-radio-group>						
-			</el-form-item>
-			<el-form-item label="菜单类型">
-			  <el-radio-group v-model="addForm.wxMenuType">
-			    <el-radio :label="1">点击事件</el-radio>
-			    <el-radio :label="2">URL地址</el-radio>
-			  </el-radio-group>						
-			</el-form-item>
-			<el-form-item label="KEY" v-show="addForm.wxMenuType == 1">
-	    		<el-input v-model="addForm.wxMenuContent" placeholder="KEY"></el-input>
-			</el-form-item>
-			<el-form-item label="链接地址" v-show="addForm.wxMenuType == 2">
-	    		<el-input v-model="addForm.wxMenuContent" placeholder="链接地址"></el-input>
-			</el-form-item>
+        <el-form-item label="菜单名称" prop="wxMenuName"
+                    :rules="[
+                      { required: true, message: '菜单名称不能为空'},
+                    ]">
+            <el-input v-model="addForm.wxMenuName" placeholder="菜单名称" 
+            ></el-input>
+        </el-form-item>
+        <el-form-item label="菜单排序" prop="wxMenuSeriNo"
+                    :rules="[
+                      { required: true, message: '排序号不能为空'},
+                      { type: 'number', message: '排序号必须为数字值'}
+                    ]">
+            <el-input v-model.number="addForm.wxMenuSeriNo" placeholder="排序号"
+            ></el-input>
+        </el-form-item>
+        <el-form-item label="是否有效">
+          <el-radio-group v-model="addForm.wxMenuFlag">
+            <el-radio :label="2">无效</el-radio>
+            <el-radio :label="1">有效</el-radio>
+          </el-radio-group>						
+        </el-form-item>
+        <el-form-item label="菜单类型">
+          <el-radio-group v-model="addForm.wxMenuType">
+            <el-radio :label="1">点击事件</el-radio>
+            <el-radio :label="2">URL地址</el-radio>
+          </el-radio-group>						
+        </el-form-item>
+        <el-form-item label="KEY" v-show="addForm.wxMenuType == 1">
+            <el-input v-model="addForm.wxMenuContent" placeholder="KEY"></el-input>
+        </el-form-item>
+        <el-form-item label="链接地址" v-show="addForm.wxMenuType == 2">
+            <el-input v-model="addForm.wxMenuContent" placeholder="链接地址"></el-input>
+        </el-form-item>
 
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click.native="addFormVisible = false">取消</el-button>
-          <el-button type="primary" @click.native="addSubmit" :loading="addLoading">提交</el-button>
-        </div>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click.native="addFormVisible = false">取消</el-button>
+            <el-button type="primary" @click.native="addSubmit" :loading="addLoading">提交</el-button>
+          </div>
       </el-dialog>  	
 
     </el-col>
@@ -142,8 +162,7 @@ export default {
         wxMenuName: "",
         wxMenuType: 0,
         wxMenuContent: "",
-        wxMenuContent: "",
-        wxMenuSeriNo:0,
+        wxMenuSeriNo:'',
         wxMenuFlag:0
       }
     };
@@ -179,9 +198,10 @@ export default {
       row = Object.assign(row, { wxMenuParent: this.wxMenuParent });
       reqEditWechatMenu(row).then(res => {
         this.$message({
-          message: "提交成功",
+          message: "修改成功",
           type: "success"
         });
+        this.getMenuList();
       });
     },
     deleteSubmit(row, index) {
@@ -192,7 +212,7 @@ export default {
       reqDeleteWechatMenu(row).then(res => {
         this.menus.splice(index, 1);
         this.$message({
-          message: "提交成功",
+          message: "删除成功",
           type: "success"
         });
       });
@@ -216,7 +236,8 @@ export default {
         wxMenuName: "",
         wxMenuType: 0,
         wxMenuContent: "",
-        wxMenuContent: ""
+        wxMenuSeriNo:'',
+        wxMenuFlag:0
       };
     },
     addSubmit() {
@@ -224,12 +245,12 @@ export default {
       Object.assign(this.addForm, { wxMenuParent: this.wxMenuParent });
       reqAddWechatMenu(this.addForm).then(res => {
         this.$message({
-          message: "提交成功",
+          message: "新增成功",
           type: "success"
         });
         this.addLoading = false;
         this.addFormVisible = false;
-        this.showFather();
+        this.getMenuList(this.wxMenuParent)
       });
     }
   },

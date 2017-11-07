@@ -3,8 +3,8 @@
     <el-col :span="24" class="warp-breadcrum">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item :to="{ path: '/' }"><b>首页</b></el-breadcrumb-item>
-        <el-breadcrumb-item>分销结算</el-breadcrumb-item>
-        <el-breadcrumb-item>结算列表</el-breadcrumb-item>
+        <el-breadcrumb-item>账户列表</el-breadcrumb-item>
+        <el-breadcrumb-item>账户明细</el-breadcrumb-item>
       </el-breadcrumb>
     </el-col>
 
@@ -27,7 +27,7 @@
 		  </el-form-item>	 
 
 		  <el-form-item>
-		    <el-date-picker v-model="filterAccounts.trade_time" type="datetimerange" 
+		    <el-date-picker v-model="filterAccounts.date" type="datetimerange" 
 		    :picker-options="pickerOptions" placeholder="选择时间范围" align="right">
 		    </el-date-picker>		
 		  </el-form-item>
@@ -59,103 +59,132 @@
     			</template>
     		</template>
     	</el-table-column>
-    	<el-table-column property="des" label="额度说明" width="240"></el-table-column>
-    	<el-table-column property="trade_time" label="交易时间" width='200'></el-table-column>
+    	<!-- <el-table-column property="des" label="额度说明" width="240"></el-table-column> -->
+    	<el-table-column  label="交易时间" width='200'>
+				<template scope="scope">
+					{{fTimestamp(scope.row.created)}}
+				</template>
+
+      </el-table-column>
 
   	</el-table>
 
   	<!--工具条-->
     <el-col :span="24" class="toolbar">
-        <el-pagination layout="total, sizes, prev, pager, next" @current-change="setPageChange" @size-change="setSizeChange" :page-size="page_size" :total="total" style="float:right;">
+        <el-pagination layout="total, sizes, prev, pager, next" @current-change="setPageChange" @size-change="setSizeChange" :page-size="size" :total="total" style="float:right;">
         </el-pagination>
     </el-col>
     </el-col>
   </el-row>
 </template>
 <script>
-  import { reqGetAccountSteted } from '../../api/index';
+import { reqGetAccountSteted } from "../../api/index";
 
-  export default{
-    data(){
-      return {
-        id:"",
-        filterAccounts: {
-        	userName: '',
-        	userPhone: '',
-        	tradeStatus: '',
-        	trade_time: ''
-        },
-        page_size: 20,
-        loading: false,
-        orderPage: 1,
-        total: 0,
-        accounts: [],
-        //更新时间相关
-        pickerOptions: {
-          shortcuts: [{
-            text: '最近一周',
+export default {
+  data() {
+    return {
+      id: "",
+      filterAccounts: {
+        userName: "",
+        userPhone: "",
+        tradeStatus: "",
+        date: "",
+        startDate:"",
+        endDate:""
+      },
+      size: 20,
+      loading: false,
+      orderPage: 1,
+      total: 0,
+      accounts: [],
+      //更新时间相关
+      pickerOptions: {
+        shortcuts: [
+          {
+            text: "最近一周",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }, {
-            text: '最近一个月',
+          },
+          {
+            text: "最近一个月",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }, {
-            text: '最近三个月',
+          },
+          {
+            text: "最近三个月",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }]
-        }
+          }
+        ]
       }
+    };
+  },
+  methods: {
+    setHighlight(val) {
+      this.currentRow = val;
     },
-    methods: {
-      setHighlight(val) {
-      	this.currentRow = val
-      },
-      setPageChange(val) {
-      	this.orderPage = val
-      	// this.getAccounts()
-      },
-      //获取分销结算列表
-      getAccounts() {
-      	let pa = {
-      		page: this.orderPage-1,
-      		page_size: this.page_size
-      	}
-        Object.assign(pa, {id:this.id})
-        Object.assign(pa, this.filterAccounts)
-        this.loading = true
-        console.log(pa)
-        reqGetAccountSteted(pa).then((res) => {
-          this.total = res.data.total
-          console.log(res)
-          this.accounts = res.data.data.content
-              this.loading = false	
-        })	
-
-
-      }
+    setPageChange(val) {
+      this.orderPage = val;
+      this.getAccounts();
     },
-    mounted() {
-      if ( this.$route.params.account ) {
-	      this.filterAccounts.userName = this.$route.params.account.userName
-        this.filterAccounts.userPhone = this.$route.params.account.userPhone
-        this.id = this.$route.params.account.id
-        this.getAccounts();      	
+    setSizeChange(val) {
+      this.size = val;
+      this.getAccounts();
+    },
+    //获取分销结算列表
+    getAccounts() {
+      let pa = {
+        page: this.orderPage - 1,
+        size: this.size
+      };
+      if (
+        this.filterAccounts.date &&
+        this.filterAccounts.date.length > 0 &&
+        this.filterAccounts.date[0] != null
+      ) {
+        this.filterAccounts.startDate = this.filterAccounts.date[0]
+          .toJSON()
+          .split("T")[0];
+        this.filterAccounts.endDate = this.filterAccounts.date[1]
+          .toJSON()
+          .split("T")[0];
+        console.log(this.filterAccounts)
+      } else {
+        this.filterAccounts.startDate = "";
+        this.filterAccounts.endDate = "";
       }
+      Object.assign(pa, { id: this.id });
+      Object.assign(pa, this.filterAccounts);
+      this.loading = true;
+      console.log(pa);
+      reqGetAccountSteted(pa).then(res => {
+        this.total = res.data.total;
+        console.log(res);
+        this.accounts = res.data.data.content;
+        this.loading = false;
+      });
+    }
+  },
+  mounted() {
+    if (this.$route.params.account) {
+      this.filterAccounts.userName = this.$route.params.account.userName;
+      this.filterAccounts.userPhone = this.$route.params.account.userPhone;
+      this.id = this.$route.params.account.id;
+      this.getAccounts();
     }
   }
+};
 </script>
 

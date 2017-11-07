@@ -12,94 +12,110 @@
         <el-form :model="orderInfo" ref='editForm' label-width='100px'>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='订单编号'>
-                <el-input v-model="orderInfo.orderNo" placeholder="订单编号" disabled></el-input>
+              <el-form-item label='订单编号：'>
+                <el-input v-model="orderInfo.order_id" placeholder="不需填写" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='商品名称'>
-                <el-input v-model="orderInfo.productName" placeholder="商品名称"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='8'>
-              <el-form-item label='商品单价（元）'>
-                <el-input v-model="orderInfo.productPrice" placeholder="商品单价"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span='8'>
-              <el-form-item label='数量'>
-                <el-input v-model="orderInfo.productQuantity" placeholder="数量"></el-input>
+              <el-form-item label='商品名称：'>
+                <el-autocomplete
+                  v-model="orderInfo.productName"
+                  :fetch-suggestions="querySearchAsync"
+                  placeholder="商品名称"
+                  @select="handleSelect"
+                  style="width:100%;"
+                ></el-autocomplete>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='商品总价（元）'>
-                <el-input v-bind:value="calGoodsTotalPrice" placeholder="商品总价" disabled></el-input>
+              <el-form-item label='商品单价：'>
+                <el-input v-model.number="orderInfo.items[0].productPrice" placeholder="商品单价" width="111">
+                  <template slot="append">元</template>
+                </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='商品税费（元）'>
-                <el-input v-model="orderInfo.goods_tax" placeholder="商品税费"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='8'>
-              <el-form-item label='物流费用（元）'>
-                <el-input v-model="orderInfo.logistics_fees" placeholder="物流费用"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span='8'>
-              <el-form-item label='订单总价（元）'>
-                <el-input v-model="calOrderTotalPrice" placeholder="订单总价" disabled></el-input>
+              <el-form-item label='商品数量：'>
+                <el-input v-model.number="orderInfo.items[0].productQuantity" placeholder="商品数量"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='购买用户'>
-                <el-input v-model="orderInfo.user_name" placeholder="购买用户"></el-input>
+              <el-form-item label='商品总价：'>
+                <el-input v-bind:value="calGoodsTotalPrice" placeholder="商品总价" disabled>
+                  <template slot="append">元</template>
+                </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='支付方式'>
+              <el-form-item label='商品税费：'>
+                <el-input v-model.number="orderInfo.goods_tax" placeholder="商品税费">
+                  <template slot="append">元</template>
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+            <el-col :span='8'>
+              <el-form-item label='物流费用：'>
+                <el-input v-model.number="orderInfo.logistics_fees" placeholder="物流费用">
+                  <template slot="append">元</template>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span='8'>
+              <el-form-item label='订单总价：'>
+                <el-input v-model="calOrderTotalPrice" placeholder="订单总价" disabled>
+                  <template slot="append">元</template>
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+            <el-col :span='8'>
+              <el-form-item label='购买用户：'>
+                <el-input v-model="orderInfo.name" placeholder="购买用户"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span='8'>
+              <el-form-item label='支付方式：'>
                 <el-input v-model="orderInfo.pay_type" placeholder="支付方式"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='收货姓名'>
+              <el-form-item label='收货姓名：'>
                 <el-input v-model="orderInfo.buyerName" placeholder="收货姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='收货电话'>
-                <el-input v-model="orderInfo.buyerPhone" placeholder="收货电话"></el-input>
+              <el-form-item label='收货电话：'>
+                <el-input v-model="orderInfo.phone" placeholder="收货电话"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='收货人身份证'>
-                <el-input v-model="orderInfo.consignee_id" placeholder="收货人身份证"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span='8'>
-              <el-form-item label='收货地址'>
+              <el-form-item label='收货地址：'>
                 <el-cascader :options="addressOptions" v-model="orderInfo.consignee_address" @change="handleAddressChange" style='width:100%;margin-bottom:10px;'>
                 </el-cascader>
                 <br/>
                 <el-input v-model="orderInfo.address_detail" placeholder="详细地址"></el-input>
               </el-form-item>
             </el-col>
+            <el-col :span='8'>
+              <el-form-item label='身份证件：'>
+                <el-input v-model="orderInfo.consignee_id" placeholder="收货人身份证"></el-input>
+              </el-form-item>
+            </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
-              <el-form-item label='订单状态'>
+              <el-form-item label='订单状态：'>
                 <el-radio-group v-model='orderInfo.orderStatus'>
                   <el-radio :label="'1'">待支付</el-radio>
                   <el-radio :label="'2'">已取消</el-radio>
@@ -116,7 +132,7 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
-              <el-form-item label='Ebay状态'>
+              <el-form-item label='Ebay状态：'>
                 <el-radio-group v-model='orderInfo.ebayStatus'>
                   <el-radio :label="'1'">待支付</el-radio>
                   <el-radio :label="'2'">已取消</el-radio>
@@ -129,7 +145,7 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
-              <el-form-item label='物流状态'>
+              <el-form-item label='物流状态：'>
                 <el-radio-group v-model='orderInfo.logisticsStatus'>
                   <el-radio :label="'1'">海外仓已入库</el-radio>
                   <el-radio :label="'2'">海外仓已出库</el-radio>

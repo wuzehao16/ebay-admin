@@ -3,8 +3,8 @@
     <el-col :span="24" class="warp-breadcrum">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item :to="{ path: '/' }"><b>首页</b></el-breadcrumb-item>
-        <el-breadcrumb-item>分销结算</el-breadcrumb-item>
-        <el-breadcrumb-item>结算列表</el-breadcrumb-item>
+        <el-breadcrumb-item>账户列表</el-breadcrumb-item>
+        <el-breadcrumb-item>账户明细</el-breadcrumb-item>
       </el-breadcrumb>
     </el-col>
 
@@ -40,7 +40,11 @@
     	<el-table-column property="hIncome" label="历史收益（元）" min-width='140'></el-table-column>
     	<el-table-column property="userBalance" label="账户余额（元）" min-width='140'></el-table-column>
     	<el-table-column property="pIncome" label="待审核收益（元）" min-width='160'></el-table-column>
-    	<el-table-column property="updated" label="更新时间" min-width='200' :formatter="dateFormat"></el-table-column>
+    	<el-table-column property="updated" label="更新时间" min-width='200' >
+        <template scope="scope">
+					{{fTimestamp(scope.row.updated)}}
+				</template>
+      </el-table-column>
 	    <el-table-column fixed="right" label="操作" min-width='80'>
         	<template scope="scope">
             	<el-button size="small" type="primary" @click="showStated(scope.row)">明细</el-button>

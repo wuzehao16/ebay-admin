@@ -115,7 +115,7 @@
   </el-row>
 </template>
 <script>
-import { reqWithdrawList, reqGetWithdrawIssue } from "../../api/api";
+import { reqWithdrawList } from "../../api";
 export default {
   data() {
     return {

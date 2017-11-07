@@ -81,7 +81,7 @@
   </el-row>
 </template>
 <script>
-import { reqWithdrawAudit } from '../../api/api';
+import { reqWithdrawAudit } from '../../api';
 export default {
   data() {
     return {

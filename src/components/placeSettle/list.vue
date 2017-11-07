@@ -92,7 +92,7 @@
   </el-row>
 </template>
 <script>
-import { reqDistrList } from "../../api/api";
+import { reqDistrList } from '../../api';
 
 export default {
   data() {

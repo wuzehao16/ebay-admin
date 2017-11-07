@@ -3,11 +3,8 @@ import Router from 'vue-router'
 import Home from '@/components/Home'
 import Dashboard from '@/components/Dashboard'
 
-import BookList from '@/components/book/list'
-import BookCategoryList from '@/components/bookcategory/list'
-
 import UserList2 from '@/components/user/userlist'
-import UserList from '@/components/user/list'
+
 import OrderList from '@/components/order/list'
 import OrderEdit from '@/components/order/edit'
 import OrderDetail from '@/components/order/detail'
@@ -79,7 +76,7 @@ let router = new Router({
       name: '用户管理',
       menuShow: true,
       leaf: true, // 只有一个节点
-      iconCls: 'iconfont icon-users', // 图标样式class
+      iconCls: 'iconfont icon-user', // 图标样式class
       children: [
         {path: '/user/userlist', component: UserList2, name: '会员管理', menuShow: true}
       ]
@@ -90,7 +87,7 @@ let router = new Router({
       name: '商品管理',
       menuShow: true,
       leaf: true, // 只有一个节点
-      iconCls: 'iconfont icon-users', // 图标样式class
+      iconCls: 'iconfont icon-product', // 图标样式class
       children: [
         {path: '/goods/list', component: GoodsList, name: '商品管理', menuShow: true},
         {path: '/goods/add', component: GoodsAdd, name: '商品新增', menuShow: false},
@@ -103,7 +100,7 @@ let router = new Router({
       name: '订单管理',
       menuShow: true,
       leaf: true,
-      iconCls: 'iconfont icon-users', // 图标样式class
+      iconCls: 'iconfont icon-order', // 图标样式class
       children: [
         {path: '/order/list', component: OrderList, name: '订单列表', menuShow: true},
         {path: '/order/edit', component: OrderEdit, name: '订单编辑', menuShow: false},
@@ -117,7 +114,7 @@ let router = new Router({
       name: '订单异常',
       menuShow: true,
       leaf: true,
-      iconCls: 'iconfont icon-users', // 图标样式class
+      iconCls: 'iconfont icon-order-error', // 图标样式class
       children: [
         {path: '/orderException/list', component: ExOrderList, name: '订单异常', menuShow: true},
         {path: '/orderException/edit', component: ExOrderEdit, name: '异常订单编辑', menuShow: false},
@@ -131,7 +128,7 @@ let router = new Router({
       name: '分销结算',
       menuShow: true,
       leaf: true,
-      iconCls: 'iconfont icon-users', // 图标样式class
+      iconCls: 'iconfont icon-distri', // 图标样式class
       children: [
         {path: '/placeSettle/list', component: PlaceSettleList, name: '分销结算', menuShow: true},
         {path: '/placeSettle/edit', component: PlaceSettleEdit, name: '结算编辑', menuShow: false},
@@ -144,7 +141,7 @@ let router = new Router({
       name: '账户管理',
       menuShow: true,
       leaf: true,
-      iconCls: 'iconfont icon-users', // 图标样式class
+      iconCls: 'iconfont icon-account', // 图标样式class
       children: [
         {path: '/account/list', component: AccountList, name: '账户列表', menuShow: true},
         {path: '/account/account_stated', component: AccountStated, name: '账户明细', menuShow: false}
@@ -156,7 +153,7 @@ let router = new Router({
       name: '提现管理',
       menuShow: true,
       leaf: true,
-      iconCls: 'iconfont icon-users', // 图标样式class
+      iconCls: 'iconfont icon-withdraw', // 图标样式class
       children: [
         {path: '/withdraw/list', component: WithdrawList, name: '提现管理', menuShow: true},
         {path: '/withdraw/audit', component: WithdrawAudit, name: '提现审核', menuShow: false},
@@ -169,7 +166,7 @@ let router = new Router({
       name: '对账管理',
       menuShow: true,
       leaf: true,
-      iconCls: 'iconfont icon-users', // 图标样式class
+      iconCls: 'iconfont icon-settle', // 图标样式class
       children: [
         {path: '/reconciliation/list', component: ReconciliationList, name: '对账管理', menuShow: true},
         {path: '/reconciliation/edit', component: ReconciliationEdit, name: '对账处理', menuShow: false},
@@ -182,7 +179,7 @@ let router = new Router({
       name: '微信管理',
       menuShow: true,
       // leaf: true,
-      iconCls: 'iconfont icon-users', // 图标样式class
+      iconCls: 'iconfont icon-wechat', // 图标样式class
       children: [
         {path: '/wechat/menulist', component: WechatMenus, name: '微信菜单', menuShow: true},
         {path: '/wechat/replylist', component: WechatReply, name: '自动回复设置', menuShow: true}
@@ -190,40 +187,6 @@ let router = new Router({
     },
     {path: '*', redirect: '/login'}
 
-/*
-    {
-      path: '/',
-      component: Home,
-      name: '用户管理',
-      menuShow: true,
-      leaf: true, // 只有一个节点
-      iconCls: 'iconfont icon-users', // 图标样式class
-      children: [
-        {path: '/user/list', component: UserList, name: '用户列表', menuShow: true}
-      ]
-    },
-    {
-      path: '/',
-      component: Home,
-      name: '图书管理',
-      menuShow: true,
-      iconCls: 'iconfont icon-books',
-      children: [
-        {path: '/book/list', component: BookList, name: '图书列表', menuShow: true},
-        {path: '/book/category', component: BookCategoryList, name: '图书分类', menuShow: true}
-      ]
-    },
-    {
-      path: '/',
-      component: Home,
-      name: '设置',
-      menuShow: true,
-      iconCls: 'iconfont icon-setting1',
-      children: [
-        {path: '/user/profile', component: UserProfile, name: '个人信息', menuShow: true},
-        {path: '/user/changepwd', component: UserChangePwd, name: '修改密码', menuShow: true}
-      ]
-    }*/
   ]
 })
 

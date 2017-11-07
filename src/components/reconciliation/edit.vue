@@ -119,7 +119,7 @@
   </el-row>
 </template>
 <script>
-import { reqReconciliationEdit } from "../../api/api";
+import { reqReconciliationEdit } from "../../api";
 
 export default {
   data() {

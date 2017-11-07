@@ -157,7 +157,7 @@
 </template>
 <script>
 import util from '../../common/util'
-import { reqEditOrder } from '../../api/api';
+import { reqEditOrder } from '../../api';
 import { regionData } from 'element-china-area-data'
 
 export default {

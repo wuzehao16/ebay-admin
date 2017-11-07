@@ -104,7 +104,7 @@
 </template>
 <script>
 import util from "../../common/util";
-import { reqGetUserList, reqDeleteUser, reqEditUser } from "../../api/api";
+import { reqGetUserList, reqDeleteUser, reqEditUser } from "../../api";
 export default {
   data() {
     return {

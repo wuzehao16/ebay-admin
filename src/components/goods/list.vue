@@ -84,7 +84,7 @@
 
 <script>
   import util from '../../common/util'
-  import { reqGoodsList, reqOnSaleGoods, reqOffSaleGoods } from '../../api/api';
+  import { reqGoodsList, reqOnSaleGoods, reqOffSaleGoods } from '../../api';
   export default{
     data(){
       return {

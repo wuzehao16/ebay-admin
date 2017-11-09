@@ -39,7 +39,7 @@
 	  </el-col>
 
 
-    <el-table ref="singleTable" :data="accounts" v-loading='loading'  @current-change="setHighlight" height='600' style="width: 100%">
+    <el-table ref="singleTable" :data="accounts" v-loading='loading'  @current-change="setHighlight"  style="width: 100%">
     	<el-table-column type="index" width="60"> </el-table-column>
     	<el-table-column property="user.userName" label="用户姓名" width='140'></el-table-column>
     	<el-table-column property="user.userPhone" label="手机号码" width='140'></el-table-column>

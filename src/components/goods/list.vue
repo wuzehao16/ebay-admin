@@ -25,6 +25,13 @@
             <el-option key="1" label="下架" value="下架"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item>
+           <el-select v-model="filters.auditStatus" placeholder="审核状态" clearable>
+            <el-option key="0" label="待审核" value="0"></el-option>
+            <el-option key="1" label="已通过" value="1"></el-option>
+            <el-option key="2" label="不通过" value="2"></el-option>            
+          </el-select>
+        </el-form-item>
 	      <el-form-item>
 	        <el-button type="primary" @click="getGoods">查询</el-button>
 	      </el-form-item>
@@ -34,24 +41,23 @@
 	    </el-form>
 	  </el-col>
     <el-table ref="singleTable" :data="goods" v-loading='loading'  @current-change="setHighlight" style="width: 100%">
-    	<el-table-column property="id" label="商品编号" min-width='100'></el-table-column>
-    	<el-table-column prop="ebayItemid"  label="ItemId" min-width='100'></el-table-column>
-      <el-table-column property="productNane" label="商品名称" min-width='200'></el-table-column>
+      <el-table-column property="productNane" label="商品名称" min-width='400'></el-table-column>      
     	<el-table-column property="productStatus" label="商品状态" min-width='100'></el-table-column>
-    	<el-table-column property="userWxOpenid" label="译者微信ID" min-width="140"></el-table-column>
-    	<el-table-column prop="auditStatus" label="审核状态" min-width="120" :filters="[{ text: '待审核', value: '0' }, { text: '已通过', value: '1' }, { text: '不通过', value: '2' }]" :filter-method="filterAuditTag" filter-placement="bottom-end">
-        	<template scope="scope">
-        		<template v-if='scope.row.auditStatus == "0"'>
-        			<el-tag type='primary'>待审核</el-tag>
-        		</template>
-        		<template v-else-if='scope.row.auditStatus == "1"'>
-        			<el-tag type='success'>已通过</el-tag>
-        		</template>
-        		<template v-else-if='scope.row.auditStatus == "2"'>
-        			<el-tag type='warning'>不通过</el-tag>
-        		</template>
-        	</template>
+      <el-table-column prop="auditStatus" label="审核状态" min-width="120" :filters="[{ text: '待审核', value: '0' }, { text: '已通过', value: '1' }, { text: '不通过', value: '2' }]" :filter-method="filterAuditTag" filter-placement="bottom-end">
+        <template scope="scope">
+          <template v-if='scope.row.auditStatus == "0"'>
+            <span style="color:red;">待审核</span>
+          </template>
+          <template v-else-if='scope.row.auditStatus == "1"'>
+            已通过
+          </template>
+          <template v-else-if='scope.row.auditStatus == "2"'>
+            不通过
+          </template>
+        </template>
     	</el-table-column>
+    	<el-table-column property="userWxOpenid" label="译者微信ID" min-width="140"></el-table-column>
+
     	<el-table-column label="翻译时间" min-width="150">
           <template scope="scope">
             {{ fTimestamp(scope.row.created) }}
@@ -62,6 +68,7 @@
             {{ fTimestamp(scope.row.audited) }}
           </template>
       </el-table-column>
+      <el-table-column prop="ebayItemid"  label="ebayItemId" min-width='160'></el-table-column>
 	    <el-table-column label="操作" width='240' fixed="right">
         	<template scope="scope">
               <template v-if="scope.row.auditStatus == '1'">

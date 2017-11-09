@@ -65,16 +65,7 @@
               </el-form-item>              
             </el-col>
           </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='16'>
-              <el-form-item label='异常描述'>
-				<el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
-				  v-model="exOrderInfo.errorMemo">
-				</el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>          
-
+      
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='异常状态'>
@@ -91,6 +82,15 @@
               </el-form-item>
             </el-col>            
           </el-row>
+          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+            <el-col :span='16'>
+              <el-form-item label='异常描述'>
+                <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
+                  v-model="exOrderInfo.errorMemo">
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row> 
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16' :offset='10'>
 			 	<el-button type="success" @click='AddSubmit'>提交</el-button>

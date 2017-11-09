@@ -18,7 +18,7 @@
 	        <el-input v-model="filterUsers.userPhone" placeholder="手机号码"></el-input>
 	      </el-form-item>
 	      <el-form-item>
-	        <el-input v-model="filterUsers.userWxOpenid" placeholder="微信账号"></el-input>
+	        <el-input v-model="filterUsers.userWxOpenid" placeholder="微信openId"></el-input>
 	      </el-form-item>
         <el-form-item>
 		  <el-select v-model="filterUsers.userCtype" placeholder="会员类型" clearable>
@@ -40,17 +40,18 @@
     	<el-table-column prop="userCtype" label="会员类型" min-width="120" :filters="[{ text: '分销商', value: '1' }, { text: '普通用户', value: '2' }]" :filter-method="filterTag" filter-placement="bottom-end">
         	<template scope="scope">
             <template v-if="scope.row.userCtype == '2'">
-              <el-tag type='primary' close-transition>普通用户</el-tag>
+              普通用户
             </template>
             <template v-else-if="scope.row.userCtype == '1'">
-              <el-tag type='success' close-transition>分销商</el-tag>
+              分销商
             </template>
             <template v-else>
-              <el-tag type='danger' close-transition>不明身份</el-tag>
+              不明身份
             </template>
         	</template>
     	</el-table-column>
-    	<el-table-column property="userWxOpenid" label="微信号"></el-table-column>
+      <el-table-column property="userWxName" label="微信昵称" min-width="120"></el-table-column>
+    	<el-table-column property="userWxOpenid" label="微信openId" min-width="200"></el-table-column>
     	<el-table-column label="日期" min-width="160">
           <template scope="scope">
           {{ fTimestamp(scope.row.created) }}

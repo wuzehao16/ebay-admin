@@ -12,52 +12,41 @@
 
 	  <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 	    <el-form :inline="true" :model="filterOrders">
-		  <!-- <el-form-item>
-			  <el-select v-model="filterOrders.order_source" placeholder="订单来源" clearable>
-	    		<el-option key="0" label="PC端" value="0"></el-option>
-	    		<el-option key="1" label="移动端" value="1"></el-option>
-			  </el-select>
-		  </el-form-item> -->
-		  <!-- <el-form-item>
-			  <el-select v-model="filterOrders.user_type" placeholder="用户类型" clearable>
-	    		<el-option key="0" label="分销商" value="0"></el-option>
-	    		<el-option key="1" label="普通用户" value="1"></el-option>
-			  </el-select>
-		  </el-form-item> -->
-		  <el-form-item>
-			  <el-select v-model="filterOrders.orderStatus" placeholder="订单状态" clearable>
-	    		<el-option key="1" label="待支付" value="1"></el-option>
-	    		<el-option key="2" label="已取消" value="2"></el-option>
-	    		<el-option key="3" label="已支付" value="3"></el-option>
-	    		<el-option key="4" label="已发货" value="4"></el-option>
-	    		<el-option key="5" label="已完成" value="5"></el-option>
-	    		<el-option key="6" label="已评价" value="6"></el-option>
-	    		<el-option key="7" label="退款中" value="7"></el-option>
-	    		<el-option key="8" label="已退款" value="8"></el-option>
-	    		<el-option key="9" label="已删除" value="9"></el-option>
-			  </el-select>
-		  </el-form-item>
-		  <el-form-item>
-			  <el-select v-model="filterOrders.ebayStatus" placeholder="Ebay状态" clearable>
-	    		<el-option key="1" label="待支付" value="1"></el-option>
-	    		<el-option key="2" label="已取消" value="2"></el-option>
-	    		<el-option key="3" label="已支付" value="3"></el-option>
-	    		<el-option key="4" label="已发货" value="4"></el-option>
-	    		<el-option key="5" label="已完成-海外仓已签收" value="5"></el-option>
-			  </el-select>
-		  </el-form-item><br/>		  
+	      <el-form-item>
+	        <el-input v-model="filterOrders.orderNo" placeholder="订单编号"></el-input>
+	      </el-form-item>
+	  
 	      <el-form-item>
 	        <el-input v-model="filterOrders.productName" placeholder="商品名称"></el-input>
 	      </el-form-item>
 	      <el-form-item>
-	        <el-input v-model="filterOrders.buyerPhone" placeholder="手机号码"></el-input>
-	      </el-form-item>
-	      <el-form-item>
 	        <el-input v-model="filterOrders.buyerName" placeholder="用户姓名"></el-input>
 	      </el-form-item>
-	      <el-form-item>
-	        <el-input v-model="filterOrders.orderNo" placeholder="订单编号"></el-input>
+				<el-form-item>
+	        <el-input v-model="filterOrders.buyerPhone" placeholder="手机号码"></el-input>
 	      </el-form-item>
+				<el-form-item>
+					<el-select v-model="filterOrders.orderStatus" placeholder="订单状态" clearable>
+						<el-option key="1" label="待支付" value="1"></el-option>
+						<el-option key="2" label="已取消" value="2"></el-option>
+						<el-option key="3" label="已支付" value="3"></el-option>
+						<el-option key="4" label="已发货" value="4"></el-option>
+						<el-option key="5" label="已完成" value="5"></el-option>
+						<el-option key="6" label="已评价" value="6"></el-option>
+						<el-option key="7" label="退款中" value="7"></el-option>
+						<el-option key="8" label="已退款" value="8"></el-option>
+						<el-option key="9" label="已删除" value="9"></el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item>
+					<el-select v-model="filterOrders.ebayStatus" placeholder="Ebay状态" clearable>
+						<el-option key="1" label="待支付" value="1"></el-option>
+						<el-option key="2" label="已取消" value="2"></el-option>
+						<el-option key="3" label="已支付" value="3"></el-option>
+						<el-option key="4" label="已发货" value="4"></el-option>
+						<el-option key="5" label="已完成-海外仓已签收" value="5"></el-option>
+					</el-select>
+				</el-form-item>	
 	      <el-form-item>
 	        <el-button type="primary" @click="getOrders">查询</el-button>
 	      </el-form-item>
@@ -68,7 +57,7 @@
 	  </el-col>
 
 
-    <el-table ref="singleTable" :data="orders" v-loading='orderLoading'  @current-change="setHighlight" height='600' style="width: 100%">
+    <el-table ref="singleTable" :data="orders" v-loading='orderLoading'  @current-change="setHighlight"  style="width: 100%">
     	<el-table-column type="index" width="60"> </el-table-column>
     	<el-table-column property="orderNo" label="订单编号" width='200'></el-table-column>
     	<el-table-column property="productName" label="商品名称" width='250'></el-table-column>
@@ -83,7 +72,6 @@
     	<el-table-column prop="orderStatus" label="订单状态" width="120" :filters="[{ text: '待支付', value: 1 }, { text: '已取消', value: 2 }, { text: '已支付', value: 3 }, { text: '已发货', value: 4 },
 			{ text: '已完成', value: 5 }, { text: '已评价', value: 6 }, { text: '退款中', value: 7 }, { text: '已退款', value: 8 },{text:'已删除',value:9}]" :filter-method="filterOrderStatusTag" filter-placement="bottom-end">
         	<template scope="scope">
-            	<el-tag :type="scope.row.orderStatus == 1 ? 'primary' : 'success'" close-transition>
             		<template v-if='scope.row.orderStatus == 1'>
             			待支付
             		</template>
@@ -111,13 +99,11 @@
             		<template v-else>
             			已删除
             		</template>
-            	</el-tag>
         	</template>
     	</el-table-column> 
     	<el-table-column property="ebayNo" label="Ebay订单号" width='200'></el-table-column>
     	<el-table-column property="ebayStatus" label="Ebay状态" width="180" :filters="[{ text: '待支付', value: 1 }, { text: '已取消', value: 2 }, { text: '已支付', value: 3 }, { text: '已发货', value: 4 },{ text: '已完成-海外仓已签收', value: 5 }]" :filter-method="filterEbayStatusTag" filter-placement="bottom-end">
         	<template scope="scope">
-            	<el-tag :type="scope.row.ebayStatus == 1 ? 'primary' : 'success'" close-transition>
             		<template v-if='scope.row.ebayStatus == 1'>
             			待支付
             		</template>
@@ -133,14 +119,13 @@
             		<template v-else>
             			已完成-海外仓已签收
             		</template>
-            	</el-tag>
         	</template>
     	</el-table-column> 
     	
     	<el-table-column property="buyerName" label="买家姓名" width='100'></el-table-column>
     	<el-table-column prop="user_type" label="会员类型" width="120" :filters="[{ text: '分销商', value: 0 }, { text: '普通用户', value: 1 }]" :filter-method="filterTag" filter-placement="bottom-end">
         	<template scope="scope">
-            	<el-tag :type="scope.row.user_type == 0 ? 'primary' : 'success'" close-transition>{{scope.row.user_type == 0 ? '分销商':'普通用户'}}</el-tag>
+            {{scope.row.user_type == 0 ? '分销商':'普通用户'}}
         	</template>
     	</el-table-column>    	
     	<el-table-column property="buyerPhone" label="手机号码" width='150'></el-table-column>

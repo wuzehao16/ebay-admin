@@ -28,4 +28,8 @@ a{
 .el-table__body-wrapper.el-table__body tr.current-row>td {
     background: #edf7ff!important;
 }
+.el-pagination{
+  float: left !important;
+  margin-top: 10px;
+}
 </style>

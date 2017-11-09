@@ -31,7 +31,7 @@
 	  </el-col>
 
 
-    <el-table ref="singleTable" :data="accounts" v-loading='loading'  @current-change="setHighlight" height='600' style="width: 100%" >
+    <el-table ref="singleTable" :data="accounts" v-loading='loading'  @current-change="setHighlight"  style="width: 100%" >
     	<el-table-column type="index" min-width="60"> </el-table-column>
     	<el-table-column property="userId" label="用户ID" min-width='200'></el-table-column>
     	<el-table-column property="user.userName" label="用户姓名" min-width='120'></el-table-column>

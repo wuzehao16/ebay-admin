@@ -174,7 +174,7 @@
 <script>
 import util from "../../common/util";
 import { reqAddOrder, reqProductName } from "../../api/index";
-import { regionData } from "element-china-area-data";
+import { regionData ,CodeToText} from "element-china-area-data";
 
 export default {
   data() {
@@ -217,9 +217,17 @@ export default {
   },
   methods: {
     handleAddressChange(val) {
-      console.log(val);
+      // console.log(val);
+    },
+    addressCodeToaddress(){
+     if (this.orderInfo.consignee_address && this.orderInfo.consignee_address.length <1 ) return
+      this.orderInfo.address =CodeToText[this.orderInfo.consignee_address[0]] +'@'+
+                               CodeToText[this.orderInfo.consignee_address[1]]  +'@'+
+                               CodeToText[this.orderInfo.consignee_address[2]]
+      this.orderInfo.address += '@'+ this.orderInfo.address_detail
     },
     addSubmit() {
+      this.addressCodeToaddress();
       console.log(this.orderInfo);
       reqAddOrder(this.orderInfo).then(res => {
         this.$message({

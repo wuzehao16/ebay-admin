@@ -23,8 +23,8 @@
     				</el-form-item>
     				<el-form-item label="菜单类型">
 						  <el-radio-group v-model="props.row.wxMenuType">
-						    <el-radio label="0">点击事件</el-radio>
-						    <el-radio label="1">URL地址</el-radio>
+						    <el-radio label="1">点击事件</el-radio>
+						    <el-radio label="2">URL地址</el-radio>
 						  </el-radio-group>
     				</el-form-item>
     				<el-form-item label="KEY" v-show="props.row.wxMenuType == 0">
@@ -160,7 +160,7 @@ export default {
       addLoading: false,
       addForm: {
         wxMenuName: "",
-        wxMenuType: 0,
+        wxMenuType: "2",
         wxMenuContent: "",
         wxMenuSeriNo:'',
         wxMenuFlag:0

@@ -20,9 +20,7 @@
               <el-form-item label='商品名称：'>
                 <el-autocomplete
                   v-model="orderInfo.productName"
-                  :fetch-suggestions="querySearchAsync"
                   placeholder="商品名称"
-                  @select="handleSelect"
                   style="width:100%;"
                 ></el-autocomplete>
               </el-form-item>
@@ -31,14 +29,14 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='商品单价：'>
-                <el-input v-model.number="orderInfo.items[0].productPrice" placeholder="商品单价" width="111">
+                <el-input v-model.number="orderInfo.productPrice" placeholder="商品单价" width="111">
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品数量：'>
-                <el-input v-model.number="orderInfo.items[0].productQuantity" placeholder="商品数量"></el-input>
+                <el-input v-model.number="orderInfo.productQuantity" placeholder="商品数量"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -68,7 +66,7 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='订单总价：'>
-                <el-input v-model="calOrderTotalPrice" placeholder="订单总价" disabled>
+                <el-input v-model="orderInfo.orderAmount" placeholder="订单总价" disabled>
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>

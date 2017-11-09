@@ -173,13 +173,23 @@
 </template>
 <script>
 import util from '../../common/util'
-import { reqEditOrder } from '../../api';
+import { reqEditOrder,reqProductName } from '../../api';
 import { regionData } from 'element-china-area-data'
 
 export default {
   data() {
     return {
-      orderInfo: {},
+      orderInfo: {
+         items:[{
+          id: 0,
+          orderId: "",
+          productIcon: "",
+          productId: 0,
+          productName: "",
+          productPrice: 0,
+          productQuantity: 0,
+        }]
+      },
       orderInfo_bak: {},
 
       addressOptions: regionData,
@@ -204,19 +214,60 @@ export default {
     },
     toOrderList() {
     	this.$router.push('/order/list')
+    },
+    querySearchAsync(queryString, cb) {
+     //远程拉取商品名列表
+      var that = this;
+      var product = this.product;
+      var results = queryString ? fetch(queryString) : product;
+      function fetch(queryString) {
+        let params = { productNane: that.orderInfo.productName };
+        reqProductName(params).then(res => {
+          let Arr = res.data.data.content;
+          let results = that.createStateFilter(Arr)
+          cb(results);
+        });
+      }
+    },
+    createStateFilter(Arr) {
+        let newArray = [];
+        for (var n in Arr) {
+          newArray[n] = {};
+          newArray[n].value = Arr[n].productNane;
+          newArray[n].id = Arr[n].id;
+        }
+        return newArray
+    },
+    handleSelect(item) {
+      console.log(item);
+      this.orderInfo.items[0].productId = item.id;
+      this.orderInfo.items[0].productName = item.value;
     }
-
   },
   computed: {
   	calGoodsTotalPrice() {
-  		return (this.orderInfo.productQuantity * this.orderInfo.productPrice).toFixed(2)
+  		return (this.orderInfo.items[0].productQuantity * this.orderInfo.items[0].productPrice).toFixed(2)
   	},
   	calOrderTotalPrice() {
   		return (parseFloat(this.calGoodsTotalPrice) + this.orderInfo.goods_tax + this.orderInfo.logistics_fees).toFixed(2)
   	}
   },
   mounted() {
-  	this.orderInfo = this.$route.params.order
+    Object.assign(this.orderInfo, this.$route.params.order)
+    console.log(this.orderInfo)
+    // this.orderInfo.item =  [{
+    //       id: 0,
+    //       orderId: "",
+    //       productIcon: "",
+    //       productId: 0,
+    //       productName: "",
+    //       productPrice: 0,
+    //       productQuantity: 0,
+    //     }]
+    this.orderInfo.items[0].productPrice = this.$route.params.order.productPrice
+    this.orderInfo.items[0].productQuantity = this.$route.params.order.productQuantity  
+    // console.log(this.orderInfo.item[0].productPrice )
+      
 	Object.assign( this.orderInfo_bak, this.$route.params.order )
   }
 }

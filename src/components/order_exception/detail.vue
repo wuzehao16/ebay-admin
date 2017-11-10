@@ -56,34 +56,33 @@
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='订单总价（元）'>
+              <el-form-item label='订单总价'>
                 <el-input v-model="orderInfo.order_total" placeholder="订单总价" disabled></el-input>
               </el-form-item>              
             </el-col>
           </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='16'>
-              <el-form-item label='异常描述'>
-				<el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
-				  v-model="orderInfo.ex_sloveMemocription" disabled>
-				</el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>          
-
+         
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='异常状态'>
-				  <el-select v-model="orderInfo.errorType" placeholder="异常状态" disabled>
-		    		<el-option v-for="item in exStatusOptions" :key="item.value" :label="item.label" :value="item.value">
-		    		</el-option>
-				  </el-select>
+                <el-select v-model="orderInfo.errorType" placeholder="异常状态" disabled>
+                  <el-option v-for="item in exStatusOptions" :key="item.value" :label="item.label" :value="item.value">
+                  </el-option>
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-            
             </el-col>            
           </el-row>
+          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+            <el-col :span='16'>
+              <el-form-item label='异常描述'>
+                <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
+                  v-model="orderInfo.ex_sloveMemocription" disabled>
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row> 
         </el-form>
 
 		<el-col :span='16' :offset='4'>
@@ -210,3 +209,8 @@ export default {
   }
 };
 </script>
+<style >
+.toolbarff .el-form-item__label{
+    text-align: left;
+}
+</style>

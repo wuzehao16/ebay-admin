@@ -12,6 +12,9 @@
 
 	  <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 	    <el-form :inline="true" :model="filterExOrders">
+        	      <el-form-item>
+	        <el-input v-model="filterExOrders.orderNo" placeholder="订单编号"></el-input>
+	      </el-form-item>		 
 		  <el-form-item>
 			  <el-select v-model="filterExOrders.errorStatus" placeholder="异常状态" clearable>
 	    		<el-option key="0" label="待解决" value="0"></el-option>
@@ -19,10 +22,7 @@
 	    		<el-option key="2" label="未解决" value="2"></el-option>					
 	    		<el-option key="3" label="已挂起" value="3"></el-option>
 			  </el-select>
-		  </el-form-item>
-	      <el-form-item>
-	        <el-input v-model="filterExOrders.orderNo" placeholder="订单编号"></el-input>
-	      </el-form-item>		  
+		  </el-form-item> 
 		  <el-form-item>
 			  <el-select v-model="filterExOrders.errorType" placeholder="异常类型" clearable>
 	    		<el-option key="0" label="系统异常" value="0"></el-option>
@@ -37,47 +37,43 @@
 	        <el-button type="primary" @click="getExOrders">查询</el-button>
 	      </el-form-item>
 	      <el-form-item>
-	        <el-button type="primary" @click="showAdd">新增</el-button>
+	        <el-button type="success" @click="showAdd">新增</el-button>
 	      </el-form-item>
 	    </el-form>
 	  </el-col>
 
 
-    <el-table ref="singleTable" :data="exOrders" v-loading='exOrderLoading'  @current-change="setHighlight" height='600' style="width: 100%">
+    <el-table ref="singleTable" :data="exOrders" v-loading='exOrderLoading'  @current-change="setHighlight"  style="width: 100%">
     	<el-table-column type="index" width="60"> </el-table-column>
     	<el-table-column property="errorNo" label="异常编号" width='200'></el-table-column>
     	<el-table-column property="orderNo" label="订单编号" width='200'></el-table-column>
-    	<el-table-column prop="errorType" label="异常类型" width="120" :filters="[{ text: '系统异常', value: 0 }, { text: 'Ebay缺货', value: 1 }, { text: '卖家取消订单', value: 2 }]" :filter-method="filterExTypeTag" filter-placement="bottom-end">
+    	<el-table-column prop="errorType" label="异常类型" width="120" :filters="[{ text: '系统异常', value: '0' }, { text: 'Ebay缺货', value: '1' }, { text: '卖家取消订单', value: '2' }]" :filter-method="filterExTypeTag" filter-placement="bottom-end">
         	<template scope="scope">
-            	<el-tag :type="scope.row.errorType == 0 ? 'primary' : 'success'" close-transition>
-            		<template v-if='scope.row.errorType == 0'>
+            		<template v-if='scope.row.errorType == "0"'>
             			系统异常
             		</template>
-            		<template v-else-if='scope.row.errorType == 1'>
+            		<template v-else-if='scope.row.errorType == "1"'>
             			Ebay缺货
             		</template>
-            		<template v-else-if='scope.row.errorType == 2'>
+            		<template v-else-if='scope.row.errorType == "2"'>
             			卖家取消订单
             		</template>
-            	</el-tag>
         	</template>
     	</el-table-column> 
-    	<el-table-column prop="errorStatus" label="异常状态" width="120" :filters="[{ text: '待解决', value: 0 }, { text: '已解决', value: 1 },{ text: '未解决', value: 2 },  { text: '挂起', value: 3 }]" :filter-method="filterExStatusTag" filter-placement="bottom-end">
+    	<el-table-column prop="errorStatus" label="异常状态" width="120" :filters="[{ text: '待解决', value: '0' }, { text: '已解决', value: '1' },{ text: '未解决', value: '2' },  { text: '挂起', value: '3' }]" :filter-method="filterExStatusTag" filter-placement="bottom-end">
         	<template scope="scope">
-            	<el-tag :type="scope.row.errorStatus == 0 ? 'primary' : 'success'" close-transition>
-            		<template v-if='scope.row.errorStatus == 0'>
+            		<template v-if='scope.row.errorStatus == "0"'>
             			待解决
             		</template>
-            		<template v-else-if='scope.row.errorStatus == 1'>
+            		<template v-else-if='scope.row.errorStatus == "1"'>
             			已解决
             		</template>
-            		<template v-else-if='scope.row.errorStatus == 2'>
+            		<template v-else-if='scope.row.errorStatus == "2"'>
             			未解决
             		</template>
-								<template v-else-if='scope.row.errorStatus == 3'>
+								<template v-else-if='scope.row.errorStatus == "3"'>
             			挂起
             		</template>
-            	</el-tag>
         	</template>
     	</el-table-column>     	
     	<el-table-column property="errorMemo" label="异常说明" width='300'></el-table-column>

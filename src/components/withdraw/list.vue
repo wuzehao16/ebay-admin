@@ -94,13 +94,14 @@
             <template v-else>--</template>
         </template>
       </el-table-column>
-	    <el-table-column fixed="right" label="操作" width='160'>
+	    <el-table-column fixed="right" label="操作" width='240'>
         	<template scope="scope">
             	<el-button size="small" @click="showAudit(scope.row, true)">查看</el-button>
-            	<el-button v-if="scope.row.auditStatus == '0'" size="small" type="primary" 
+            	<el-button :disabled="scope.row.auditStatus != '0'" size="small" type="primary" 
             		@click="showAudit(scope.row)">审核</el-button>
-            	<el-button v-if="scope.row.audit_status == 1 && scope.row.issue_status == 0" 
-            		size="small" type="primary">发放</el-button>
+            	<el-button :disabled="!(scope.row.audit_status == 1 && scope.row.issue_status == 0)" 
+            		size="small" type="primary" 
+            		@click="issueWithdraw(scope.row)">发放</el-button>
         	</template>
     	</el-table-column>
   	</el-table>

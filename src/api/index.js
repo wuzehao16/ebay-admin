@@ -42,7 +42,7 @@ export const reqEditUser = params => { return axios.post(`/sell/ebay/user/${para
 
 //订单管理
 export const reqGetOrder = params => { return axios.get(`/sell/order/getorder`, { params: params }) }
-export const reqEditOrder = params => { return axios.get(`/sell/order/edit`, { params: params }) }
+export const reqEditOrder = params => { return axios.post(`/sell/order/save`,  params) }
 export const reqAddOrder = params => { return axios.post(`/sell/buyer/order/create`, params) }
 
 //提现管理

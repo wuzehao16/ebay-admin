@@ -12,134 +12,157 @@
         <el-form :model="orderInfo" ref='editForm' label-width='100px'>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='订单编号'>
-                <el-input v-model="orderInfo.order_id" placeholder="订单编号" disabled></el-input>
+              <el-form-item label='订单编号：'>
+                <el-input v-model="orderInfo.order_id" placeholder="不需填写" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='商品名称'>
-                <el-input v-model="orderInfo.productName" placeholder="商品名称"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='8'>
-              <el-form-item label='商品单价（元）'>
-                <el-input v-model="orderInfo.productPrice" placeholder="商品单价"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span='8'>
-              <el-form-item label='数量'>
-                <el-input v-model="orderInfo.productQuantity" placeholder="数量"></el-input>
+              <el-form-item label='商品名称：'>
+                <el-autocomplete
+                  v-model="orderInfo.productName"
+                  :fetch-suggestions="querySearchAsync"
+                  placeholder="商品名称"
+                  @select="handleSelect"
+                  style="width:100%;"
+                ></el-autocomplete>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='商品总价（元）'>
-                <el-input v-bind:value="calGoodsTotalPrice" placeholder="商品总价" disabled></el-input>
+              <el-form-item label='商品单价：'>
+                <el-input v-model.number="orderInfo.items[0].productPrice" placeholder="商品单价" width="111">
+                  <template slot="append">元</template>
+                </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='商品税费（元）'>
-                <el-input v-model="orderInfo.goods_tax" placeholder="商品税费"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='8'>
-              <el-form-item label='物流费用（元）'>
-                <el-input v-model="orderInfo.logistics_fees" placeholder="物流费用"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span='8'>
-              <el-form-item label='订单总价（元）'>
-                <el-input v-model="calOrderTotalPrice" placeholder="订单总价" disabled></el-input>
+              <el-form-item label='商品数量：'>
+                <el-input v-model.number="orderInfo.items[0].productQuantity" placeholder="商品数量"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='购买用户'>
-                <el-input v-model="orderInfo.user_name" placeholder="购买用户"></el-input>
+              <el-form-item label='商品总价：'>
+                <el-input v-bind:value="calGoodsTotalPrice" placeholder="商品总价" disabled>
+                  <template slot="append">元</template>
+                </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='支付方式'>
+              <el-form-item label='商品税费：'>
+                <el-input v-model.number="orderInfo.goods_tax" placeholder="商品税费">
+                  <template slot="append">元</template>
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+            <el-col :span='8'>
+              <el-form-item label='物流费用：'>
+                <el-input v-model.number="orderInfo.logistics_fees" placeholder="物流费用">
+                  <template slot="append">元</template>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span='8'>
+              <el-form-item label='订单总价：'>
+                <el-input v-model="calOrderTotalPrice" placeholder="订单总价" disabled>
+                  <template slot="append">元</template>
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+            <el-col :span='8'>
+              <el-form-item label='购买用户：'>
+                <el-input v-model="orderInfo.name" placeholder="购买用户"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span='8'>
+              <el-form-item label='支付方式：'>
                 <el-input v-model="orderInfo.pay_type" placeholder="支付方式"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='收货姓名'>
+              <el-form-item label='收货姓名：'>
                 <el-input v-model="orderInfo.buyerName" placeholder="收货姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='收货电话'>
-                <el-input v-model="orderInfo.buyerPhone" placeholder="收货电话"></el-input>
+              <el-form-item label='收货电话：'>
+                <el-input v-model="orderInfo.phone" placeholder="收货电话"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='收货人身份证'>
-                <el-input v-model="orderInfo.consignee_id" placeholder="收货人身份证"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span='8'>
-              <el-form-item label='收货地址'>
+              <el-form-item label='收货地址：'>
                 <el-cascader :options="addressOptions" v-model="orderInfo.consignee_address" @change="handleAddressChange" style='width:100%;margin-bottom:10px;'>
                 </el-cascader>
                 <br/>
                 <el-input v-model="orderInfo.address_detail" placeholder="详细地址"></el-input>
               </el-form-item>
             </el-col>
+            <el-col :span='8'>
+              <el-form-item label='身份证件：'>
+                <el-input v-model="orderInfo.consignee_id" placeholder="收货人身份证"></el-input>
+              </el-form-item>
+            </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
-              <el-form-item label='订单状态'>
+              <el-form-item label='订单状态：'>
                 <el-radio-group v-model='orderInfo.orderStatus'>
-                  <el-radio :label="'0'">待付款</el-radio>
-                  <el-radio :label="'1'">待发货</el-radio>
-                  <el-radio :label="'2'">待签收</el-radio>
-                  <el-radio :label="'3'">已签收</el-radio>
+                  <el-radio :label="'1'">待支付</el-radio>
+                  <el-radio :label="'2'">已取消</el-radio>
+                  <el-radio :label="'3'">已支付</el-radio>
+                  <el-radio :label="'4'">已发货</el-radio>
+                  <el-radio :label="'5'">已完成</el-radio>
+                  <el-radio :label="'6'">已评价</el-radio>
+                  <el-radio :label="'7'">退款中</el-radio>
+                  <el-radio :label="'8'">已退款</el-radio>
+                  <el-radio :label="'9'">已删除</el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
-              <el-form-item label='Ebay状态'>
+              <el-form-item label='Ebay状态：'>
                 <el-radio-group v-model='orderInfo.ebayStatus'>
-                  <el-radio :label="'0'">待付款</el-radio>
-                  <el-radio :label="'1'">已付款</el-radio>
-                  <el-radio :label="'2'">已发货</el-radio>
-                  <el-radio :label="'3'">已签收</el-radio>
+                  <el-radio :label="'1'">待支付</el-radio>
+                  <el-radio :label="'2'">已取消</el-radio>
+                  <el-radio :label="'3'">已支付</el-radio>
+                  <el-radio :label="'4'">已发货</el-radio>
+                  <el-radio :label="'5'">已完成</el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
-              <el-form-item label='物流状态'>
-                <el-radio-group v-model='orderInfo.logistics_status'>
-                  <el-radio :label="'0'">海外仓已入库</el-radio>
-                  <el-radio :label="'1'">海外仓已出库</el-radio>
-                  <el-radio :label="'2'">清关中</el-radio>
-                  <el-radio :label="'3'">派送中</el-radio>
+              <el-form-item label='物流状态：'>
+                <el-radio-group v-model='orderInfo.logisticsStatus'>
+                  <el-radio :label="'1'">海外仓已入库</el-radio>
+                  <el-radio :label="'2'">海外仓已出库</el-radio>
+                  <el-radio :label="'3'">清关中</el-radio>
+                  <el-radio :label="'4'">派送中</el-radio>
+                  <el-radio :label="'5'">已签收</el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-col>
           </el-row>
 
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='16' :offset='10'>
-			 	<el-button type="success" @click='editSubmit'>提交</el-button>
-			    <el-button type="warning" @click='resetOrder'>重置</el-button>
-			    <el-button type="info" @click='toOrderList'>返回列表</el-button>
-		    </el-col>
+                <el-col :span='16' :offset='10'>
+            <el-button type="success" @click='editSubmit'>提交</el-button>
+              <el-button type="warning" @click='resetOrder'>重置</el-button>
+              <el-button type="info" @click='toOrderList'>返回列表</el-button>
+            </el-col>
           </el-row>
 
 
@@ -150,13 +173,23 @@
 </template>
 <script>
 import util from '../../common/util'
-import { reqEditOrder } from '../../api';
+import { reqEditOrder,reqProductName } from '../../api';
 import { regionData } from 'element-china-area-data'
 
 export default {
   data() {
     return {
-      orderInfo: {},
+      orderInfo: {
+         items:[{
+          id: 0,
+          orderId: "",
+          productIcon: "",
+          productId: 0,
+          productName: "",
+          productPrice: 0,
+          productQuantity: 0,
+        }]
+      },
       orderInfo_bak: {},
 
       addressOptions: regionData,
@@ -181,19 +214,60 @@ export default {
     },
     toOrderList() {
     	this.$router.push('/order/list')
+    },
+    querySearchAsync(queryString, cb) {
+     //远程拉取商品名列表
+      var that = this;
+      var product = this.product;
+      var results = queryString ? fetch(queryString) : product;
+      function fetch(queryString) {
+        let params = { productNane: that.orderInfo.productName };
+        reqProductName(params).then(res => {
+          let Arr = res.data.data.content;
+          let results = that.createStateFilter(Arr)
+          cb(results);
+        });
+      }
+    },
+    createStateFilter(Arr) {
+        let newArray = [];
+        for (var n in Arr) {
+          newArray[n] = {};
+          newArray[n].value = Arr[n].productNane;
+          newArray[n].id = Arr[n].id;
+        }
+        return newArray
+    },
+    handleSelect(item) {
+      console.log(item);
+      this.orderInfo.items[0].productId = item.id;
+      this.orderInfo.items[0].productName = item.value;
     }
-
   },
   computed: {
   	calGoodsTotalPrice() {
-  		return (this.orderInfo.productQuantity * this.orderInfo.productPrice).toFixed(2)
+  		return (this.orderInfo.items[0].productQuantity * this.orderInfo.items[0].productPrice).toFixed(2)
   	},
   	calOrderTotalPrice() {
   		return (parseFloat(this.calGoodsTotalPrice) + this.orderInfo.goods_tax + this.orderInfo.logistics_fees).toFixed(2)
   	}
   },
   mounted() {
-  	this.orderInfo = this.$route.params.order
+    Object.assign(this.orderInfo, this.$route.params.order)
+    console.log(this.orderInfo)
+    // this.orderInfo.item =  [{
+    //       id: 0,
+    //       orderId: "",
+    //       productIcon: "",
+    //       productId: 0,
+    //       productName: "",
+    //       productPrice: 0,
+    //       productQuantity: 0,
+    //     }]
+    this.orderInfo.items[0].productPrice = this.$route.params.order.productPrice
+    this.orderInfo.items[0].productQuantity = this.$route.params.order.productQuantity  
+    // console.log(this.orderInfo.item[0].productPrice )
+      
 	Object.assign( this.orderInfo_bak, this.$route.params.order )
   }
 }

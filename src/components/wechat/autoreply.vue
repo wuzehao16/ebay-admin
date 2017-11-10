@@ -8,7 +8,7 @@
       </el-breadcrumb>
     </el-col>
     <el-col :span="24" style="margin-top:20px;">
-        <el-button @click="showAddDialog">新增</el-button>
+        <el-button type="success" @click="showAddDialog">新增</el-button>
     </el-col>
     <el-col :span="24" class="warp-main">
     <el-table ref="singleTable" :data="replys" v-loading='loading'  style="width: 100%">

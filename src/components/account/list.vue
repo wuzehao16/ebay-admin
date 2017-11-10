@@ -3,8 +3,8 @@
     <el-col :span="24" class="warp-breadcrum">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item :to="{ path: '/' }"><b>首页</b></el-breadcrumb-item>
-        <el-breadcrumb-item>分销结算</el-breadcrumb-item>
-        <el-breadcrumb-item>结算列表</el-breadcrumb-item>
+        <el-breadcrumb-item>账户列表</el-breadcrumb-item>
+        <el-breadcrumb-item>账户明细</el-breadcrumb-item>
       </el-breadcrumb>
     </el-col>
 
@@ -31,17 +31,21 @@
 	  </el-col>
 
 
-    <el-table ref="singleTable" :data="accounts" v-loading='loading'  @current-change="setHighlight" height='600' style="width: 100%" >
-    	<el-table-column type="index" width="60"> </el-table-column>
-    	<el-table-column property="userId" label="用户ID" width='200'></el-table-column>
-    	<el-table-column property="user.userName" label="用户姓名" width='120'></el-table-column>
-    	<el-table-column property="user.userPhone" label="手机号码" width='140'></el-table-column>
-    	<el-table-column property="yIncome" label="昨日收益（元）" width='140'></el-table-column>
-    	<el-table-column property="hIncome" label="历史收益（元）" width='140'></el-table-column>
-    	<el-table-column property="userBalance" label="账户余额（元）" width='140'></el-table-column>
-    	<el-table-column property="pIncome" label="待审核收益（元）" width='160'></el-table-column>
-    	<el-table-column property="updated" label="更新时间" width='200' :formatter="dateFormat"></el-table-column>
-	    <el-table-column fixed="right" label="操作" width='80'>
+    <el-table ref="singleTable" :data="accounts" v-loading='loading'  @current-change="setHighlight"  style="width: 100%" >
+    	<el-table-column type="index" min-width="60"> </el-table-column>
+    	<el-table-column property="userId" label="用户ID" min-width='200'></el-table-column>
+    	<el-table-column property="user.userName" label="用户姓名" min-width='120'></el-table-column>
+    	<el-table-column property="user.userPhone" label="手机号码" min-width='140'></el-table-column>
+    	<el-table-column property="yIncome" label="昨日收益（元）" min-width='140'></el-table-column>
+    	<el-table-column property="hIncome" label="历史收益（元）" min-width='140'></el-table-column>
+    	<el-table-column property="userBalance" label="账户余额（元）" min-width='140'></el-table-column>
+    	<el-table-column property="pIncome" label="待审核收益（元）" min-width='160'></el-table-column>
+    	<el-table-column property="updated" label="更新时间" min-width='200' >
+        <template scope="scope">
+					{{fTimestamp(scope.row.updated)}}
+				</template>
+      </el-table-column>
+	    <el-table-column fixed="right" label="操作" min-width='80'>
         	<template scope="scope">
             	<el-button size="small" type="primary" @click="showStated(scope.row)">明细</el-button>
         	</template>

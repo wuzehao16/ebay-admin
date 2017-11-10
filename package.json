@@ -11,10 +11,13 @@
   "dependencies": {
     "axios": "^0.16.1",
     "axios-mock-adapter": "^1.8.1",
+    "babel-polyfill": "^6.26.0",
     "echarts": "^3.5.3",
     "element-china-area-data": "^3.1.0",
     "element-ui": "^1.2.8",
+    "eventsource-polyfill": "^0.9.6",
     "mockjs": "^1.0.1-beta3",
+    "promise-polyfill": "^6.0.2",
     "vue": "^2.2.2",
     "vue-router": "^2.2.0",
     "vuex": "^3.0.0"
@@ -32,7 +35,6 @@
     "copy-webpack-plugin": "^4.0.1",
     "css-loader": "^0.26.4",
     "element-ui": "^1.2.7",
-    "eventsource-polyfill": "^0.9.6",
     "express": "^4.14.1",
     "extract-text-webpack-plugin": "^2.0.0",
     "file-loader": "^0.10.0",

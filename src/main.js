@@ -7,6 +7,9 @@ import 'element-ui/lib/theme-default/index.css'
 import '@/assets/iconfont.css'
 import router from './router'
 import util from './common/util'
+import 'babel-polyfill'
+import 'event-source-polyfill'
+import Promise from 'promise-polyfill'
 
 Vue.prototype.fTimestamp  = function(time) {
     let t = '--'

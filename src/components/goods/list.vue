@@ -77,8 +77,12 @@
                   <el-button size="small" type="danger" v-else
                       @click="offSale(scope.row)">下架</el-button>
               </template >
+              <template v-else>
+                  <el-button size="small" 
+                      @click="onSale(scope.row)" disabled>上架</el-button>
+              </template >
             	<el-button size="small" @click="goEdit(scope.row)">编辑</el-button>
-            	<el-button size="small" type="primary" @click="goPreview(scope.row)">审核</el-button>
+            	<el-button size="small" type="primary" @click="goPreview(scope.row)" :disabled="scope.row.auditStatus != '0'">审核</el-button>
         	</template>
     	</el-table-column>
   	</el-table>
@@ -92,118 +96,123 @@
 </template>
 
 <script>
-  import util from '../../common/util'
-  import { reqGoodsList, reqOnSaleGoods, reqOffSaleGoods } from '../../api';
-  export default{
-    data(){
-      return {
-        filters: {
-        	item_id: '',
-        	productNane: '',
-        	userWxOpenid: '',
-        	productStatus: '',
-          page: 0,
-          size: 10
-        },
-        goods: [],
-        totalGoods: 0,
-        loading: false,
-      }
+import util from "../../common/util";
+import { reqGoodsList, reqOnSaleGoods, reqOffSaleGoods } from "../../api";
+export default {
+  data() {
+    return {
+      filters: {
+        item_id: "",
+        productNane: "",
+        userWxOpenid: "",
+        productStatus: "",
+        page: 0,
+        size: 10
+      },
+      goods: [],
+      totalGoods: 0,
+      loading: false
+    };
+  },
+  methods: {
+    onSale(row) {
+      this.$confirm("确认上架该商品吗?", "提示", { type: "warning" })
+        .then(() => {
+          reqOnSaleGoods(row.id).then(res => {
+            if (res.data.msg == "成功") {
+              row.productStatus = "正常";
+              this.$message({
+                message: "该商品已成功上架",
+                type: "success"
+              });
+            } else {
+              this.$message.error(res.data.msg);
+            }
+          });
+        })
+        .catch(e => {
+          console.log(e);
+        });
     },
-    methods: {
-      onSale(row) {
-        this.$confirm('确认上架该商品吗?', '提示', {type: 'warning'}).then(() => {
-          reqOnSaleGoods(row.id).then((res) => {
-            if (res.data.msg == '成功') {
-              row.productStatus = '正常'
+    offSale(row) {
+      this.$confirm("确认下架该商品吗?", "提示", { type: "warning" })
+        .then(() => {
+          reqOffSaleGoods(row.id).then(res => {
+            if (res.data.msg == "成功") {
+              row.productStatus = "下架";
               this.$message({
-                message: '该商品已成功上架',
-                type: 'success'
-              })
+                message: "该商品已成功下架",
+                type: "success"
+              });
             } else {
-              this.$message.error(res.data.msg)
+              this.$message.error(res.data.msg);
             }
-          })
-        }).catch((e) => {
-          console.log(e)
+          });
         })
-      },
-      offSale(row) {
-        this.$confirm('确认下架该商品吗?', '提示', {type: 'warning'}).then(() => {
-          reqOffSaleGoods(row.id).then((res) => {
-            if (res.data.msg == '成功') {
-              row.productStatus = '下架'
-              this.$message({
-                message: '该商品已成功下架',
-                type: 'success'
-              })
-            } else {
-              this.$message.error(res.data.msg)
-            }
-          })
-        }).catch((e) => {
-          console.log(e)
-        })
-      },
-      goEdit(row) {
-        this.$router.push({
-            name: '商品新增',
-            params: {
-              productId: row.id,
-              ebayItemid: row.ebayItemid
-            }
-        })
-      },
-      goPreview(row) {
-        console.log(row)
-        this.$router.push({
-            name: '商品预览',
-            params: {
-              product: row
-            }
-        })
-      },
-      setHighlight(val) {
-      	this.currentRow = val
-      },
-      filterTag(value, row) {
-        return row.goods_status === value
-      },
-      filterAuditTag(value, row) {
-      	return row.auditStatus === value
-      },
-      setSizeChange(val) {
-        this.filters.size = val;
-        this.getGoods()
-      },
-      setPageChange(val) {
-      	this.filters.page = val - 1
-      	this.getGoods()
-      },
-      getGoods() {
-		    this.loading = true
-      	reqGoodsList(this.filters).then((res) => {
-          let re = res.data.data
+        .catch(e => {
+          console.log(e);
+        });
+    },
+    goEdit(row) {
+      console.log(row)
+      this.$router.push({
+        name: "商品新增",
+        params: {
+          productId: row.id,
+          ebayItemid: row.ebayItemid,
+          userWxOpenid: row.userWxOpenid
+        }
+      });
+    },
+    goPreview(row) {
+      this.$router.push({
+        name: "商品预览",
+        params: {
+          product: row
+        }
+      });
+    },
+    setHighlight(val) {
+      this.currentRow = val;
+    },
+    filterTag(value, row) {
+      return row.goods_status === value;
+    },
+    filterAuditTag(value, row) {
+      return row.auditStatus === value;
+    },
+    setSizeChange(val) {
+      this.filters.size = val;
+      this.getGoods();
+    },
+    setPageChange(val) {
+      this.filters.page = val - 1;
+      this.getGoods();
+    },
+    getGoods() {
+      this.loading = true;
+      reqGoodsList(this.filters)
+        .then(res => {
+          let re = res.data.data;
           if (re) {
-        		this.totalGoods = res.data.data.totalElements
-        		this.goods = res.data.data.content
+            this.totalGoods = res.data.data.totalElements;
+            this.goods = res.data.data.content;
           }
 
+          console.log(this.goods[0]);
 
-          console.log(this.goods[0])
-
-      		this.loading = false
-      	}).catch((err) => {
-          this.loading = false
+          this.loading = false;
         })
-
-      },
-      showAdd() {
-      	this.$router.push('/goods/add')
-      }
+        .catch(err => {
+          this.loading = false;
+        });
     },
-    mounted() {
-      this.getGoods();
+    showAdd() {
+      this.$router.push("/goods/add");
     }
+  },
+  mounted() {
+    this.getGoods();
   }
+};
 </script>

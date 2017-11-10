@@ -13,7 +13,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='订单编号：'>
-                <el-input v-model="orderInfo.order_id" placeholder="不需填写" disabled></el-input>
+                <el-input v-model="orderInfo.orderId" placeholder="不需填写" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -44,26 +44,24 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
+              <el-form-item label='物流费用：'>
+                <el-input v-model.number="orderInfo.carriageFee" placeholder="物流费用">
+                  <template slot="append">元</template>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span='8'>
               <el-form-item label='商品总价：'>
                 <el-input v-bind:value="calGoodsTotalPrice" placeholder="商品总价" disabled>
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
             </el-col>
-            <el-col :span='8'>
-              <el-form-item label='商品税费：'>
-                <el-input v-model.number="orderInfo.goods_tax" placeholder="商品税费">
-                  <template slot="append">元</template>
-                </el-input>
-              </el-form-item>
-            </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='8'>
-              <el-form-item label='物流费用：'>
-                <el-input v-model.number="orderInfo.logistics_fees" placeholder="物流费用">
-                  <template slot="append">元</template>
-                </el-input>
+             <el-col :span='8'>
+              <el-form-item label='购买用户：'>
+                <el-input v-model="orderInfo.name" placeholder="购买用户"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -76,25 +74,13 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='购买用户：'>
-                <el-input v-model="orderInfo.name" placeholder="购买用户"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span='8'>
-              <el-form-item label='支付方式：'>
-                <el-input v-model="orderInfo.pay_type" placeholder="支付方式"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='8'>
               <el-form-item label='收货姓名：'>
                 <el-input v-model="orderInfo.buyerName" placeholder="收货姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='收货电话：'>
-                <el-input v-model="orderInfo.phone" placeholder="收货电话"></el-input>
+                <el-input v-model="orderInfo.buyerPhone" placeholder="收货电话"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -249,7 +235,7 @@ export default {
   		return (this.orderInfo.items[0].productQuantity * this.orderInfo.items[0].productPrice).toFixed(2)
   	},
   	calOrderTotalPrice() {
-  		return (parseFloat(this.calGoodsTotalPrice) + this.orderInfo.goods_tax + this.orderInfo.logistics_fees).toFixed(2)
+  		return (parseFloat(this.calGoodsTotalPrice) + this.orderInfo.goods_tax + this.orderInfo.carriageFee).toFixed(2)
   	}
   },
   mounted() {

@@ -13,13 +13,13 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='订单编号：'>
-                <el-input v-model="orderInfo.order_id" placeholder="不需填写" disabled></el-input>
+                <el-input v-model="orderDetailList.orderId" placeholder="不需填写" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品名称：'>
                 <el-autocomplete
-                  v-model="orderInfo.productName"
+                  v-model="orderDetailList.productName"
                   placeholder="商品名称"
                   style="width:100%;"
                 ></el-autocomplete>
@@ -29,18 +29,25 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='商品单价：'>
-                <el-input v-model.number="orderInfo.productPrice" placeholder="商品单价" width="111">
+                <el-input v-model.number="orderDetailList.productPrice" placeholder="商品单价" width="111">
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品数量：'>
-                <el-input v-model.number="orderInfo.productQuantity" placeholder="商品数量"></el-input>
+                <el-input v-model.number="orderDetailList.productQuantity" placeholder="商品数量"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+            <el-col :span='8'>
+              <el-form-item label='物流费用：'>
+                <el-input v-model.number="orderDetailList.carriageFee" placeholder="物流费用">
+                  <template slot="append">元</template>
+                </el-input>
+              </el-form-item>
+            </el-col>
             <el-col :span='8'>
               <el-form-item label='商品总价：'>
                 <el-input v-bind:value="calGoodsTotalPrice" placeholder="商品总价" disabled>
@@ -48,20 +55,11 @@
                 </el-input>
               </el-form-item>
             </el-col>
-            <el-col :span='8'>
-              <el-form-item label='商品税费：'>
-                <el-input v-model.number="orderInfo.goods_tax" placeholder="商品税费">
-                  <template slot="append">元</template>
-                </el-input>
-              </el-form-item>
-            </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='8'>
-              <el-form-item label='物流费用：'>
-                <el-input v-model.number="orderInfo.logistics_fees" placeholder="物流费用">
-                  <template slot="append">元</template>
-                </el-input>
+             <el-col :span='8'>
+              <el-form-item label='购买用户：'>
+                <el-input v-model="orderInfo.name" placeholder="购买用户"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -74,25 +72,13 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='购买用户：'>
-                <el-input v-model="orderInfo.name" placeholder="购买用户"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span='8'>
-              <el-form-item label='支付方式：'>
-                <el-input v-model="orderInfo.pay_type" placeholder="支付方式"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='8'>
               <el-form-item label='收货姓名：'>
                 <el-input v-model="orderInfo.buyerName" placeholder="收货姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='收货电话：'>
-                <el-input v-model="orderInfo.phone" placeholder="收货电话"></el-input>
+                <el-input v-model="orderInfo.buyerPhone" placeholder="收货电话"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -172,33 +158,50 @@
   </el-row>
 </template>
 <script>
-import { regionData } from 'element-china-area-data'
-
+import { regionData ,TextToCode} from 'element-china-area-data'
+import {reqGetOrderDetail} from '../../api'
 export default {
   data() {
     return {
       orderInfo: {},
       logistics: [],
       addressOptions: regionData,
-      selectedOptions: []
+      selectedOptions: [],
+      orderDetailList:{}
     }
   },
   methods: {
     handleAddressChange(val) {
       console.log(val)
+    },
+    getOrderDetail (orderId) {
+      let params = {orderId:orderId}
+      reqGetOrderDetail(params).then(res=>{
+        this.orderInfo = res.data.data
+        if (this.orderInfo.orderDetailList) {
+          this.orderDetailList = this.orderInfo.orderDetailList[0]
+        }
+        this.handleAddressToCode();
+      })
+    },
+    handleAddressToCode () {
+      let address =this.orderInfo.buyerAddress.split('@')
+      this.orderInfo.consignee_address = [TextToCode[address[0]].code,TextToCode[address[0]][address[1]].code,TextToCode[address[0]][address[1]][address[2]].code];
+      this.orderInfo.address_detail = address[3]
     }
 
   },
   computed: {
   	calGoodsTotalPrice() {
-  		return this.orderInfo.productQuantity * this.orderInfo.productPrice
+  		return this.orderDetailList.productQuantity * this.orderDetailList.productPrice
   	},
   	calOrderTotalPrice() {
-  		return this.calGoodsTotalPrice + this.orderInfo.goods_tax + this.orderInfo.logistics_fees
+  		return this.calGoodsTotalPrice  + this.orderInfo.carriageFee
   	}
   },
   mounted() {
-  	this.orderInfo = this.$route.params.order
+    let orderId = this.$route.params.order.orderNo
+    this.getOrderDetail(orderId)
   	this.logistics = this.orderInfo.logistics
   }
 }

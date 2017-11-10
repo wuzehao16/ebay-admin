@@ -13,7 +13,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='订单编号：'>
-                <el-input v-model="orderInfo.order_id" placeholder="不需填写" disabled></el-input>
+                <el-input v-model="orderInfo.orderId" placeholder="不需填写" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -44,15 +44,15 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='商品总价：'>
-                <el-input v-bind:value="calGoodsTotalPrice" placeholder="商品总价" disabled>
+              <el-form-item label='物流费用：'>
+                <el-input v-model.number="orderInfo.carriageFee" placeholder="物流费用">
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='商品税费：'>
-                <el-input v-model.number="orderInfo.goods_tax" placeholder="商品税费">
+              <el-form-item label='商品总价：'>
+                <el-input v-bind:value="calGoodsTotalPrice" placeholder="商品总价" disabled>
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
@@ -60,10 +60,8 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='物流费用：'>
-                <el-input v-model.number="orderInfo.logistics_fees" placeholder="物流费用">
-                  <template slot="append">元</template>
-                </el-input>
+              <el-form-item label='购买用户：'>
+                <el-input v-model="orderInfo.buyerName" placeholder="购买用户"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -76,20 +74,8 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='购买用户：'>
-                <el-input v-model="orderInfo.name" placeholder="购买用户"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span='8'>
-              <el-form-item label='支付方式：'>
-                <el-input v-model="orderInfo.pay_type" placeholder="支付方式"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='8'>
               <el-form-item label='收货姓名：'>
-                <el-input v-model="orderInfo.buyerName" placeholder="收货姓名"></el-input>
+                <el-input v-model="orderInfo.cneeName" placeholder="收货姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -109,7 +95,7 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='身份证件：'>
-                <el-input v-model="orderInfo.consignee_id" placeholder="收货人身份证"></el-input>
+                <el-input v-model="orderInfo.cneeIDcard" placeholder="收货人身份证"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -174,40 +160,41 @@
 <script>
 import util from "../../common/util";
 import { reqAddOrder, reqProductName } from "../../api/index";
-import { regionData ,CodeToText} from "element-china-area-data";
+import { regionData, CodeToText } from "element-china-area-data";
 
 export default {
   data() {
     return {
       orderInfo: {
-        order_id: "",
+        orderId: "",
         orderStatus: 0,
         order_source: 0,
         ebayNo: "",
         ebayStatus: 0,
-        name: "",
+        buyerName: "",
         user_type: 0,
         create_time: "",
         goods_tax: 0,
-        logistics_fees: 0,
+        carriageFee: 0,
         logisticsStatus: 0,
-        pay_type: "微信支付",
-        buyerName: "",
+        cneeName: "",
         phone: "",
-        consignee_id: "",
+        cneeIDcard: "",
         consignee_address: [],
         address_detail: "",
-        address:"",
-        openid:"1",
-        items:[{
-          id: 0,
-          orderId: "",
-          productIcon: "",
-          productId: 0,
-          productName: "",
-          productPrice: 0,
-          productQuantity: 0,
-        }]
+        address: "",
+        openid: "1",
+        items: [
+          {
+            id: 0,
+            orderId: "",
+            productIcon: "",
+            productId: 0,
+            productName: "",
+            productPrice: 0,
+            productQuantity: 0
+          }
+        ]
       },
       product: [],
       orderInfo_bak: {},
@@ -219,22 +206,41 @@ export default {
     handleAddressChange(val) {
       // console.log(val);
     },
-    addressCodeToaddress(){
-     if (this.orderInfo.consignee_address && this.orderInfo.consignee_address.length <1 ) return
-      this.orderInfo.address =CodeToText[this.orderInfo.consignee_address[0]] +'@'+
-                               CodeToText[this.orderInfo.consignee_address[1]]  +'@'+
-                               CodeToText[this.orderInfo.consignee_address[2]]
-      this.orderInfo.address += '@'+ this.orderInfo.address_detail
+    addressCodeToaddress() {
+      if (
+        this.orderInfo.consignee_address &&
+        this.orderInfo.consignee_address.length < 1
+      )
+        return;
+      this.orderInfo.address =
+        CodeToText[this.orderInfo.consignee_address[0]] +
+        "@" +
+        CodeToText[this.orderInfo.consignee_address[1]] +
+        "@" +
+        CodeToText[this.orderInfo.consignee_address[2]];
+      this.orderInfo.address += "@" + this.orderInfo.address_detail;
     },
     addSubmit() {
       this.addressCodeToaddress();
       console.log(this.orderInfo);
-      reqAddOrder(this.orderInfo).then(res => {
-        this.$message({
-          message: "提交成功",
-          type: "success"
+      reqAddOrder(this.orderInfo)
+        .then(res => {
+          if (res.data.code == 0) {
+            this.$message({
+              message: "提交成功",
+              type: "success"
+            });
+            this.toOrderList();
+          } else {
+            this.$message({
+              message: `${res.data.message}`,
+              type: "success"
+            });
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
         });
-      });
     },
     resetForm(formName) {
       this.orderInfo = Object.assign({}, this.orderInfo_bak);
@@ -251,19 +257,19 @@ export default {
         let params = { productNane: that.orderInfo.productName };
         reqProductName(params).then(res => {
           let Arr = res.data.data.content;
-          let results = that.createStateFilter(Arr)
+          let results = that.createStateFilter(Arr);
           cb(results);
         });
       }
     },
     createStateFilter(Arr) {
-        let newArray = [];
-        for (var n in Arr) {
-          newArray[n] = {};
-          newArray[n].value = Arr[n].productNane;
-          newArray[n].id = Arr[n].id;
-        }
-        return newArray
+      let newArray = [];
+      for (var n in Arr) {
+        newArray[n] = {};
+        newArray[n].value = Arr[n].productNane;
+        newArray[n].id = Arr[n].id;
+      }
+      return newArray;
     },
     handleSelect(item) {
       console.log(item);
@@ -273,13 +279,12 @@ export default {
   },
   computed: {
     calGoodsTotalPrice() {
-      return (this.orderInfo.items[0].productQuantity * this.orderInfo.items[0].productPrice
+      return (this.orderInfo.items[0].productQuantity *
+        this.orderInfo.items[0].productPrice
       ).toFixed(2);
     },
     calOrderTotalPrice() {
-      return (parseFloat(this.calGoodsTotalPrice) +
-        this.orderInfo.goods_tax +
-        this.orderInfo.logistics_fees
+      return (parseFloat(this.calGoodsTotalPrice) + this.orderInfo.carriageFee
       ).toFixed(2);
     }
   },

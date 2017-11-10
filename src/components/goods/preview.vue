@@ -36,13 +36,15 @@ export default {
           resInfo = '该商品已被您驳回！'
         }
         this.product.auditStatus = val
+        this.product.productId = this.product.id
         this.$confirm(info, '提示', {type: 'warning'}).then(() => {
           reqSaveGoods(this.product).then((res) => {
             if (res.data.code == 0) {
               this.$message({
                 type: 'success',
                 message: resInfo
-              })              
+              })
+              this.$router.push('/goods/list')              
             } else {
               this.$message.error(res.data.msg)              
             }

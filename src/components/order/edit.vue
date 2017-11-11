@@ -45,7 +45,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='物流费用：'>
-                <el-input v-model.number="orderDetailList.carriageFee" placeholder="物流费用">
+                <el-input v-model.number="orderInfo.carriageFee" placeholder="物流费用">
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
@@ -82,7 +82,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='收货姓名：'>
-                <el-input v-model="orderInfo.name" placeholder="收货姓名"></el-input>
+                <el-input v-model="orderInfo.buyerName" placeholder="收货姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -177,6 +177,7 @@ export default {
   data() {
     return {
       orderInfo: {
+        userPhone:"",
         items: [
           {
             id: 0,
@@ -201,6 +202,7 @@ export default {
     },
     editSubmit() {
       // 编辑提交
+      this.orderInfo.items = this.orderInfo.orderDetailList
       reqEditOrder(this.orderInfo).then(res => {
         this.$message({
           message: "提交成功",
@@ -247,7 +249,7 @@ export default {
       var product = this.product;
       var results = queryString ? fetch(queryString) : product;
       function fetch(queryString) {
-        let params = { productName: that.orderInfo.productName };
+        let params = { productName: that.orderDetailList.productName };
         reqProductName(params).then(res => {
           let Arr = res.data.data.content;
           let results = that.createStateFilter(Arr);
@@ -297,6 +299,12 @@ export default {
         ];
         this.orderInfo.address_detail = address[2];
       }
+    },
+    getProductId(){
+       let params = { productName: this.orderInfo.productName };
+        reqProductName(params).then(res => {
+          console.log(res)
+        });
     }
   },
   computed: {

@@ -11,7 +11,7 @@
 	  <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 	    <el-form :inline="true" :model="filters">
 	      <el-form-item>
-	        <el-input v-model="filters.item_id" placeholder="ItemId"></el-input>
+	        <el-input v-model="filters.ebayItemid" placeholder="ItemId"></el-input>
 	      </el-form-item>
 	      <el-form-item>
 	        <el-input v-model="filters.productNane" placeholder="商品名称"></el-input>
@@ -102,7 +102,7 @@ export default {
   data() {
     return {
       filters: {
-        item_id: "",
+        ebayItemid: "",
         productNane: "",
         userWxOpenid: "",
         productStatus: "",

@@ -148,7 +148,7 @@
     </el-col>
       <!-- 新增 -->
       <el-dialog title="收货地址" :visible.sync="addFormVisible">
-        <el-form :model="addForm">
+        <el-form :model="addForm" ref="addForm">
           <el-form-item label="处理人" :label-width="formLabelWidth">
             <el-input v-model="addForm.createdby" auto-complete="off"></el-input>
           </el-form-item>
@@ -172,25 +172,25 @@
 
     <!-- 编辑 -->
       <el-dialog title="收货地址" :visible.sync="editFormVisible">
-        <el-form :model="addForm">
+        <el-form :model="editForm">
           <el-form-item label="处理人" :label-width="formLabelWidth">
-            <el-input v-model="addForm.createdby" auto-complete="off"></el-input>
+            <el-input v-model="editForm.createdby" auto-complete="off"></el-input>
           </el-form-item>
           <el-form-item label="处理方式" :label-width="formLabelWidth">
-            <el-select v-model="addForm.handerType" placeholder="请选择活动区域">
+            <el-select v-model="editForm.handerType" placeholder="请选择活动区域">
               <el-option label="退款" value="0"></el-option>
               <el-option label="协商" value="1"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label='解决说明' :label-width="formLabelWidth">
             <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
-              v-model="addForm.sloveMemo" >
+              v-model="editForm.sloveMemo" >
             </el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="edit-footer">
-          <el-button @click="addFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="addOrderRc()">确 定</el-button>
+          <el-button @click="editFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="editOrderRcSubmit()">确 定</el-button>
         </div>
       </el-dialog>
   </el-row>
@@ -295,12 +295,19 @@ export default {
       //新增订单轨迹
       let params = Object.assign(this.orderInfo,this.addForm)
       reqaddExOrderRcList(params).then(res => {
-        console.log(res)
+        this.addFormVisible = false;
+        this.rcList.push(this.addForm)
+        this.addForm = {}
+        
       })
+    },
+    editOrderRcSubmit(){
+
     },
     editOrderRc(scope) {
       //编辑订单轨迹
       this.editFormVisible = true;
+      this.editForm = scope.row
     },
 
     deleteOrderRc(scope) {

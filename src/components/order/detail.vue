@@ -87,13 +87,11 @@
               <el-form-item label='收货地址：'>
                 <el-cascader :options="addressOptions" v-model="orderInfo.consignee_address" @change="handleAddressChange" style='width:100%;margin-bottom:10px;'>
                 </el-cascader>
-                <br/>
-                <el-input v-model="orderInfo.address_detail" placeholder="详细地址"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='身份证件：'>
-                <el-input v-model="orderInfo.consignee_id" placeholder="收货人身份证"></el-input>
+              <el-form-item label='详细地址：'>
+                <el-input v-model="orderInfo.address_detail" placeholder="详细地址"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -158,8 +156,8 @@
   </el-row>
 </template>
 <script>
-import { regionData ,TextToCode} from 'element-china-area-data'
-import {reqGetOrderDetail} from '../../api'
+import { regionData, TextToCode } from "element-china-area-data";
+import { reqGetOrderDetail } from "../../api";
 export default {
   data() {
     return {
@@ -167,49 +165,61 @@ export default {
       logistics: [],
       addressOptions: regionData,
       selectedOptions: [],
-      orderDetailList:{}
-    }
+      orderDetailList: {}
+    };
   },
   methods: {
     handleAddressChange(val) {
-      console.log(val)
+      console.log(val);
     },
-    getOrderDetail (orderId) {
-      let params = {orderId:orderId}
-      reqGetOrderDetail(params).then(res=>{
-        this.orderInfo = res.data.data
+    getOrderDetail(orderId) {
+      let params = { orderId: orderId };
+      reqGetOrderDetail(params).then(res => {
+        this.orderInfo = res.data.data;
         if (this.orderInfo.orderDetailList) {
-          this.orderDetailList = this.orderInfo.orderDetailList[0]
+          this.orderDetailList = this.orderInfo.orderDetailList[0];
         }
         this.handleAddressToCode();
-      })
+      });
     },
-    handleAddressToCode () {
-      let address =this.orderInfo.buyerAddress.split('@')
-      this.orderInfo.consignee_address = [TextToCode[address[0]].code,TextToCode[address[0]][address[1]].code,TextToCode[address[0]][address[1]][address[2]].code];
-      this.orderInfo.address_detail = address[3]
+    handleAddressToCode() {
+      let address = this.orderInfo.buyerAddress.split("@");
+      console.log(address)
+      if (address.length > 3) {
+        this.orderInfo.consignee_address = [
+          TextToCode[address[0]].code,
+          TextToCode[address[0]][address[1]].code,
+          TextToCode[address[0]][address[1]][address[2]].code
+        ];
+        this.orderInfo.address_detail = address[3];
+      } else {
+        this.orderInfo.consignee_address = [
+          TextToCode[address[0]].code,
+          TextToCode[address[0]][address[1]].code
+        ];
+        this.orderInfo.address_detail = address[2];
+      }
     }
-
   },
   computed: {
-  	calGoodsTotalPrice() {
-  		return this.orderDetailList.productQuantity * this.orderDetailList.productPrice
-  	},
-  	calOrderTotalPrice() {
-  		return this.calGoodsTotalPrice  + this.orderInfo.carriageFee
-  	}
+    calGoodsTotalPrice() {
+      return (
+        this.orderDetailList.productQuantity * this.orderDetailList.productPrice
+      );
+    },
+    calOrderTotalPrice() {
+      return this.calGoodsTotalPrice + this.orderInfo.carriageFee;
+    }
   },
   mounted() {
-    let orderId = this.$route.params.order.orderNo
-    this.getOrderDetail(orderId)
-  	this.logistics = this.orderInfo.logistics
+    let orderId = this.$route.params.order.orderNo;
+    this.getOrderDetail(orderId);
+    this.logistics = this.orderInfo.logistics;
   }
-}
-
+};
 </script>
 <style>
 .demo-table-expand label {
   font-weight: bold;
 }
-
 </style>

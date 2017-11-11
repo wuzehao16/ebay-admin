@@ -61,7 +61,13 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='购买用户：'>
-                <el-input v-model="orderInfo.buyerName" placeholder="购买用户"></el-input>
+                <el-autocomplete
+                  v-model="orderInfo.userPhone"
+                  :fetch-suggestions="phoneSearchAsync"
+                  placeholder="商品名称"
+                  @select="handleSelectphone"
+                  style="width:100%;"
+                ></el-autocomplete>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -75,12 +81,12 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='收货姓名：'>
-                <el-input v-model="orderInfo.cneeName" placeholder="收货姓名"></el-input>
+                <el-input v-model="orderInfo.name" placeholder="收货姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='收货电话：'>
-                <el-input v-model="orderInfo.phone" placeholder="收货电话"></el-input>
+                <el-input v-model="orderInfo.buyerPhone" placeholder="收货电话"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -89,13 +95,11 @@
               <el-form-item label='收货地址：'>
                 <el-cascader :options="addressOptions" v-model="orderInfo.consignee_address" @change="handleAddressChange" style='width:100%;margin-bottom:10px;'>
                 </el-cascader>
-                <br/>
-                <el-input v-model="orderInfo.address_detail" placeholder="详细地址"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='身份证件：'>
-                <el-input v-model="orderInfo.cneeIDcard" placeholder="收货人身份证"></el-input>
+              <el-form-item label='详细地址：'>
+                <el-input v-model="orderInfo.address_detail" placeholder="详细地址"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -159,7 +163,7 @@
 </template>
 <script>
 import util from "../../common/util";
-import { reqAddOrder, reqProductName } from "../../api/index";
+import { reqAddOrder, reqProductName ,reqGetUserList  } from "../../api/index";
 import { regionData, CodeToText } from "element-china-area-data";
 
 export default {
@@ -171,19 +175,20 @@ export default {
         order_source: 0,
         ebayNo: "",
         ebayStatus: 0,
-        buyerName: "",
+        userName: "",
         user_type: 0,
         create_time: "",
         goods_tax: 0,
         carriageFee: 0,
         logisticsStatus: 0,
-        cneeName: "",
+        name: "",
         phone: "",
         cneeIDcard: "",
         consignee_address: [],
         address_detail: "",
         address: "",
-        openid: "1",
+        openid: "",
+        userPhone:"",
         items: [
           {
             id: 0,
@@ -248,13 +253,41 @@ export default {
     toOrderList() {
       this.$router.push("/order/list");
     },
+    phoneSearchAsync(queryString, cb) {
+     //远程拉取买家名列表
+      var that = this;
+      var product = this.product;
+      var results = queryString ? fetch(queryString) : product;
+      function fetch(queryString) {
+        let params = { userPhone: that.orderInfo.userPhone };
+        reqGetUserList(params).then(res => {
+          let Arr = res.data.data.content;
+          let results = that.createStateFilter2(Arr)
+          cb(results);
+        });
+      }
+    },
+    createStateFilter2(Arr) {
+        let newArray = [];
+        for (var n in Arr) {
+          newArray[n] = {};
+          newArray[n].value = Arr[n].userPhone;
+          newArray[n].id = Arr[n].id;
+          newArray[n].userWxOpenid =Arr[n].userWxOpenid
+        }
+        return newArray
+    },
+    handleSelectphone(item){
+      
+      this.orderInfo.openid = item.userWxOpenid
+    },
     //远程拉取商品名列表
     querySearchAsync(queryString, cb) {
       var that = this;
       var product = this.product;
       var results = queryString ? fetch(queryString) : product;
       function fetch(queryString) {
-        let params = { productNane: that.orderInfo.productName };
+        let params = { productName: that.orderInfo.productName };
         reqProductName(params).then(res => {
           let Arr = res.data.data.content;
           let results = that.createStateFilter(Arr);

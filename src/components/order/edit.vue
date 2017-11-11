@@ -13,15 +13,15 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='订单编号：'>
-                <el-input v-model="orderInfo.orderId" placeholder="不需填写" disabled></el-input>
+                <el-input v-model="orderDetailList.orderId" placeholder="不需填写" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品名称：'>
                 <el-autocomplete
-                  v-model="orderInfo.productName"
-                  :fetch-suggestions="querySearchAsync"
+                  v-model="orderDetailList.productName"
                   placeholder="商品名称"
+                  :fetch-suggestions="querySearchAsync"
                   @select="handleSelect"
                   style="width:100%;"
                 ></el-autocomplete>
@@ -31,21 +31,21 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='商品单价：'>
-                <el-input v-model.number="orderInfo.items[0].productPrice" placeholder="商品单价" width="111">
+                <el-input v-model.number="orderDetailList.productPrice" placeholder="商品单价" width="111">
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品数量：'>
-                <el-input v-model.number="orderInfo.items[0].productQuantity" placeholder="商品数量"></el-input>
+                <el-input v-model.number="orderDetailList.productQuantity" placeholder="商品数量"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='物流费用：'>
-                <el-input v-model.number="orderInfo.carriageFee" placeholder="物流费用">
+                <el-input v-model.number="orderDetailList.carriageFee" placeholder="物流费用">
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
@@ -61,12 +61,19 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
              <el-col :span='8'>
               <el-form-item label='购买用户：'>
-                <el-input v-model="orderInfo.name" placeholder="购买用户"></el-input>
+                <el-autocomplete
+                  v-model="orderInfo.userPhone"
+                  :fetch-suggestions="phoneSearchAsync"
+                  placeholder="商品名称"
+                  @select="handleSelectphone"
+                  style="width:100%;"
+                ></el-autocomplete>
+              </el-form-item>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='订单总价：'>
-                <el-input v-model="calOrderTotalPrice" placeholder="订单总价" disabled>
+                <el-input v-model="orderInfo.orderAmount" placeholder="订单总价" disabled>
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
@@ -75,7 +82,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='收货姓名：'>
-                <el-input v-model="orderInfo.buyerName" placeholder="收货姓名"></el-input>
+                <el-input v-model="orderInfo.name" placeholder="收货姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -89,13 +96,12 @@
               <el-form-item label='收货地址：'>
                 <el-cascader :options="addressOptions" v-model="orderInfo.consignee_address" @change="handleAddressChange" style='width:100%;margin-bottom:10px;'>
                 </el-cascader>
-                <br/>
-                <el-input v-model="orderInfo.address_detail" placeholder="详细地址"></el-input>
+                
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='身份证件：'>
-                <el-input v-model="orderInfo.consignee_id" placeholder="收货人身份证"></el-input>
+              <el-form-item label='详细地址：'>
+                <el-input v-model="orderInfo.address_detail" placeholder="详细地址"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -158,110 +164,161 @@
   </el-row>
 </template>
 <script>
-import util from '../../common/util'
-import { reqEditOrder,reqProductName } from '../../api';
-import { regionData } from 'element-china-area-data'
+import util from "../../common/util";
+import {
+  reqEditOrder,
+  reqProductName,
+  reqGetOrderDetail,
+  reqGetUserList
+} from "../../api";
+import { regionData, TextToCode } from "element-china-area-data";
 
 export default {
   data() {
     return {
       orderInfo: {
-         items:[{
-          id: 0,
-          orderId: "",
-          productIcon: "",
-          productId: 0,
-          productName: "",
-          productPrice: 0,
-          productQuantity: 0,
-        }]
+        items: [
+          {
+            id: 0,
+            orderId: "",
+            productIcon: "",
+            productId: 0,
+            productName: "",
+            productPrice: 0,
+            productQuantity: 0
+          }
+        ]
       },
       orderInfo_bak: {},
-
+      orderDetailList: {},
       addressOptions: regionData,
       selectedOptions: []
-    }
+    };
   },
   methods: {
     handleAddressChange(val) {
-      console.log(val)
+      console.log(val);
     },
     editSubmit() {
       // 编辑提交
-    	reqEditOrder(this.orderInfo).then((res) => {
-            this.$message({
-              message: '提交成功',
-              type: 'success'
-            });
-    	})
+      reqEditOrder(this.orderInfo).then(res => {
+        this.$message({
+          message: "提交成功",
+          type: "success"
+        });
+      });
     },
     resetOrder() {
-    	this.orderInfo = Object.assign( {}, this.orderInfo_bak)    	
+      this.orderInfo = Object.assign({}, this.orderInfo_bak);
     },
     toOrderList() {
-    	this.$router.push('/order/list')
+      this.$router.push("/order/list");
     },
-    querySearchAsync(queryString, cb) {
-     //远程拉取商品名列表
+    phoneSearchAsync(queryString, cb) {
+      //远程拉取买家名列表
       var that = this;
       var product = this.product;
       var results = queryString ? fetch(queryString) : product;
       function fetch(queryString) {
-        let params = { productNane: that.orderInfo.productName };
+        let params = { userPhone: that.orderInfo.userPhone };
+        reqGetUserList(params).then(res => {
+          let Arr = res.data.data.content;
+          let results = that.createStateFilter2(Arr);
+          cb(results);
+        });
+      }
+    },
+    createStateFilter2(Arr) {
+      let newArray = [];
+      for (var n in Arr) {
+        newArray[n] = {};
+        newArray[n].value = Arr[n].userPhone;
+        newArray[n].id = Arr[n].id;
+        newArray[n].userWxOpenid = Arr[n].userWxOpenid;
+      }
+      return newArray;
+    },
+    handleSelectphone(item) {
+      this.orderInfo.openid = item.userWxOpenid;
+    },
+    querySearchAsync(queryString, cb) {
+      //远程拉取商品名列表
+      var that = this;
+      var product = this.product;
+      var results = queryString ? fetch(queryString) : product;
+      function fetch(queryString) {
+        let params = { productName: that.orderInfo.productName };
         reqProductName(params).then(res => {
           let Arr = res.data.data.content;
-          let results = that.createStateFilter(Arr)
+          let results = that.createStateFilter(Arr);
           cb(results);
         });
       }
     },
     createStateFilter(Arr) {
-        let newArray = [];
-        for (var n in Arr) {
-          newArray[n] = {};
-          newArray[n].value = Arr[n].productNane;
-          newArray[n].id = Arr[n].id;
-        }
-        return newArray
+      let newArray = [];
+      for (var n in Arr) {
+        newArray[n] = {};
+        newArray[n].value = Arr[n].productNane;
+        newArray[n].id = Arr[n].id;
+      }
+      return newArray;
     },
     handleSelect(item) {
       console.log(item);
       this.orderInfo.items[0].productId = item.id;
       this.orderInfo.items[0].productName = item.value;
+    },
+    getOrderDetail(orderId) {
+      //获取订单详情
+      let params = { orderId: orderId };
+      reqGetOrderDetail(params).then(res => {
+        this.orderInfo = res.data.data;
+        if (this.orderInfo.orderDetailList) {
+          this.orderDetailList = this.orderInfo.orderDetailList[0];
+        }
+        this.handleAddressToCode();
+      });
+    },
+    handleAddressToCode() {
+      //地址转code
+      let address = this.orderInfo.buyerAddress.split("@");
+      if (address.length > 3) {
+        this.orderInfo.consignee_address = [
+          TextToCode[address[0]].code,
+          TextToCode[address[0]][address[1]].code,
+          TextToCode[address[0]][address[1]][address[2]].code
+        ];
+        this.orderInfo.address_detail = address[3];
+      } else {
+        this.orderInfo.consignee_address = [
+          TextToCode[address[0]].code,
+          TextToCode[address[0]][address[1]].code
+        ];
+        this.orderInfo.address_detail = address[2];
+      }
     }
   },
   computed: {
-  	calGoodsTotalPrice() {
-  		return (this.orderInfo.items[0].productQuantity * this.orderInfo.items[0].productPrice).toFixed(2)
-  	},
-  	calOrderTotalPrice() {
-  		return (parseFloat(this.calGoodsTotalPrice) + this.orderInfo.goods_tax + this.orderInfo.carriageFee).toFixed(2)
-  	}
+    calGoodsTotalPrice() {
+      return (
+        this.orderDetailList.productQuantity * this.orderDetailList.productPrice
+      );
+    },
+    calOrderTotalPrice() {
+      return this.calGoodsTotalPrice + this.orderInfo.carriageFee;
+    }
   },
   mounted() {
-    Object.assign(this.orderInfo, this.$route.params.order)
-    console.log(this.orderInfo)
-    // this.orderInfo.item =  [{
-    //       id: 0,
-    //       orderId: "",
-    //       productIcon: "",
-    //       productId: 0,
-    //       productName: "",
-    //       productPrice: 0,
-    //       productQuantity: 0,
-    //     }]
-    this.orderInfo.items[0].productPrice = this.$route.params.order.productPrice
-    this.orderInfo.items[0].productQuantity = this.$route.params.order.productQuantity  
-    // console.log(this.orderInfo.item[0].productPrice )
-      
-	Object.assign( this.orderInfo_bak, this.$route.params.order )
-  }
-}
+    let orderId = this.$route.params.order.orderNo;
+    this.getOrderDetail(orderId);
 
+    Object.assign(this.orderInfo_bak, this.$route.params.order);
+  }
+};
 </script>
 <style>
 .demo-table-expand label {
   font-weight: bold;
 }
-
 </style>

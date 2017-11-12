@@ -13,13 +13,13 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='订单编号：'>
-                <el-input v-model="orderDetailList.orderId" placeholder="不需填写" disabled></el-input>
+                <el-input v-model="orderInfo.orderId" placeholder="不需填写" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品名称：'>
                 <el-autocomplete
-                  v-model="orderDetailList.productName"
+                  v-model="orderInfo.productName"
                   placeholder="商品名称"
                   style="width:100%;"
                 ></el-autocomplete>
@@ -29,21 +29,21 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='商品单价：'>
-                <el-input v-model.number="orderDetailList.productPrice" placeholder="商品单价" width="111">
+                <el-input v-model.number="orderInfo.productPrice" placeholder="商品单价" width="111">
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品数量：'>
-                <el-input v-model.number="orderDetailList.productQuantity" placeholder="商品数量"></el-input>
+                <el-input v-model.number="orderInfo.productQuantity" placeholder="商品数量"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='物流费用：'>
-                <el-input v-model.number="orderDetailList.carriageFee" placeholder="物流费用">
+                <el-input v-model.number="orderInfo.carriageFee" placeholder="物流费用">
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
@@ -58,8 +58,8 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
              <el-col :span='8'>
-              <el-form-item label='购买用户：'>
-                <el-input v-model="orderInfo.name" placeholder="购买用户"></el-input>
+              <el-form-item label='用户电话：'>
+                <el-input v-model="orderInfo.buyerName" placeholder="购买用户"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -73,12 +73,12 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='收货姓名：'>
-                <el-input v-model="orderInfo.buyerName" placeholder="收货姓名"></el-input>
+                <el-input v-model="orderInfo.cneeName" placeholder="收货姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='收货电话：'>
-                <el-input v-model="orderInfo.buyerPhone" placeholder="收货电话"></el-input>
+                <el-input v-model="orderInfo.cneePhone" placeholder="收货电话"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -164,8 +164,7 @@ export default {
       orderInfo: {},
       logistics: [],
       addressOptions: regionData,
-      selectedOptions: [],
-      orderDetailList: {}
+      selectedOptions: []
     };
   },
   methods: {
@@ -173,18 +172,16 @@ export default {
       console.log(val);
     },
     getOrderDetail(orderId) {
-      let params = { orderId: orderId };
+      let params = { orderNo: orderId };
       reqGetOrderDetail(params).then(res => {
-        this.orderInfo = res.data.data;
-        if (this.orderInfo.orderDetailList) {
-          this.orderDetailList = this.orderInfo.orderDetailList[0];
-        }
+       this.orderInfo = Object.assign({},this.orderInfo,res.data.data.content[0]);
+        console.log(this.orderInfo)
         this.handleAddressToCode();
       });
     },
     handleAddressToCode() {
+      if (this.orderInfo.buyerAddress.length < 2) return 
       let address = this.orderInfo.buyerAddress.split("@");
-      console.log(address)
       if (address.length > 3) {
         this.orderInfo.consignee_address = [
           TextToCode[address[0]].code,
@@ -204,7 +201,7 @@ export default {
   computed: {
     calGoodsTotalPrice() {
       return (
-        this.orderDetailList.productQuantity * this.orderDetailList.productPrice
+        this.orderInfo.productQuantity * this.orderInfo.productPrice
       );
     },
     calOrderTotalPrice() {
@@ -213,6 +210,8 @@ export default {
   },
   mounted() {
     let orderId = this.$route.params.order.orderNo;
+    this.orderInfo.productQuantity =  this.$route.params.order.productQuantity
+    this.orderInfo.productPrice = this.$route.params.order.productPrice
     this.getOrderDetail(orderId);
     this.logistics = this.orderInfo.logistics;
   }

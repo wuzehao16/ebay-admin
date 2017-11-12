@@ -27,10 +27,10 @@
 						    <el-radio label="2">URL地址</el-radio>
 						  </el-radio-group>
     				</el-form-item>
-    				<el-form-item label="KEY" v-show="props.row.wxMenuType == 0">
+    				<el-form-item label="KEY" v-show="props.row.wxMenuType == 1">
                 		<el-input v-model="props.row.wxMenuContent" placeholder="KEY"></el-input>
     				</el-form-item>
-    				<el-form-item label="链接地址" v-show="props.row.wxMenuType == 1">
+    				<el-form-item label="链接地址" v-show="props.row.wxMenuType == 2">
                 		<el-input v-model="props.row.wxMenuContent" placeholder="链接地址"></el-input>
     				</el-form-item>
             <el-form-item label="排序号">

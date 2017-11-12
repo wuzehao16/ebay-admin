@@ -24,37 +24,59 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='商品单价（元）'>
-                <el-input :value="(orderInfo.orderDetailList ? orderInfo.orderDetailList[0].productPrice : '')" placeholder="商品单价" disabled></el-input>
+              <el-form-item label='商品单价'>
+                <el-input :value="(orderInfo.orderDetailList ? orderInfo.orderDetailList[0].productPrice : '')" placeholder="商品单价" disabled>
+                  <template slot="append">
+                    元
+                  </template>
+                </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='数量'>
-                <el-input :value="(orderInfo.orderDetailList ? orderInfo.orderDetailList[0].productQuantity : '')" placeholder="数量" disabled></el-input>
+                <el-input :value="(orderInfo.orderDetailList ? orderInfo.orderDetailList[0].productQuantity : '')" placeholder="数量" disabled>
+                  
+                </el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='商品总价（元）'>
-                <el-input v-bind:value="orderInfo.orderAmount" placeholder="商品总价" disabled></el-input>
+              <el-form-item label='平台商品总价'>
+                <el-input v-bind:value="orderInfo.orderAmount" placeholder="商品总价" disabled>
+                  <template slot="append">
+                    元
+                  </template>
+                </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-         <!--      <el-form-item label='商品税费（元）'>
-                <el-input v-model="orderInfo.goods_tax" placeholder="商品税费" disabled></el-input>
-              </el-form-item> -->
+              <el-form-item label='ebay商品总价'>
+                <el-input v-model="orderInfo.eabyAmount" placeholder="ebay商品总价" disabled>
+                  <template slot="append">
+                    元
+                  </template>
+                </el-input>
+              </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='物流费用（元）'>
-                <el-input v-model="orderInfo.carriageFee" placeholder="物流费用" disabled></el-input>
+              <el-form-item label='物流费用'>
+                <el-input v-model="orderInfo.carriageFee" placeholder="物流费用" disabled>
+                  <template slot="append">
+                    元
+                  </template>
+                </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='订单总价（元）'>
-                <el-input :value="orderInfo.orderAmount + orderInfo.carriageFee" placeholder="订单总价" disabled></el-input>
+              <el-form-item label='订单总价'>
+                <el-input :value="orderInfo.orderAmount + orderInfo.carriageFee" placeholder="订单总价" disabled>
+                  <template slot="append">
+                    元
+                  </template>
+                </el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -82,31 +104,52 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='一级提成比例'>
-                <el-input v-model="distrInfo.firstDistRatio" placeholder="一级提成比例" :disabled="isSettle"></el-input>
+                <el-input v-model="distrInfo.firstDistRatio" placeholder="一级提成比例" :disabled="isSettle">
+                  <template slot="append">
+                    %
+                  </template>
+                </el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='二级客户'>
-                <el-input v-model="distrInfo.secondDistName" placeholder="二级客户" :disabled="isSettle"></el-input>
+                <el-input v-model="distrInfo.secondDistName" placeholder="二级客户" :disabled="isSettle"
+                ></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='二级提成比例'>
-                <el-input v-model="distrInfo.secondDistRatio" placeholder="二级比例提成" :disabled="isSettle"></el-input>
+                <el-input v-model="distrInfo.secondDistRatio" placeholder="二级比例提成" :disabled="isSettle">
+                 <template slot="append">
+                    %
+                  </template>
+                </el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='一级提成'>
-                <el-input v-model="distrInfo.firstCommission" placeholder="一级提成" :disabled="isSettle"></el-input>
+                <el-input v-model="firstCommission" placeholder="一级提成" :disabled="isSettle"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='二级提成'>
-                <el-input v-model="distrInfo.secondCommission" placeholder="二级提成" :disabled="isSettle"></el-input>
+                <el-input v-model="secondCommission" placeholder="二级提成" :disabled="isSettle"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+            <el-col :span='8'>
+              <el-form-item label='商品差价'>
+                <el-input v-model="distrInfo.productGapAmount" placeholder="商品差价" :disabled="isSettle"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span='8'>
+              <el-form-item label='总提成'>
+                <el-input v-model="distrInfo.totalCommission" placeholder="总提成" :disabled="isSettle"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -198,13 +241,19 @@ export default {
       ],
 
 
-      distrInfo: {},
+      distrInfo: {
+        firstDistRatio:0,
+        secondDistRatio:0
+      },
       isSettle: true,
       crumbName: '结算审核'
     }
   },
   methods: {
     editSubmit() {
+      console.log(this.distrInfo)
+      this.distrInfo.firstCommission = this.firstCommission
+      this.distrInfo.secondCommission = this.secondCommission
     	reqDistrEdit({distribution: this.distrInfo}).then((res) => {
         console.log(res)
         if (res.data.code == 0) {
@@ -212,6 +261,7 @@ export default {
             message: '提交成功',
             type: 'success'
           })
+          this.toOrderList();
         } else {
           this.$message.error(res.data.msg)
         }
@@ -225,6 +275,14 @@ export default {
     	this.$router.push('/placeSettle/list')
     }
 
+  },
+  computed:{
+    firstCommission() {
+      return (this.orderInfo.orderAmount * this.distrInfo.firstDistRatio/100).toFixed(2)
+    },
+    secondCommission() {
+      return (this.orderInfo.orderAmount * this.distrInfo.secondDistRatio/100).toFixed(2) 
+    }
   },
   mounted() {
      let s = this.$route.params.isEdit

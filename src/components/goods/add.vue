@@ -7,18 +7,18 @@
         <el-breadcrumb-item>{{ crumbName }}</el-breadcrumb-item>
       </el-breadcrumb>
     </el-col>
-    <el-col :span="24" class="warp-main">
-		<el-form inline class="demo-form-inline" v-if="!isEdit">
+    <el-col :span="24" class="warp-main1" >
+		<el-form inline class="demo-form-inline" v-if="!isEdit" >
 		  <el-form-item label="Ebay原链">
 		    <el-input v-model="itemId" placeholder="ItemId"></el-input>
 		  </el-form-item>
 		  <el-form-item>
-		    <el-button type="primary" :loading="gettingGoods" :disabled="gettingGoods" @click="onSearch">提取</el-button>
+		    <el-button type="primary"   @click="onSearch">提取</el-button>
 		  </el-form-item>
 		</el-form>
-		<template v-if="selected_ebay">
-		  <el-form ref="pro_info" :model="pro_info"  label-width="100px" >
-			  <el-form-item label="商品名称：">
+		<template >
+		  <el-form ref="pro_info" :model="pro_info"  label-width="100px" v-loading="gettingGoods" v-if="add">
+			  <el-form-item label="商品名称："v-if="selected_ebay">
 				<label>{{ ebay.title }}</label>
 			    <el-input type="textarea" v-model="pro_info.productNane" placeholder="请翻译商品名称"></el-input>
 			  </el-form-item>
@@ -28,9 +28,9 @@
 			  </el-form-item>
 		
 			  <el-form-item label="商品图片：">
-				  <el-carousel :interval="41000" type="card" height="200px">
+				  <el-carousel :interval="41000" arrow="always" height="200px">
 				    <el-carousel-item v-for="(item, index) in pro_info.productPic.split('@')" :key="item">
-				      <li :style="{background:'url(' + item + ') center no-repeat'}" style="height:100%;list-style-type:none;" >
+				      <li :style="{background:'url(' + item + ') center no-repeat'}" style="height:100%;list-style-type:none;background:#fff;" >
 				  <!--     	<i class="el-icon-close" style="position:absolute;" @click="delPic(index)"></i> -->
 				      </li>
 				    </el-carousel-item>
@@ -69,6 +69,7 @@ export default {
       productId: "",
       itemId: "",
       ebay: {},
+      add:false,
       selected_ebay: false,
       pro_info: {
         //后台新增不需要openid
@@ -128,15 +129,16 @@ export default {
         });
     },
     onSearch() {
-      const loading2 = this.$loading({
-        lock: true,
-        text: "Loading",
-        spinner: "el-icon-loading",
-        background: "rgba(0, 0, 0, 0.7)"
-      });
+      // const loading2 = this.$loading({
+      //   lock: true,
+      //   text: "Loading",
+      //   spinner: "el-icon-loading",
+      //   background: "rgba(0, 0, 0, 0.7)"
+      // });
       if (this.itemId.match(/^[ ]*$/)) {
         this.$message.error("请输入Ebay商品ID");
       } else {
+        this.add = true;
         this.gettingGoods = true;
         let itemId = "v1|" + this.itemId + "|0";
         reqEbayGoods({ itemId })
@@ -155,12 +157,13 @@ export default {
               }
               this.pro_info.productPic = imgArr.join("@");
             }
-            loading2.close();
+            // loading2.close();
             this.gettingGoods = false;
           })
           .catch(err => {
-            loading2.close();
+            // loading2.close();
             this.gettingGoods = false;
+            this.add = false;
           });
       }
     },
@@ -176,6 +179,7 @@ export default {
 			let userWxOpenid = this.$route.params.userWxOpenid;
       this.onSearch();
       this.isEdit = true;
+      this.add = true;
       this.crumbName = "商品编辑";
       reqGoodsDetail({ productId: this.productId }).then(res => {
         let p = res.data.data;
@@ -215,11 +219,11 @@ export default {
   background-size: contain !important;
 }
 .el-carousel__item:nth-child(2n) {
-  background-color: #99a9bf;
+  background-color: #fff;
 }
 
 .el-carousel__item:nth-child(2n + 1) {
-  background-color: #d3dce6;
+  background-color: #fff;
 }
 .el-icon-close {
   display: none;
@@ -229,5 +233,18 @@ export default {
 }
 .el-icon-close:hover {
   color: red;
+}
+.demo-form-inline{
+  /* width: 50%; */
+  margin: 10px 10px;
+}
+.warp-main1{
+    width: 50%;
+    margin: auto;
+    position: absolute;
+    top: 50px;
+    left: 0;
+    bottom: 0;
+    right: 0;
 }
 </style>

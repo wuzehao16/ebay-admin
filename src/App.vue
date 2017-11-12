@@ -32,4 +32,13 @@ a{
   float: left !important;
   margin-top: 10px;
 }
+.el-input.is-disabled .el-input__inner {
+    background-color: #eef1f6;
+    border-color: #d1dbe5;
+    color: #000 !important;
+    cursor: not-allowed;
+}
+.el-textarea.is-disabled .el-textarea__inner {
+    color: #000 !important;
+}
 </style>

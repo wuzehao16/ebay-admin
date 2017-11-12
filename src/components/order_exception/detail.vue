@@ -18,7 +18,7 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品名称'>
-                <el-input v-model="orderInfo.goods_name" placeholder="商品名称" disabled></el-input>
+                <el-input v-model="orderInfo.productName" placeholder="商品名称" disabled></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -37,12 +37,12 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='买家姓名'>
-                <el-input v-model="orderInfo.user_name" placeholder="买家姓名" disabled></el-input>
+                <el-input v-model="orderInfo.buyerName" placeholder="买家姓名" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='买家电话'>
-                <el-input v-model="orderInfo.tel" placeholder="买家电话" disabled></el-input>
+                <el-input v-model="orderInfo.buyerPhone" placeholder="买家电话" disabled></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -57,7 +57,7 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='订单总价'>
-                <el-input v-model="orderInfo.order_total" placeholder="订单总价" disabled></el-input>
+                <el-input v-model="orderInfo.orderAmount" placeholder="订单总价" disabled></el-input>
               </el-form-item>              
             </el-col>
           </el-row>
@@ -78,7 +78,7 @@
             <el-col :span='16'>
               <el-form-item label='异常描述'>
                 <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
-                  v-model="orderInfo.ex_sloveMemocription" disabled>
+                  v-model="orderInfo.errorMemo" disabled>
                 </el-input>
               </el-form-item>
             </el-col>
@@ -99,7 +99,7 @@
             {{ scope.row.manner == 0 ? "退款" : "协商" }}
           </template>
         </el-table-column>
-        <el-table-column prop="createdby" label="处理人" width="90"></el-table-column>
+        <el-table-column prop="createdby" label="处理人" width="120"></el-table-column>
         <!-- <el-table-column width="120" label="操作">
           <template slot-scope="scope">
             <el-button @click="editOrderRc(scope)" type="text" size="small">编辑</el-button>
@@ -118,7 +118,8 @@ import util from "../../common/util";
 import {
   reqEditExOrder,
   reqGetExOrderRcList,
-  reqDeleteExOrderRcList
+  reqDeleteExOrderRcList,
+  reqGetOrderList
 } from "../../api/index";
 
 export default {
@@ -168,13 +169,12 @@ export default {
         this.rcList = res.data.data.content;
       });
     },
-    
-    
+
     editOrderRc(scope) {
       //编辑订单轨迹
       console.log(scope);
     },
-    
+
     deleteOrderRc(scope) {
       //删除订单轨迹
       let params = {
@@ -200,17 +200,29 @@ export default {
           }
         });
       });
+    },
+    getOrderDetail(orderId) {
+      let params = { orderNo: orderId };
+      reqGetOrderList(params).then(res => {
+        this.orderInfo = Object.assign(
+          {},
+          this.orderInfo,
+          res.data.data.content[0]
+        );
+        console.log(this.orderInfo);
+      });
     }
   },
   mounted() {
     this.orderInfo = this.$route.params.ex_order;
-    console.log(this.$route.params);
+    let orderNo = this.$route.params.ex_order.orderNo
+    this.getOrderDetail(orderNo);
     this.getRcList();
   }
 };
 </script>
 <style >
-.toolbarff .el-form-item__label{
-    text-align: left;
+.toolbarff .el-form-item__label {
+  text-align: left;
 }
 </style>

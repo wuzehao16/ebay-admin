@@ -13,13 +13,13 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='订单编号：'>
-                <el-input v-model="orderDetailList.orderId" placeholder="不需填写" disabled></el-input>
+                <el-input v-model="orderInfo.orderNo" placeholder="不需填写" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品名称：'>
                 <el-autocomplete
-                  v-model="orderDetailList.productName"
+                  v-model="orderInfo.productName"
                   placeholder="商品名称"
                   :fetch-suggestions="querySearchAsync"
                   @select="handleSelect"
@@ -31,14 +31,14 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='商品单价：'>
-                <el-input v-model.number="orderDetailList.productPrice" placeholder="商品单价" width="111">
+                <el-input v-model.number="orderInfo.productPrice" placeholder="商品单价" width="111">
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品数量：'>
-                <el-input v-model.number="orderDetailList.productQuantity" placeholder="商品数量"></el-input>
+                <el-input v-model.number="orderInfo.productQuantity" placeholder="商品数量"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -60,11 +60,11 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
              <el-col :span='8'>
-              <el-form-item label='购买用户：'>
+              <el-form-item label='用户电话：'>
                 <el-autocomplete
                   v-model="orderInfo.userPhone"
                   :fetch-suggestions="phoneSearchAsync"
-                  placeholder="商品名称"
+                  placeholder="用户电话"
                   @select="handleSelectphone"
                   style="width:100%;"
                 ></el-autocomplete>
@@ -191,7 +191,6 @@ export default {
         ]
       },
       orderInfo_bak: {},
-      orderDetailList: {},
       addressOptions: regionData,
       selectedOptions: []
     };
@@ -202,7 +201,7 @@ export default {
     },
     editSubmit() {
       // 编辑提交
-      this.orderInfo.items = this.orderInfo.orderDetailList
+      this.orderInfo.items = this.orderInfo.orderInfo
       reqEditOrder(this.orderInfo).then(res => {
         this.$message({
           message: "提交成功",
@@ -249,7 +248,7 @@ export default {
       var product = this.product;
       var results = queryString ? fetch(queryString) : product;
       function fetch(queryString) {
-        let params = { productName: that.orderDetailList.productName };
+        let params = { productName: that.orderInfo.productName };
         reqProductName(params).then(res => {
           let Arr = res.data.data.content;
           let results = that.createStateFilter(Arr);
@@ -273,17 +272,16 @@ export default {
     },
     getOrderDetail(orderId) {
       //获取订单详情
-      let params = { orderId: orderId };
+      let params = { orderNo: orderId };
       reqGetOrderDetail(params).then(res => {
-        this.orderInfo = res.data.data;
-        if (this.orderInfo.orderDetailList) {
-          this.orderDetailList = this.orderInfo.orderDetailList[0];
-        }
+        this.orderInfo = Object.assign({},this.orderInfo,res.data.data.content[0]);
         this.handleAddressToCode();
       });
     },
     handleAddressToCode() {
       //地址转code
+      console.log(this.orderInfo)
+      if (this.orderInfo.buyerAddress.length < 2) return 
       let address = this.orderInfo.buyerAddress.split("@");
       if (address.length > 3) {
         this.orderInfo.consignee_address = [
@@ -310,7 +308,7 @@ export default {
   computed: {
     calGoodsTotalPrice() {
       return (
-        this.orderDetailList.productQuantity * this.orderDetailList.productPrice
+        this.orderInfo.productQuantity * this.orderInfo.productPrice
       );
     },
     calOrderTotalPrice() {
@@ -319,6 +317,8 @@ export default {
   },
   mounted() {
     let orderId = this.$route.params.order.orderNo;
+    this.orderInfo.productQuantity =  this.$route.params.order.productQuantity
+    this.orderInfo.productPrice = this.$route.params.order.productPrice
     this.getOrderDetail(orderId);
 
     Object.assign(this.orderInfo_bak, this.$route.params.order);

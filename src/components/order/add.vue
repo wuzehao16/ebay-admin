@@ -60,33 +60,42 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='购买用户：'>
-                <el-autocomplete
-                  v-model="orderInfo.userPhone"
-                  :fetch-suggestions="phoneSearchAsync"
-                  placeholder="商品名称"
-                  @select="handleSelectphone"
-                  style="width:100%;"
-                ></el-autocomplete>
-              </el-form-item>
-            </el-col>
-            <el-col :span='8'>
               <el-form-item label='订单总价：'>
                 <el-input v-model="calOrderTotalPrice" placeholder="订单总价" disabled>
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
             </el-col>
+            <el-col :span='8'>
+            </el-col>
+          </el-row>
+          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+           <el-col :span='8'>
+              <el-form-item label='用户电话：'>
+                <el-autocomplete
+                  v-model="orderInfo.phone"
+                  :fetch-suggestions="phoneSearchAsync"
+                  placeholder="用户电话"
+                  @select="handleSelectphone"
+                  style="width:100%;"
+                ></el-autocomplete>
+              </el-form-item>
+            </el-col>
+            <el-col :span='8'>
+              <el-form-item label='用户姓名：'>
+                <el-input v-model="orderInfo.name" placeholder="用户姓名"></el-input>
+              </el-form-item>
+            </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='收货姓名：'>
-                <el-input v-model="orderInfo.name" placeholder="收货姓名"></el-input>
+                <el-input v-model="orderInfo.cneeName" placeholder="收货姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='收货电话：'>
-                <el-input v-model="orderInfo.buyerPhone" placeholder="收货电话"></el-input>
+                <el-input v-model="orderInfo.cneePhone" placeholder="收货电话"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -182,7 +191,7 @@ export default {
         carriageFee: 0,
         logisticsStatus: 0,
         name: "",
-        phone: "",
+        cneePhone: "",
         cneeIDcard: "",
         consignee_address: [],
         address_detail: "",
@@ -259,7 +268,7 @@ export default {
       var product = this.product;
       var results = queryString ? fetch(queryString) : product;
       function fetch(queryString) {
-        let params = { userPhone: that.orderInfo.userPhone };
+        let params = { userPhone: that.orderInfo.phone };
         reqGetUserList(params).then(res => {
           let Arr = res.data.data.content;
           let results = that.createStateFilter2(Arr)

@@ -69,8 +69,7 @@
     		</template> -->
     	</el-table-column>
   
-    	<el-table-column prop="orderStatus" label="订单状态" width="120" :filters="[{ text: '待支付', value: 1 }, { text: '已取消', value: 2 }, { text: '已支付', value: 3 }, { text: '已发货', value: 4 },
-			{ text: '已完成', value: 5 }, { text: '已评价', value: 6 }, { text: '退款中', value: 7 }, { text: '已退款', value: 8 },{text:'已删除',value:9}]" :filter-method="filterOrderStatusTag" filter-placement="bottom-end">
+    	<el-table-column prop="orderStatus" label="订单状态" width="120">
         	<template scope="scope">
             		<template v-if='scope.row.orderStatus == 1'>
             			待支付
@@ -102,7 +101,7 @@
         	</template>
     	</el-table-column> 
     	<el-table-column property="ebayNo" label="Ebay订单号" width='200'></el-table-column>
-    	<el-table-column property="ebayStatus" label="Ebay状态" width="180" :filters="[{ text: '待支付', value: 1 }, { text: '已取消', value: 2 }, { text: '已支付', value: 3 }, { text: '已发货', value: 4 },{ text: '已完成-海外仓已签收', value: 5 }]" :filter-method="filterEbayStatusTag" filter-placement="bottom-end">
+    	<el-table-column property="ebayStatus" label="Ebay状态" width="180" >
         	<template scope="scope">
             		<template v-if='scope.row.ebayStatus == 1'>
             			待支付
@@ -123,7 +122,7 @@
     	</el-table-column> 
     	
     	<el-table-column property="buyerName" label="买家姓名" width='100'></el-table-column>
-    	<el-table-column prop="user_type" label="会员类型" width="120" :filters="[{ text: '分销商', value: 0 }, { text: '普通用户', value: 1 }]" :filter-method="filterTag" filter-placement="bottom-end">
+    	<el-table-column prop="user_type" label="会员类型" width="120" >
         	<template scope="scope">
             {{scope.row.user_type == 0 ? '分销商':'普通用户'}}
         	</template>
@@ -269,6 +268,8 @@
 								type: 'success',
 								message: '取消订单成功!'
 							});
+							p.orderStatus = "2";
+							console.log(p.orderStatus)
 						}else{
 							console.log(1)
 							let action = res.data.msg

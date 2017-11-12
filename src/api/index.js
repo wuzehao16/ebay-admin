@@ -42,9 +42,9 @@ export const reqEditUser = params => { return axios.post(`/sell/ebay/user/${para
 
 //订单管理
 export const reqGetOrder = params => { return axios.get(`/sell/order/getorder`, { params: params }) }
-export const reqEditOrder = params => { return axios.post(`/sell/seller/order/save`,  params) }
+export const reqEditOrder = params => { return axios.put(`/sell/seller/order/update`,  params) }
 export const reqAddOrder = params => { return axios.post(`/sell/buyer/order/create`, params) }
-export const reqGetOrderDetail = params => { return axios.get(`/sell/seller/order/detail`, { params: params }) }
+export const reqGetOrderDetail = params => { return axios.get(`/sell/seller/order/list`, { params: params }) }
 
 //提现管理
 export const reqWithdrawList = params => { return axios.get(`/sell/user/account/withdraw/list`, { params: params }) }
@@ -71,4 +71,4 @@ export const reqEbayGoods = params => { return axios.get(`/sell/ebay/getGoodsInf
 
 export const reqDistrList = params => { return axios.get(`/sell/distribution/list`, {params: params}) }
 export const reqDistrDetail = params => { return axios.get(`/sell/distribution/${params.id}`) }
-export const reqDistrEdit = params => { return axios.post(`/sell/distribution/${params.id}/edit`, params) }
+export const reqDistrEdit = params => { return axios.post(`/sell/distribution/${params.distribution.id}/edit`, params.distribution) }

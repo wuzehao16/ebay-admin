@@ -94,7 +94,7 @@
 	    <el-table-column fixed="right" label="操作" width='220'>
         	<template scope="scope">
             	<el-button size="small" type="primary" @click='showDetail(scope.row)'>详情</el-button>
-            	<el-button size="small" @click="showEdit(scope.row)">编辑</el-button>
+            	<el-button size="small" @click="showEdit(scope.row)">处理</el-button>
             	<el-button size="small" type="danger" @click="deleteOrder(scope.row)">删除</el-button>							
         	</template>
     	</el-table-column>

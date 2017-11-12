@@ -20,7 +20,7 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品名称'>
-                <el-input v-model="exOrderInfo.goods_name" placeholder="商品名称" disabled></el-input>
+                <el-input v-model="exOrderInfo.productName" placeholder="商品名称" disabled></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -32,19 +32,19 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='卖家电话'>
-                <el-input v-model="exOrderInfo.seller_tel" placeholder="卖家电话" disabled></el-input>
+                <el-input v-model="exOrderInfo.sellPhone" placeholder="卖家电话" disabled></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='买家姓名'>
-                <el-input v-model="exOrderInfo.user_name" placeholder="买家姓名" disabled></el-input>
+                <el-input v-model="exOrderInfo.buyerName" placeholder="买家姓名" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='买家电话'>
-                <el-input v-model="exOrderInfo.tel" placeholder="买家电话" disabled></el-input>
+                <el-input v-model="exOrderInfo.buyerPhone" placeholder="买家电话" disabled></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -61,7 +61,7 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='订单总价（元）'>
-                <el-input v-model="exOrderInfo.order_total" placeholder="订单总价" disabled></el-input>
+                <el-input v-model="exOrderInfo.orderAmount" placeholder="订单总价" disabled></el-input>
               </el-form-item>              
             </el-col>
           </el-row>
@@ -104,7 +104,7 @@
   </el-row>
 </template>
 <script>
-import { reqNumToList, reqAddExOrder } from "../../api/index";
+import { reqNumToList, reqAddExOrder,reqGetOrderDetail } from "../../api/index";
 
 export default {
   data() {
@@ -113,7 +113,7 @@ export default {
         orderNo: "",
         errorStatus: "",
         errorType: "",
-        handerby:""
+        handerby: ""
       },
       exTypeOptions: [
         {
@@ -199,15 +199,18 @@ export default {
     },
     handleSelect(item) {
       console.log(item);
-      this.exOrderInfo.goods_name = item.goods_name;
-      this.exOrderInfo.seller_email = item.seller_email;
-      this.exOrderInfo.seller_tel = item.seller_tel;
-      this.exOrderInfo.user_name = item.user_name;
-      this.exOrderInfo.tel = item.tel;
-      this.exOrderInfo.order_total =
-        item.goods_price * item.goods_amount +
-        item.goods_tax +
-        item.logistics_fees;
+      this.getOrderDetail(item.value);
+    },
+    getOrderDetail(orderId) {
+      let params = { orderNo: orderId };
+      reqGetOrderDetail(params).then(res => {
+        this.exOrderInfo = Object.assign(
+          {},
+          this.exOrderInfo,
+          res.data.data.content[0]
+        );
+        console.log(this.orderInfo);
+      });
     },
     orderUnmatched() {
       this.$message.error("无匹配订单编号！");

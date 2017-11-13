@@ -128,11 +128,11 @@
         	</template>
     	</el-table-column>    	
     	<el-table-column property="buyerPhone" label="手机号码" width='150'></el-table-column>
-    	<el-table-column  label="订单来源" width='100'>
+    	<!-- <el-table-column  label="订单来源" width='100'>
     		<template scope="scope">
     			{{ scope.row.order_source == "0" ? 'PC端':'移动端' }}
     		</template>
-    	</el-table-column>    	
+    	</el-table-column>    	 -->
     	<el-table-column  label="创建时间" width='150' >
 				<template scope="scope">
 					{{fTimestamp(scope.row.created)}}

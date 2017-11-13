@@ -76,7 +76,8 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='异常状态'>
-				  <el-select v-model="orderInfo.errorStatus" placeholder="异常状态" :disabled="handle.handerType==0">
+				  <!-- <el-select v-model="orderInfo.errorStatus" placeholder="异常状态" :disabled="handle.handerType==0"> -->
+          <el-select v-model="orderInfo.errorStatus" placeholder="异常状态" >
 		    		<el-option v-for="item in exStatusOptions" :key="item.value" :label="item.label" :value="item.value" >
 		    		</el-option>
 				  </el-select>
@@ -84,7 +85,7 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='处理方式'>
-                <el-radio-group v-model='handle.handerType'>
+                <el-radio-group v-model='handle.handerType' :change="changeErrorStatus">
                   <el-radio :label="'0'">退款</el-radio>
                   <el-radio :label="'1'">协商</el-radio>
                 </el-radio-group>
@@ -124,8 +125,8 @@
           <!-- <el-button type="text" @click="addFormVisible = true">新增</el-button> -->
           <br/><br/>
           <el-table :data="rcList" border style="width: 100%;margin-bottom:40px;">
-            <el-table-column prop="sloveMemo" label="解决说明"></el-table-column>
-            <el-table-column  label="跟进时间" width="180">
+            <el-table-column prop="sloveMemo" label="解决说明" min-width="160"></el-table-column>
+            <el-table-column  label="跟进时间" width="160">
               <template scope="scope">
                 {{ fTimestamp(scope.row.updated) }}
               </template>
@@ -135,7 +136,7 @@
                 {{ scope.row.handerType == 0 ? "退款" : "协商" }}
               </template>
             </el-table-column>
-            <el-table-column prop="createdby" label="处理人" width="120"></el-table-column>
+            <el-table-column prop="createdby" label="处理人" width="110"></el-table-column>
             <el-table-column width="120" label="操作">
               <template slot-scope="scope">
                 <el-button @click="editOrderRc(scope)" type="text" size="small">编辑</el-button>
@@ -191,10 +192,12 @@ export default {
       addFormVisible: false,
       editFormVisible: false,
       formLabelWidth: "120px",
+      handleStatus:"",
       editForm: {
         createdby: "",
         handerType: "",
-        sloveMemo: ""
+        sloveMemo: "",
+        updated:""
       },
       handle: {
         sloveMemo: "",
@@ -238,24 +241,23 @@ export default {
       ]
     };
   },
-  watch: {
-    handle: function(val) {
-      if(this.handle.handerType==0){
-        this.orderInfo.errorStatus ="1";
-      }
-    }
-  },
   methods: {
     editSubmit() {
       Object.assign(this.orderInfo, this.handle);
-      console.log(this.orderInfo);
+      console.log(this.handle);
       reqEditExOrder(this.orderInfo).then(res => {
         this.$message({
           message: "提交成功",
           type: "success"
         });
-        // this.toOrderList();
+        this.orderInfo.updated=this.fTimestamp(new Date())
+        this.rcList.push(this.orderInfo)
       });
+    },
+    changeErrorStatus(val){
+      console.log(1)
+      console.log(val)
+      this.orderInfo.errorStatus ="1";
     },
     resetOrder() {
       this.orderInfo = Object.assign({}, this.orderInfo_bak);
@@ -313,6 +315,9 @@ export default {
     getOrderDetail() {
       let params = { orderNo: this.orderInfo.orderNo };
       reqGetOrderList(params).then(res => {
+        if (res.data.data.length <1) {
+          return
+        }
         this.orderInfo = Object.assign(
           {},
           this.orderInfo,
@@ -324,7 +329,7 @@ export default {
   },
   mounted() {
     this.orderInfo = this.$route.params.ex_order;
-    this.handle = this.orderInfo;
+    this.handle = Object.assign({},this.orderInfo)
     this.getOrderDetail();
     Object.assign(this.orderInfo_bak, this.$route.params.ex_order);
     Object.assign(this.handle_bak, this.handle);

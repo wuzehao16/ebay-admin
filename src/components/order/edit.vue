@@ -202,6 +202,7 @@ export default {
     editSubmit() {
       // 编辑提交
       this.orderInfo.items = this.orderInfo.orderInfo
+      this.orderInfo.orderMasterId = this.orderInfo.id
       reqEditOrder(this.orderInfo).then(res => {
         this.$message({
           message: "提交成功",

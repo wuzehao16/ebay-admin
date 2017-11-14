@@ -60,14 +60,15 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
              <el-col :span='8'>
-              <el-form-item label='用户电话：'>
-                <el-autocomplete
+              <el-form-item label='用户姓名：'>
+                <!-- <el-autocomplete
                   v-model="orderInfo.userPhone"
                   :fetch-suggestions="phoneSearchAsync"
                   placeholder="用户电话"
                   @select="handleSelectphone"
                   style="width:100%;"
-                ></el-autocomplete>
+                ></el-autocomplete> -->
+                <el-input v-model="orderInfo.buyerName" placeholder="用户姓名" disabled></el-input>
               </el-form-item>
               </el-form-item>
             </el-col>
@@ -82,7 +83,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='收货姓名：'>
-                <el-input v-model="orderInfo.buyerName" placeholder="收货姓名"></el-input>
+                <el-input v-model="orderInfo.cnee_name" placeholder="收货姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -197,7 +198,7 @@ export default {
   },
   methods: {
     handleAddressChange(val) {
-      console.log(val);
+      
     },
     editSubmit() {
       // 编辑提交
@@ -267,7 +268,7 @@ export default {
       return newArray;
     },
     handleSelect(item) {
-      console.log(item);
+      
       this.orderInfo.items[0].productId = item.id;
       this.orderInfo.items[0].productName = item.value;
     },
@@ -281,7 +282,7 @@ export default {
     },
     handleAddressToCode() {
       //地址转code
-      console.log(this.orderInfo)
+      
       if (this.orderInfo.buyerAddress.length < 2) return 
       let address = this.orderInfo.buyerAddress.split("@");
       if (address.length > 3) {
@@ -302,7 +303,7 @@ export default {
     getProductId(){
        let params = { productName: this.orderInfo.productName };
         reqProductName(params).then(res => {
-          console.log(res)
+          
         });
     }
   },

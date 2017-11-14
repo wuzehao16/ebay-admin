@@ -184,7 +184,7 @@ export default {
           });
         })
         .catch(e => {
-          console.log(e);
+          
         });
     },
     showEditUserDialog: function(index, row) {
@@ -198,7 +198,7 @@ export default {
         if (valid) {
           this.$confirm("确认提交吗？", "提示", {}).then(() => {
             reqEditUser(this.editUserForm).then(res => {
-              console.log(res);
+              
               if (res.data.msg == "成功") {
                 this.$message({
                   message: "提交成功",

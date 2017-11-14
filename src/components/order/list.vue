@@ -237,7 +237,7 @@
       	})
       },
       showDetail(scope) {
-				console.log(this.orders[scope.$index])
+				
       	this.$router.push({
       		name:'订单详情',
       		params:{
@@ -269,9 +269,9 @@
 								message: '取消订单成功!'
 							});
 							p.orderStatus = "2";
-							console.log(p.orderStatus)
+							
 						}else{
-							console.log(1)
+							
 							let action = res.data.msg
 							this.$alert(`${ action }`, '提示', {
 								confirmButtonText: '确定',

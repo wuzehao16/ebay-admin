@@ -160,7 +160,7 @@ export default {
       //   return false;
       // }
 
-      console.log(this.exOrderInfo);
+      
 
       reqAddExOrder(this.exOrderInfo).then(res => {
         this.$message({
@@ -198,7 +198,7 @@ export default {
       return newArray;
     },
     handleSelect(item) {
-      console.log(item);
+      
       this.getOrderDetail(item.value);
     },
     getOrderDetail(orderId) {
@@ -209,7 +209,7 @@ export default {
           this.exOrderInfo,
           res.data.data.content[0]
         );
-        console.log(this.orderInfo);
+        
       });
     },
     orderUnmatched() {

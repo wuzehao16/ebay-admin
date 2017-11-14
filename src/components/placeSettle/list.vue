@@ -134,7 +134,7 @@ export default {
           if (p) {
             this.total = p.totalElements;
             this.places = p.content;
-            console.log("kdjfdkf", this.places);
+            
           }
           this.loading = false;
         })

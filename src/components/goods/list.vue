@@ -131,7 +131,7 @@ export default {
           });
         })
         .catch(e => {
-          console.log(e);
+          
         });
     },
     offSale(row) {
@@ -150,11 +150,11 @@ export default {
           });
         })
         .catch(e => {
-          console.log(e);
+          
         });
     },
     goEdit(row) {
-      console.log(row)
+      
       this.$router.push({
         name: "商品新增",
         params: {
@@ -199,7 +199,7 @@ export default {
             this.goods = res.data.data.content;
           }
 
-          console.log(this.goods[0]);
+          
 
           this.loading = false;
         })

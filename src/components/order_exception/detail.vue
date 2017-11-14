@@ -119,7 +119,8 @@ import {
   reqEditExOrder,
   reqGetExOrderRcList,
   reqDeleteExOrderRcList,
-  reqGetOrderList
+  reqGetOrderList,
+  reqGetOrderDetail
 } from "../../api/index";
 
 export default {
@@ -172,7 +173,7 @@ export default {
 
     editOrderRc(scope) {
       //编辑订单轨迹
-      console.log(scope);
+      
     },
 
     deleteOrderRc(scope) {
@@ -203,13 +204,13 @@ export default {
     },
     getOrderDetail(orderId) {
       let params = { orderNo: orderId };
-      reqGetOrderList(params).then(res => {
+      reqGetOrderDetail(params).then(res => {
         this.orderInfo = Object.assign(
           {},
           this.orderInfo,
           res.data.data.content[0]
         );
-        console.log(this.orderInfo);
+        
       });
     }
   },

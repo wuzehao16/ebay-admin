@@ -150,7 +150,7 @@ export default {
   },
   methods: {
     handleAddressChange(val) {
-      console.log(val)
+      
     },
     editSubmit() {
     	reqGetPlaceEdit(this.orderInfo).then((res) => {

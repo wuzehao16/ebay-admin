@@ -181,7 +181,8 @@ import {
   reqGetExOrderRcList,
   reqEditExOrder,
   reqDeleteExOrderRcList,
-  reqGetOrderList
+  reqGetOrderList,
+  reqGetOrderDetail
 } from "../../api/index";
 
 export default {
@@ -244,7 +245,7 @@ export default {
   methods: {
     editSubmit() {
       Object.assign(this.orderInfo, this.handle);
-      console.log(this.handle);
+      
       reqEditExOrder(this.orderInfo).then(res => {
         this.$message({
           message: "提交成功",
@@ -255,8 +256,8 @@ export default {
       });
     },
     changeErrorStatus(val){
-      console.log(1)
-      console.log(val)
+      
+      
       this.orderInfo.errorStatus ="1";
     },
     resetOrder() {
@@ -314,7 +315,7 @@ export default {
     },
     getOrderDetail() {
       let params = { orderNo: this.orderInfo.orderNo };
-      reqGetOrderList(params).then(res => {
+      reqGetOrderDetail(params).then(res => {
         if (res.data.data.length <1) {
           return
         }
@@ -323,13 +324,13 @@ export default {
           this.orderInfo,
           res.data.data.content[0]
         );
-        console.log(this.orderInfo);
+        
       });
     }
   },
   mounted() {
     this.orderInfo = this.$route.params.ex_order;
-    this.handle = Object.assign({},this.orderInfo)
+    // this.handle = Object.assign({},this.orderInfo)
     this.getOrderDetail();
     Object.assign(this.orderInfo_bak, this.$route.params.ex_order);
     Object.assign(this.handle_bak, this.handle);

@@ -104,7 +104,7 @@ export default {
           this.pro_info.items[i].attrValue = this.else_value[i];
         }
       }
-      console.log(this.pro_info);
+      
       this.pro_info.productPrice = Number.parseFloat(
         this.pro_info.productPrice
       );
@@ -148,7 +148,7 @@ export default {
             } else if (res.data.itemId) {
               this.ebay = res.data;
               this.selected_ebay = true;
-              console.log("ebay", this.ebay);
+              
               this.pro_info.productIcon = this.ebay.image.imageUrl;
               let imgArr = [];
               imgArr.push(this.pro_info.productIcon);
@@ -183,7 +183,7 @@ export default {
       this.crumbName = "商品编辑";
       reqGoodsDetail({ productId: this.productId }).then(res => {
         let p = res.data.data;
-        console.log("p", p);
+        
         this.pro_info = {
           auditStatus: "0", //待审核
           productStatus: "下架",

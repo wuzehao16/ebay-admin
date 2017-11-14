@@ -218,7 +218,7 @@ export default {
   },
   methods: {
     handleAddressChange(val) {
-      // console.log(val);
+      // 
     },
     addressCodeToaddress() {
       if (
@@ -236,7 +236,7 @@ export default {
     },
     addSubmit() {
       this.addressCodeToaddress();
-      console.log(this.orderInfo);
+      
       reqAddOrder(this.orderInfo)
         .then(res => {
           if (res.data.code == 0) {
@@ -253,7 +253,7 @@ export default {
           }
         })
         .catch(function(error) {
-          console.log(error);
+          
         });
     },
     resetForm(formName) {
@@ -314,7 +314,7 @@ export default {
       return newArray;
     },
     handleSelect(item) {
-      console.log(item);
+      
       this.orderInfo.items[0].productId = item.id;
       this.orderInfo.items[0].productName = item.value;
     }

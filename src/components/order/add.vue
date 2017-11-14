@@ -198,6 +198,7 @@ export default {
         address: "",
         openid: "",
         userPhone:"",
+        orderAmount:"",
         items: [
           {
             id: 0,
@@ -236,7 +237,8 @@ export default {
     },
     addSubmit() {
       this.addressCodeToaddress();
-
+      this.orderInfo.orderAmount = this.calGoodsTotalPrice;
+      this.orderInfo.ebayAmount = this.calOrderTotalPrice
       reqAddOrder(this.orderInfo)
         .then(res => {
           if (res.data.code == 0) {
@@ -310,11 +312,12 @@ export default {
         newArray[n] = {};
         newArray[n].value = Arr[n].productNane;
         newArray[n].id = Arr[n].id;
+        newArray[n].productPrice = Arr[n].productPrice;
       }
       return newArray;
     },
     handleSelect(item) {
-
+      this.orderInfo.items[0].productPrice = item.productPrice
       this.orderInfo.items[0].productId = item.id;
       this.orderInfo.items[0].productName = item.value;
     }

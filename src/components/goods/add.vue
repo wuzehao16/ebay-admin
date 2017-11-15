@@ -26,7 +26,7 @@
 				<label v-if='ebay.price'>{{ ebay.price.currency + " : " + ebay.price.value }}</label>
 			    <el-input type="textarea" v-model="pro_info.productPrice" placeholder="人民币价格￥"></el-input>
 			  </el-form-item>
-		
+
 			  <el-form-item label="商品图片：">
 				  <el-carousel :interval="41000" arrow="always" height="200px">
 				    <el-carousel-item v-for="(item, index) in pro_info.productPic.split('@')" :key="item">
@@ -39,11 +39,11 @@
 			  <h2>其它参数：</h2>
 			  <template v-for="(item, index) in ebay.localizedAspects">
 				  <el-form-item :label="'参数' + (index + 1) + '名称：' ">
-					<label>{{ item.name }}</label>	
+					<label>{{ item.name }}</label>
 				    <el-input type="textarea" v-model="else_key[index]" :placeholder="'请翻译参数' + (index + 1) + '名称' "></el-input>
-				  </el-form-item> 
+				  </el-form-item>
 				  <el-form-item :label="'参数' + (index + 1) + '内容：' ">
-					<label>{{ item.value }}</label>	
+					<label>{{ item.value }}</label>
 				    <el-input type="textarea" v-model="else_value[index]" :placeholder="'请翻译参数' + (index + 1) + '内容' "></el-input>
 				  </el-form-item>
 			  </template>
@@ -53,7 +53,7 @@
 		  </el-form>
 		</template>
     </el-col>
-  </el-row>	
+  </el-row>
 </template>
 
 <script>
@@ -104,7 +104,7 @@ export default {
           this.pro_info.items[i].attrValue = this.else_value[i];
         }
       }
-      console.log(this.pro_info);
+
       this.pro_info.productPrice = Number.parseFloat(
         this.pro_info.productPrice
       );
@@ -140,7 +140,8 @@ export default {
       } else {
         this.add = true;
         this.gettingGoods = true;
-        let itemId = "v1|" + this.itemId + "|0";
+        // let itemId = "v1|" + this.itemId + "|0";
+         let itemId =  this.itemId ;
         reqEbayGoods({ itemId })
           .then(res => {
             if (res.data.errors) {
@@ -148,7 +149,7 @@ export default {
             } else if (res.data.itemId) {
               this.ebay = res.data;
               this.selected_ebay = true;
-              console.log("ebay", this.ebay);
+
               this.pro_info.productIcon = this.ebay.image.imageUrl;
               let imgArr = [];
               imgArr.push(this.pro_info.productIcon);
@@ -174,7 +175,7 @@ export default {
   mounted() {
 		this.productId = this.$route.params.productId;
     if (this.productId) {
-			
+
 			this.itemId = this.$route.params.ebayItemid;
 			let userWxOpenid = this.$route.params.userWxOpenid;
       this.onSearch();
@@ -183,7 +184,7 @@ export default {
       this.crumbName = "商品编辑";
       reqGoodsDetail({ productId: this.productId }).then(res => {
         let p = res.data.data;
-        console.log("p", p);
+
         this.pro_info = {
           auditStatus: "0", //待审核
           productStatus: "下架",

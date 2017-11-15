@@ -222,7 +222,7 @@ export default {
       this.menus = row.children;
       this.showflag = false;
       this.wxMenuParent = row.id;
-      console.log(this.wxMenuParent)
+      
       this.getMenuList(row.id);
     },
     showFather() {

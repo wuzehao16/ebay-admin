@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 //订单列表
-export const reqGetOrderList = params => { return axios.get(`/sell/seller/order/orderlist`, { params: params }) }
+export const reqGetOrderList = params => { return axios.get(`/sell/seller/order/orderlistShow`, { params: params }) }
 export const reqCancelOrder = params => { return axios.get(`/sell/seller/order/cancel`, { params: params }) }
 
 export const reqProductName = params => { return axios.get(`/sell/seller/product/list`, { params: params }) }

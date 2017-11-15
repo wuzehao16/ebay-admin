@@ -167,12 +167,12 @@ export default {
       reqGetExOrderList(params).then(res => {
         this.total = res.data.data.totalElements;
         this.exOrders = res.data.data.content;
-        console.log(this.exOrders);
+        
         this.exOrderLoading = false;
       });
     },
     showEdit(row) {
-      console.log(row);
+      
       this.$router.push({
         name: "异常订单编辑",
         params: {
@@ -207,7 +207,7 @@ export default {
             });
             this.getExOrders();
           } else {
-            console.log(1);
+            
             let action = res.data.msg;
             this.$alert(`${action}`, "提示", {
               confirmButtonText: "确定"

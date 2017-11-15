@@ -84,6 +84,7 @@ export default {
   data() {
     return {
       id: "",
+      userid:"",
       filterAccounts: {
         userName: "",
         userPhone: "",
@@ -160,7 +161,6 @@ export default {
         this.filterAccounts.endDate = this.filterAccounts.date[1]
           .toJSON()
           .split("T")[0];
-        console.log(this.filterAccounts)
       } else {
         this.filterAccounts.startDate = "";
         this.filterAccounts.endDate = "";
@@ -168,10 +168,8 @@ export default {
       Object.assign(pa, { id: this.id });
       Object.assign(pa, this.filterAccounts);
       this.loading = true;
-      console.log(pa);
       reqGetAccountSteted(pa).then(res => {
         this.total = res.data.total;
-        console.log(res);
         this.accounts = res.data.data.content;
         this.loading = false;
       });
@@ -181,7 +179,7 @@ export default {
     if (this.$route.params.account) {
       this.filterAccounts.userName = this.$route.params.account.userName;
       this.filterAccounts.userPhone = this.$route.params.account.userPhone;
-      this.id = this.$route.params.account.id;
+      this.id = this.$route.params.account.userId;
       this.getAccounts();
     }
   }

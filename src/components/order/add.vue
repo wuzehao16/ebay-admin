@@ -45,7 +45,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='物流费用：'>
-                <el-input v-model.number="orderInfo.carriageFee" placeholder="物流费用">
+                <el-input v-model.number="orderInfo.carriage" placeholder="物流费用">
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
@@ -188,7 +188,7 @@ export default {
         user_type: 0,
         create_time: "",
         goods_tax: 0,
-        carriageFee: 0,
+        carriage: 0,
         logisticsStatus: 0,
         name: "",
         cneePhone: "",
@@ -198,6 +198,7 @@ export default {
         address: "",
         openid: "",
         userPhone:"",
+        orderAmount:"",
         items: [
           {
             id: 0,
@@ -218,7 +219,7 @@ export default {
   },
   methods: {
     handleAddressChange(val) {
-      // console.log(val);
+      //
     },
     addressCodeToaddress() {
       if (
@@ -236,7 +237,8 @@ export default {
     },
     addSubmit() {
       this.addressCodeToaddress();
-      console.log(this.orderInfo);
+      this.orderInfo.orderAmount = this.calGoodsTotalPrice;
+      this.orderInfo.ebayAmount = this.calOrderTotalPrice
       reqAddOrder(this.orderInfo)
         .then(res => {
           if (res.data.code == 0) {
@@ -253,7 +255,7 @@ export default {
           }
         })
         .catch(function(error) {
-          console.log(error);
+
         });
     },
     resetForm(formName) {
@@ -287,7 +289,7 @@ export default {
         return newArray
     },
     handleSelectphone(item){
-      
+
       this.orderInfo.openid = item.userWxOpenid
     },
     //远程拉取商品名列表
@@ -310,11 +312,12 @@ export default {
         newArray[n] = {};
         newArray[n].value = Arr[n].productNane;
         newArray[n].id = Arr[n].id;
+        newArray[n].productPrice = Arr[n].productPrice;
       }
       return newArray;
     },
     handleSelect(item) {
-      console.log(item);
+      this.orderInfo.items[0].productPrice = item.productPrice
       this.orderInfo.items[0].productId = item.id;
       this.orderInfo.items[0].productName = item.value;
     }
@@ -326,7 +329,7 @@ export default {
       ).toFixed(2);
     },
     calOrderTotalPrice() {
-      return (parseFloat(this.calGoodsTotalPrice) + this.orderInfo.carriageFee
+      return (parseFloat(this.calGoodsTotalPrice) + this.orderInfo.carriage
       ).toFixed(2);
     }
   },

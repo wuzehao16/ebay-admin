@@ -190,7 +190,7 @@ export default {
     getReconList() {
       this.loading = true;
       reqCheckList(this.filters).then(res => {
-        console.log(res);
+        
         let r = res.data.data;
         if (r) {
           this.total = r.total;
@@ -200,7 +200,7 @@ export default {
       });
     },
     showEdit(row) {
-      console.log(row);
+      
       this.$router.push({
         name: "对账处理",
         params: {

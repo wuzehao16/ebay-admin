@@ -128,11 +128,11 @@
         	</template>
     	</el-table-column>    	
     	<el-table-column property="buyerPhone" label="手机号码" width='150'></el-table-column>
-    	<el-table-column  label="订单来源" width='100'>
+    	<!-- <el-table-column  label="订单来源" width='100'>
     		<template scope="scope">
     			{{ scope.row.order_source == "0" ? 'PC端':'移动端' }}
     		</template>
-    	</el-table-column>    	
+    	</el-table-column>    	 -->
     	<el-table-column  label="创建时间" width='150' >
 				<template scope="scope">
 					{{fTimestamp(scope.row.created)}}
@@ -237,7 +237,7 @@
       	})
       },
       showDetail(scope) {
-				console.log(this.orders[scope.$index])
+				
       	this.$router.push({
       		name:'订单详情',
       		params:{
@@ -269,9 +269,9 @@
 								message: '取消订单成功!'
 							});
 							p.orderStatus = "2";
-							console.log(p.orderStatus)
+							
 						}else{
-							console.log(1)
+							
 							let action = res.data.msg
 							this.$alert(`${ action }`, '提示', {
 								confirmButtonText: '确定',

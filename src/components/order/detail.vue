@@ -169,13 +169,13 @@ export default {
   },
   methods: {
     handleAddressChange(val) {
-      console.log(val);
+      
     },
     getOrderDetail(orderId) {
       let params = { orderNo: orderId };
       reqGetOrderDetail(params).then(res => {
        this.orderInfo = Object.assign({},this.orderInfo,res.data.data.content[0]);
-        console.log(this.orderInfo)
+        
         this.handleAddressToCode();
       });
     },

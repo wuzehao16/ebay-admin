@@ -145,7 +145,7 @@ export default {
   },
   methods: {
     editSubmit() {
-      console.log(this.reconc);
+      
       let params = {
         id: this.reconc.id,
         params: {

@@ -251,11 +251,11 @@ export default {
   },
   methods: {
     editSubmit() {
-      console.log(this.distrInfo)
+      
       this.distrInfo.firstCommission = this.firstCommission
       this.distrInfo.secondCommission = this.secondCommission
     	reqDistrEdit({distribution: this.distrInfo}).then((res) => {
-        console.log(res)
+        
         if (res.data.code == 0) {
           this.$message({
             message: '提交成功',
@@ -287,7 +287,7 @@ export default {
   mounted() {
      let s = this.$route.params.isEdit
 
-     console.log("s", s)
+     
      if (s) {
         this.isSettle = false
         this.crumbName = '结算编辑'
@@ -295,14 +295,14 @@ export default {
      let id = this.$route.params.id
      if (id) {
         reqDistrDetail({id}).then((res) => {
-          console.log(res)
+          
           let d = res.data.data
           if (d) {
             this.distrInfo = d.distribution
             this.orderInfo = d.order
           }
         }).catch((err) => {
-          console.log(err)
+          
         })
      } else {
         this.$router.push('/placeSettle/list')

@@ -88,10 +88,10 @@
     },
     methods: {
       handleOpen() {
-        console.log('handleopen');
+        
       },
       handleClose() {
-        //console.log('handleclose');
+        //
       },
       //折叠导航栏
       collapse: function () {

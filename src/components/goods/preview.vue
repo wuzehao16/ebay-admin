@@ -49,7 +49,7 @@ export default {
               this.$message.error(res.data.msg)              
             }
           }).catch((err) => {
-            console.log(err)
+            
           })
         }).catch((e) => {
           this.product.auditStatus = '0'

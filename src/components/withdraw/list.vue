@@ -150,7 +150,7 @@ export default {
       reqWithdrawList(this.filters).then(res => {
         let w = res.data.data;
         if (w) {
-          console.log(w);
+          
           this.total = w.total;
           this.withdraw_list = w.content;
           this.loading = false;
@@ -159,7 +159,7 @@ export default {
     },
     issueWithdraw(row) {
       reqGetWithdrawIssue(row).then(res => {
-        console.log(res);
+        
         this.$message({
           message: "提交成功",
           type: "success"
@@ -170,7 +170,7 @@ export default {
     showAudit(row, isDetail) {
       let d = row;
       d.created = this.fTimestamp(d.created);
-      console.log(d);
+      
       this.$router.push({
         name: "提现审核",
         params: {

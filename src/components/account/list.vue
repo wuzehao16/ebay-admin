@@ -152,7 +152,7 @@ export default {
         this.filterAccounts.startDate = "";
         this.filterAccounts.endData = "";
       }
-      console.log(this.filterAccounts);
+      
       Object.assign(pa, this.filterAccounts);
       this.loading = true;
 

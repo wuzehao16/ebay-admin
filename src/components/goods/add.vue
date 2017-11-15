@@ -7,14 +7,15 @@
         <el-breadcrumb-item>{{ crumbName }}</el-breadcrumb-item>
       </el-breadcrumb>
     </el-col>
-    <el-col :span="24" class="warp-main1" >
-		<el-form inline class="demo-form-inline" v-if="!isEdit" >
+    <el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" class="warp-main1" >
+		<el-form  label-width="100px" v-if="!isEdit" >
 		  <el-form-item label="Ebay原链">
-		    <el-input v-model="itemId" placeholder="ItemId"></el-input>
+		    <el-input v-model="itemId" placeholder="ItemId" style="width: 80%;margin-right: 20px;"></el-input>
+        <el-button type="primary"   @click="onSearch">提取</el-button>
 		  </el-form-item>
-		  <el-form-item>
-		    <el-button type="primary"   @click="onSearch">提取</el-button>
-		  </el-form-item>
+		<!--   <el-form-item>
+		    
+		  </el-form-item> -->
 		</el-form>
 		<template >
 		  <el-form ref="pro_info" :model="pro_info"  label-width="100px" v-loading="gettingGoods" v-if="add">
@@ -36,17 +37,31 @@
 				    </el-carousel-item>
 				  </el-carousel>
 			  </el-form-item>
-			  <h2>其它参数：</h2>
+			  <!-- <h2>其它参数：</h2> -->
 			  <template v-for="(item, index) in ebay.localizedAspects">
-				  <el-form-item :label="'参数' + (index + 1) + '名称：' ">
+				  <el-form-item :label="(index == 0 ? '其它参数：' : '' )">
 					<label>{{ item.name }}</label>
-				    <el-input type="textarea" v-model="else_key[index]" :placeholder="'请翻译参数' + (index + 1) + '名称' "></el-input>
+				    <el-input type="textarea" v-model="else_key[index]" placeholder="请输入译文"></el-input>
 				  </el-form-item>
-				  <el-form-item :label="'参数' + (index + 1) + '内容：' ">
+				  <el-form-item>
 					<label>{{ item.value }}</label>
-				    <el-input type="textarea" v-model="else_value[index]" :placeholder="'请翻译参数' + (index + 1) + '内容' "></el-input>
+				    <el-input type="textarea" v-model="else_value[index]" placeholder="请输入译文"></el-input>
 				  </el-form-item>
 			  </template>
+
+        <el-form-item label="商品介绍">
+          <div v-html="ebay.description"></div>
+          <el-input type="textarea" v-model="pro_info.productMemo"  placeholder="请翻译商品介绍" :rows='8'></el-input>    
+          
+        </el-form-item>
+
+
+
+
+
+
+
+
 			<div style="text-align: center;">
 		    	<el-button type="primary" @click="onSave">提审</el-button>
 			</div>
@@ -81,7 +96,9 @@ export default {
         auditStatus: "0",
         productStatus: "下架",
         productPic: "", //多个图片以@连接
-        productIcon: ""
+        productIcon: "",
+        productMemo: '',
+        productUsd: ''
       }
     };
   },
@@ -110,6 +127,8 @@ export default {
       );
       this.pro_info.ebayItemid = this.itemId;
       this.isEdit ? (this.pro_info.productId = this.productId) : "";
+      console.log("shit:" , this.pro_info)
+      this.pro_info.productUsd = Number.parseFloat(this.pro_info.productUsd)
       reqSaveGoods(this.pro_info)
         .then(res => {
           loading.close();
@@ -151,6 +170,7 @@ export default {
               this.selected_ebay = true;
 
               this.pro_info.productIcon = this.ebay.image.imageUrl;
+              this.pro_info.productUsd = this.ebay.price.value
               let imgArr = [];
               imgArr.push(this.pro_info.productIcon);
               for (let i of this.ebay.additionalImages) {
@@ -192,8 +212,10 @@ export default {
           productPic: p.pic ? p.pic.join("@") : "",
           productPrice: p.price,
 					productIcon: p.icon,
-					userWxOpenid:userWxOpenid,
-          items: p.productAttr
+					userWxOpenid: userWxOpenid,
+          items: p.productAttr,
+          productMemo: p.productMemo,
+          productUsd: p.productUsd
         };
         for (let i in p.productAttr) {
           this.else_key[i] = p.productAttr[i].attrName;
@@ -240,7 +262,7 @@ export default {
   margin: 10px 10px;
 }
 .warp-main1{
-    width: 50%;
+    /*width: 50%;*/
     margin: auto;
     position: absolute;
     top: 50px;

@@ -1,6 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from '@/components/Home'
+
+
+
+/*import Home from '@/components/Home'
 import Dashboard from '@/components/Dashboard'
 
 import UserList2 from '@/components/user/userlist'
@@ -44,7 +47,58 @@ import WechatReply from '@/components/wechat/autoreply'
 
 
 import UserChangePwd from '@/components/user/changepwd'
-import UserProfile from '@/components/user/profile'
+import UserProfile from '@/components/user/profile'*/
+
+
+
+
+
+const Home = r => require.ensure([], () => r(require( '@/components/Home')), 'Home')
+const Dashboard = r => require.ensure([], () => r(require( '@/components/Dashboard')), 'Dashboard')
+
+const UserList2 = r => require.ensure([], () => r(require( '@/components/user/userlist')), 'UserList2')
+
+const OrderList = r => require.ensure([], () => r(require( '@/components/order/list')), 'OrderList')
+const OrderEdit = r => require.ensure([], () => r(require( '@/components/order/edit')), 'OrderEdit')
+const OrderDetail = r => require.ensure([], () => r(require( '@/components/order/detail')), 'OrderDetail')
+const OrderAdd = r => require.ensure([], () => r(require( '@/components/order/add')), 'OrderAdd')
+
+//商品管理 
+const GoodsList = r => require.ensure([], () => r(require( '@/components/goods/list')), 'GoodsList')
+const GoodsAdd = r => require.ensure([], () => r(require( '@/components/goods/add')), 'GoodsAdd')
+const GoodsPreview = r => require.ensure([], () => r(require( '@/components/goods/preview')), 'GoodsPreview')
+
+//异常订单
+const ExOrderList = r => require.ensure([], () => r(require( '@/components/order_exception/list')), 'ExOrderList')
+const ExOrderAdd = r => require.ensure([], () => r(require( '@/components/order_exception/add')), 'ExOrderAdd')
+const ExOrderEdit = r => require.ensure([], () => r(require( '@/components/order_exception/edit')), 'ExOrderEdit')
+const ExOrderDetail = r => require.ensure([], () => r(require( '@/components/order_exception/detail')), 'ExOrderDetail')
+
+//分销结算
+const PlaceSettleList = r => require.ensure([], () => r(require( '@/components/placeSettle/list')), 'PlaceSettleList')
+const PlaceSettleEdit = r => require.ensure([], () => r(require( '@/components/placeSettle/edit')), 'PlaceSettleEdit')
+const PlaceSettleSettle = r => require.ensure([], () => r(require( '@/components/placeSettle/settle')), 'PlaceSettleSettle')
+
+//账户管理
+const AccountList = r => require.ensure([], () => r(require( '@/components/account/list')), 'AccountList')
+const AccountStated = r => require.ensure([], () => r(require( '@/components/account/account_stated')), 'AccountStated')
+//提现管理
+const WithdrawList = r => require.ensure([], () => r(require( '@/components/withdraw/list')), 'WithdrawList')
+const WithdrawAudit = r => require.ensure([], () => r(require( '@/components/withdraw/audit')), 'WithdrawAudit')
+const WithdrawDetail = r => require.ensure([], () => r(require( '@/components/withdraw/detail')), 'WithdrawDetail')
+//对账管理
+const ReconciliationList = r => require.ensure([], () => r(require( '@/components/reconciliation/list')), 'ReconciliationList')
+const ReconciliationEdit = r => require.ensure([], () => r(require( '@/components/reconciliation/edit')), 'ReconciliationEdit')
+const ReconciliationDetail = r => require.ensure([], () => r(require( '@/components/reconciliation/detail')), 'ReconciliationDetail')
+//微信菜单、回复
+
+const WechatMenus = r => require.ensure([], () => r(require( '@/components/wechat/menulist')), 'WechatMenus')
+const WechatReply = r => require.ensure([], () => r(require( '@/components/wechat/autoreply')), 'WechatReply')
+
+
+const UserChangePwd = r => require.ensure([], () => r(require( '@/components/user/changepwd')), 'UserChangePwd')
+const UserProfile = r => require.ensure([], () => r(require( '@/components/user/profile')), 'UserProfile')
+
 
 // 懒加载方式，当路由被访问的时候才加载对应组件
 const Login = resolve => require(['@/components/Login'], resolve)

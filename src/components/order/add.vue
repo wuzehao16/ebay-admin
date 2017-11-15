@@ -237,8 +237,8 @@ export default {
     },
     addSubmit() {
       this.addressCodeToaddress();
-      this.orderInfo.orderAmount = this.calGoodsTotalPrice;
-      this.orderInfo.ebayAmount = this.calOrderTotalPrice
+      this.orderInfo.orderAmount = this.calOrderTotalPrice;
+      this.orderInfo.ebayAmount = this.calGoodsTotalPrice;
       reqAddOrder(this.orderInfo)
         .then(res => {
           if (res.data.code == 0) {
@@ -325,12 +325,10 @@ export default {
   computed: {
     calGoodsTotalPrice() {
       return (this.orderInfo.items[0].productQuantity *
-        this.orderInfo.items[0].productPrice
-      ).toFixed(2);
+        this.orderInfo.items[0].productPrice ).toFixed(2);
     },
     calOrderTotalPrice() {
-      return (parseFloat(this.calGoodsTotalPrice) + this.orderInfo.carriage
-      ).toFixed(2);
+      return (parseFloat(this.calGoodsTotalPrice) + this.orderInfo.carriage ).toFixed(2);
     }
   },
   mounted() {

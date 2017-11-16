@@ -172,7 +172,7 @@ import {
   reqGetOrderDetail,
   reqGetUserList
 } from "../../api";
-import { regionData, TextToCode } from "element-china-area-data";
+import { regionData, TextToCode ,CodeToText} from "element-china-area-data";
 
 export default {
   data() {
@@ -200,10 +200,27 @@ export default {
     handleAddressChange(val) {
 
     },
+    addressCodeToaddress() {
+      if (
+        this.orderInfo.consignee_address &&
+        this.orderInfo.consignee_address.length < 1
+      )
+        return;
+      this.orderInfo.address =
+        CodeToText[this.orderInfo.consignee_address[0]] +
+        "@" +
+        CodeToText[this.orderInfo.consignee_address[1]] +
+        "@" +
+        CodeToText[this.orderInfo.consignee_address[2]];
+      this.orderInfo.address += "@" + this.orderInfo.address_detail;
+    },
     editSubmit() {
       // 编辑提交
+      this.addressCodeToaddress();
       this.orderInfo.items = this.orderInfo.orderInfo
       this.orderInfo.orderMasterId = this.orderInfo.id
+      this.orderInfo.buyerAddress = this.orderInfo.address
+      this.orderInfo.cneeAddress = this.orderInfo.address
       reqEditOrder(this.orderInfo).then(res => {
         this.$message({
           message: "提交成功",
@@ -284,8 +301,8 @@ export default {
     handleAddressToCode() {
       //地址转code
 
-      if (this.orderInfo.buyerAddress.length < 2) return
-      let address = this.orderInfo.buyerAddress.split("@");
+      if (this.orderInfo.cneeAddress.length < 2) return
+      let address = this.orderInfo.cneeAddress.split("@");
       if (address.length > 3) {
         this.orderInfo.consignee_address = [
           TextToCode[address[0]].code,

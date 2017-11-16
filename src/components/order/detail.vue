@@ -58,7 +58,7 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
              <el-col :span='8'>
-              <el-form-item label='用户电话：'>
+              <el-form-item label='用户姓名：'>
                 <el-input v-model="orderInfo.buyerName" placeholder="购买用户"></el-input>
               </el-form-item>
             </el-col>
@@ -169,18 +169,18 @@ export default {
   },
   methods: {
     handleAddressChange(val) {
-      
+
     },
     getOrderDetail(orderId) {
       let params = { orderNo: orderId };
       reqGetOrderDetail(params).then(res => {
        this.orderInfo = Object.assign({},this.orderInfo,res.data.data.content[0]);
-        
+
         this.handleAddressToCode();
       });
     },
     handleAddressToCode() {
-      if (this.orderInfo.buyerAddress.length < 2) return 
+      if (this.orderInfo.buyerAddress.length < 2) return
       let address = this.orderInfo.buyerAddress.split("@");
       if (address.length > 3) {
         this.orderInfo.consignee_address = [

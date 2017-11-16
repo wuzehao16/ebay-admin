@@ -97,7 +97,7 @@
               <el-form-item label='收货地址：'>
                 <el-cascader :options="addressOptions" v-model="orderInfo.consignee_address" @change="handleAddressChange" style='width:100%;margin-bottom:10px;'>
                 </el-cascader>
-                
+
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -198,7 +198,7 @@ export default {
   },
   methods: {
     handleAddressChange(val) {
-      
+
     },
     editSubmit() {
       // 编辑提交
@@ -209,6 +209,7 @@ export default {
           message: "提交成功",
           type: "success"
         });
+        this.toOrderList();
       });
     },
     resetOrder() {
@@ -268,7 +269,7 @@ export default {
       return newArray;
     },
     handleSelect(item) {
-      
+
       this.orderInfo.items[0].productId = item.id;
       this.orderInfo.items[0].productName = item.value;
     },
@@ -282,8 +283,8 @@ export default {
     },
     handleAddressToCode() {
       //地址转code
-      
-      if (this.orderInfo.buyerAddress.length < 2) return 
+
+      if (this.orderInfo.buyerAddress.length < 2) return
       let address = this.orderInfo.buyerAddress.split("@");
       if (address.length > 3) {
         this.orderInfo.consignee_address = [
@@ -303,7 +304,7 @@ export default {
     getProductId(){
        let params = { productName: this.orderInfo.productName };
         reqProductName(params).then(res => {
-          
+
         });
     }
   },

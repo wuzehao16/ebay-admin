@@ -5,7 +5,7 @@
 
 ### 说明
 
-　　这是一个用vuejs2.0和element-ui搭建的后台管理界面。演示地址：[http://v.ipyro.cn](http://v.ipyro.cn)
+　　这是一个用vuejs2.0和element-ui搭建的后台管理界面。
 
 ### 相关技术：
 

@@ -56,11 +56,10 @@ export const reqCheckList = params => { return axios.get(`/sell/user/account/che
 export const reqReconciliationEdit = params => { return axios.post(`/sell/user/account/check/${params.id}/edit`,  params.params ) }
 export const reqReconciliationDetail = params => { return axios.get(`/sell/reconciliation/detail`, { params: params }) }
 
-export const reqWechatReply = params => { return axios.get(`/sell/wechat/replylist`, { params: params }) }
-export const reqWechatReplyEdit = params => { return axios.get(`/sell/wechat/replyedit`, { params: params }) }
-export const reqWechatReplyDelete = params => { return axios.get(`/sell/wechat/replydelete`, { params: params }) }
-export const reqWechatReplyAdd = params => { return axios.get(`/sell/wechat/replyadd`, { params: params }) }
-
+export const reqWechatReply = params => { return axios.get(`/sell/wechat/wxMessage/list`, { params: params }) }
+export const reqWechatReplyEdit = params => { return axios.get(`/sell//wechat/wxMessage/${params.id}`, { params: params }) }
+export const reqWechatReplyDelete = params => { return axios.delete(`/sell/wechat/wxMessage/${params}`) }
+export const reqWechatReplyAdd = params => { return axios.get(`/sell/wechat/wxMessage`, { params: params }) }
 export const reqGoodsList = params => { return axios.get(`/sell/seller/product/list`, { params: params }) }
 export const reqSaveGoods = params => { return axios.post(`/sell/seller/product/save`, params) }
 export const reqGoodsDetail = params => { return axios.get(`/sell/buyer/product/detail`, { params: params }) }

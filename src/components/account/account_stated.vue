@@ -17,35 +17,35 @@
 	      </el-form-item>
 	      <el-form-item label="手机号码">
 	        <el-input v-model="filterAccounts.userPhone" placeholder="手机号码"></el-input>
-	      </el-form-item>	     
+	      </el-form-item>
 		  <el-form-item label="交易状态">
 			  <el-select v-model="filterAccounts.tradeStatus" placeholder="交易状态" clearable>
 	    		<el-option key="0" label="处理中" value="0"></el-option>
 	    		<el-option key="1" label="成功" value="1"></el-option>
 	    		<el-option key="2" label="失败" value="2"></el-option>
 			  </el-select>
-		  </el-form-item>	 
+		  </el-form-item>
 
 		  <el-form-item>
-		    <el-date-picker v-model="filterAccounts.date" type="datetimerange" 
+		    <el-date-picker v-model="filterAccounts.date" type="datetimerange"
 		    :picker-options="pickerOptions" placeholder="选择时间范围" align="right">
-		    </el-date-picker>		
+		    </el-date-picker>
 		  </el-form-item>
 	      <el-form-item>
 	        <el-button type="primary" @click="getAccounts">查询</el-button>
 	      </el-form-item>
-	  
+
 	    </el-form>
 	  </el-col>
 
 
     <el-table ref="singleTable" :data="accounts" v-loading='loading'  @current-change="setHighlight"  style="width: 100%">
     	<el-table-column type="index" width="60"> </el-table-column>
-    	<el-table-column property="user.userName" label="用户姓名" width='140'></el-table-column>
-    	<el-table-column property="user.userPhone" label="手机号码" width='140'></el-table-column>
-    	<el-table-column property="tradeInAmount" label="收入（元）" width='140'></el-table-column>
-    	<el-table-column property="tradeOutAmount" label="支出（元）" width='140'></el-table-column>
-    	<el-table-column property="userBalance" label="账户余额（元）" width='140'></el-table-column>
+    	<el-table-column property="user.userName" label="用户姓名" min-width='140'></el-table-column>
+    	<el-table-column property="user.userPhone" label="手机号码" min-width='140'></el-table-column>
+    	<el-table-column property="tradeInAmount" label="收入（元）" min-width='140'></el-table-column>
+    	<el-table-column property="tradeOutAmount" label="支出（元）" min-width='140'></el-table-column>
+    	<el-table-column property="userBalance" label="账户余额（元）" min-width='140'></el-table-column>
     	<el-table-column label="交易状态" width='100'>
     		<template scope="scope">
     			<template v-if="scope.row.tradeStatus == 0">
@@ -185,4 +185,3 @@ export default {
   }
 };
 </script>
-

@@ -60,7 +60,7 @@
             <el-col :span='8'>
               <el-form-item label='订单总价（元）'>
                 <el-input v-model="orderInfo.orderAmount" placeholder="订单总价" disabled></el-input>
-              </el-form-item>              
+              </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
@@ -71,7 +71,7 @@
 				</el-input>
               </el-form-item>
             </el-col>
-          </el-row>          
+          </el-row>
 
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
@@ -90,7 +90,7 @@
                   <el-radio :label="'1'">协商</el-radio>
                 </el-radio-group>
               </el-form-item>
-            </el-col>            
+            </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
@@ -100,7 +100,7 @@
                 </el-input>
               </el-form-item>
             </el-col>
-          </el-row> 
+          </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
               <el-form-item label='解决说明'>
@@ -109,12 +109,11 @@
                 </el-input>
               </el-form-item>
             </el-col>
-          </el-row> 
+          </el-row>
 
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16' :offset='10'>
 			 	<el-button type="success" @click='editSubmit'>更新</el-button>
-			    <el-button type="warning" @click='resetOrder'>重置</el-button>
 			    <el-button type="info" @click='toOrderList'>返回列表</el-button>
 		    </el-col>
           </el-row>
@@ -141,8 +140,8 @@
               <template slot-scope="scope">
                 <el-button @click="editOrderRc(scope)" type="text" size="small">编辑</el-button>
                 <el-button type="text" size="small" @click="deleteOrderRc(scope)">删除</el-button>
-              </template>        
-            </el-table-column>        
+              </template>
+            </el-table-column>
           </el-table>
         </el-col>
       </el-col>
@@ -245,7 +244,7 @@ export default {
   methods: {
     editSubmit() {
       Object.assign(this.orderInfo, this.handle);
-      
+
       reqEditExOrder(this.orderInfo).then(res => {
         this.$message({
           message: "提交成功",
@@ -256,8 +255,8 @@ export default {
       });
     },
     changeErrorStatus(val){
-      
-      
+
+
       this.orderInfo.errorStatus ="1";
     },
     resetOrder() {
@@ -324,7 +323,7 @@ export default {
           this.orderInfo,
           res.data.data.content[0]
         );
-        
+
       });
     }
   },

@@ -14,11 +14,20 @@
         <el-button type="primary"   @click="onSearch">提取</el-button>
 		  </el-form-item>
 		<!--   <el-form-item>
-		    
+
 		  </el-form-item> -->
 		</el-form>
 		<template >
 		  <el-form ref="pro_info" :model="pro_info"  label-width="100px" v-loading="gettingGoods" v-if="add">
+        <el-form-item label="商品图片：">
+          <el-carousel :interval="41000" arrow="always" height="200px">
+            <el-carousel-item v-for="(item, index) in pro_info.productPic.split('@')" :key="item">
+              <li :style="{background:'url(' + item + ') center no-repeat'}" style="height:100%;list-style-type:none;background:#fff;" >
+          <!--     	<i class="el-icon-close" style="position:absolute;" @click="delPic(index)"></i> -->
+              </li>
+            </el-carousel-item>
+          </el-carousel>
+        </el-form-item>
 			  <el-form-item label="商品名称："v-if="selected_ebay">
 				<label>{{ ebay.title }}</label>
 			    <el-input type="textarea" v-model="pro_info.productNane" placeholder="请翻译商品名称"></el-input>
@@ -28,18 +37,10 @@
 			    <el-input type="textarea" v-model="pro_info.productPrice" placeholder="人民币价格￥"></el-input>
 			  </el-form-item>
 
-			  <el-form-item label="商品图片：">
-				  <el-carousel :interval="41000" arrow="always" height="200px">
-				    <el-carousel-item v-for="(item, index) in pro_info.productPic.split('@')" :key="item">
-				      <li :style="{background:'url(' + item + ') center no-repeat'}" style="height:100%;list-style-type:none;background:#fff;" >
-				  <!--     	<i class="el-icon-close" style="position:absolute;" @click="delPic(index)"></i> -->
-				      </li>
-				    </el-carousel-item>
-				  </el-carousel>
-			  </el-form-item>
-			  <!-- <h2>其它参数：</h2> -->
+
+			  <!-- <h2>商品规格：</h2> -->
 			  <template v-for="(item, index) in ebay.localizedAspects">
-				  <el-form-item :label="(index == 0 ? '其它参数：' : '' )">
+				  <el-form-item :label="(index == 0 ? '商品规格：' : '' )">
 					<label>{{ item.name }}</label>
 				    <el-input type="textarea" v-model="else_key[index]" placeholder="请输入译文"></el-input>
 				  </el-form-item>
@@ -51,8 +52,8 @@
 
         <el-form-item label="商品介绍">
           <div v-html="ebay.description"></div>
-          <el-input type="textarea" v-model="pro_info.productMemo"  placeholder="请翻译商品介绍" :rows='8'></el-input>    
-          
+          <el-input type="textarea" v-model="pro_info.productMemo"  placeholder="请翻译商品介绍" :rows='8'></el-input>
+
         </el-form-item>
 
 

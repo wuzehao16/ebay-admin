@@ -55,8 +55,8 @@
     	<el-table-column label="日期" min-width="160">
           <template scope="scope">
           {{ fTimestamp(scope.row.created) }}
-          </template> 
-          
+          </template>
+
       </el-table-column>
 	    <el-table-column label="操作" width='240'>
         	<template scope="scope">
@@ -67,7 +67,7 @@
               <template v-else>
             	<el-button size="small" @click="changeActive(scope.row)">解禁</el-button>
               </template>
-            	<el-button size="small" type="danger" @click="delUser(scope.$index,scope.row)">删除</el-button>
+            	<!-- <el-button size="small" type="danger" @click="delUser(scope.$index,scope.row)">删除</el-button> -->
         	</template>
     	</el-table-column>
   	</el-table>
@@ -78,7 +78,7 @@
     </el-col>
 
       <!--编辑用户界面-->
-      <el-dialog title="编辑用户" v-model="editUserFormVisible" :close-on-click-modal="false">
+      <el-dialog title="编辑用户" v-model="editUserFormVisible" :close-on-click-modal="false" max-width="800px" class="userEditForm">
         <el-form :model="editUserForm" label-width="80px" ref="editUserForm">
           <el-form-item label="会员编号" prop="id">
             <el-input v-model="editUserForm.id" auto-complete="off" disabled></el-input>
@@ -90,7 +90,7 @@
             <el-input v-model="editUserForm.userPhone" auto-complete="off"></el-input>
           </el-form-item>
           <el-form-item label="会员类型" prop="usertype">
-    			  <el-select v-model="editUserForm.userCtype" 
+    			  <el-select v-model="editUserForm.userCtype"
               placeholder="会员类型" clearable>
     	    		<el-option key="1" label="分销商" value="1"></el-option>
     	    		<el-option key="2" label="普通用户" value="2"></el-option>
@@ -184,7 +184,7 @@ export default {
           });
         })
         .catch(e => {
-          
+
         });
     },
     showEditUserDialog: function(index, row) {
@@ -194,11 +194,15 @@ export default {
     },
     //编辑用户信息后提交
     editUserSubmit: function() {
+      if (!/^1[3|4|5|8]\d{9}$/.test(this.editUserForm.userPhone) && this.editUserForm.userPhone !== "") {
+          this.$message.error('请输入正确的手机号');
+        return ;
+      }
       this.$refs.editUserForm.validate(valid => {
         if (valid) {
           this.$confirm("确认提交吗？", "提示", {}).then(() => {
             reqEditUser(this.editUserForm).then(res => {
-              
+
               if (res.data.msg == "成功") {
                 this.$message({
                   message: "提交成功",
@@ -239,6 +243,11 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
+.userEditFormP{
+  .el-dialog--small {
+      width: 600px !important;
+  }
+}
 
 </style>

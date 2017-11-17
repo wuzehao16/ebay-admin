@@ -153,7 +153,7 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
                 <el-col :span='16' :offset='10'>
             <el-button type="success" @click='editSubmit'>提交</el-button>
-              <el-button type="warning" @click='resetOrder'>重置</el-button>
+              <!-- <el-button type="warning" @click='resetOrder'>重置</el-button> -->
               <el-button type="info" @click='toOrderList'>返回列表</el-button>
             </el-col>
           </el-row>

@@ -192,12 +192,12 @@ export default {
       addFormVisible: false,
       editFormVisible: false,
       formLabelWidth: "120px",
-      handleStatus:"",
+      handleStatus: "",
       editForm: {
         createdby: "",
         handerType: "",
         sloveMemo: "",
-        updated:""
+        updated: ""
       },
       handle: {
         sloveMemo: "",
@@ -242,22 +242,31 @@ export default {
     };
   },
   methods: {
+    validation(){
+       if (this.orderInfo.handerby == "") {
+        this.$message.error("请输入处理人");
+        return false;
+      }
+      if (this.orderInfo.sloveMemo == "") {
+        this.$message.error("请输入解决说明");
+        return false;
+      }
+      return true
+    },
     editSubmit() {
       Object.assign(this.orderInfo, this.handle);
-
+      if (!this.validation()) return
       reqEditExOrder(this.orderInfo).then(res => {
         this.$message({
           message: "提交成功",
           type: "success"
         });
-        this.orderInfo.updated=this.fTimestamp(new Date())
-        this.rcList.push(this.orderInfo)
+        this.orderInfo.updated = this.fTimestamp(new Date());
+        this.rcList.push(this.orderInfo);
       });
     },
-    changeErrorStatus(val){
-
-
-      this.orderInfo.errorStatus ="1";
+    changeErrorStatus(val) {
+      this.orderInfo.errorStatus = "1";
     },
     resetOrder() {
       this.orderInfo = Object.assign({}, this.orderInfo_bak);
@@ -273,17 +282,31 @@ export default {
         this.rcList = res.data.data.content;
       });
     },
+    validationrc(){
+       if (this.editForm.createdby == "") {
+        this.$message.error("请输入处理人");
+        return false;
+      }
+      if (this.editForm.sloveMemo == "") {
+        this.$message.error("请输入解决说明");
+        return false;
+      }
+      return true
+    },
     editOrderRcSubmit(scope) {
-      //编辑订单轨迹
+      //编辑提交订单轨迹
       let params = Object.assign(this.orderInfo, this.editForm);
+      if (!this.validationrc()) return      
       reqaddExOrderRcList(params).then(res => {
         this.editFormVisible = false;
+        this.getRcList();
       });
     },
     editOrderRc(scope) {
       //编辑订单轨迹
       this.editFormVisible = true;
       this.editForm = scope.row;
+      console.log(scope.row)
     },
 
     deleteOrderRc(scope) {
@@ -315,15 +338,14 @@ export default {
     getOrderDetail() {
       let params = { orderNo: this.orderInfo.orderNo };
       reqGetOrderDetail(params).then(res => {
-        if (res.data.data.length <1) {
-          return
+        if (res.data.data.length < 1) {
+          return;
         }
         this.orderInfo = Object.assign(
           {},
           this.orderInfo,
           res.data.data.content[0]
         );
-
       });
     }
   },

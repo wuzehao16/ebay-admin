@@ -26,7 +26,7 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-           <el-select v-model="filters.auditStatus" placeholder="审核状态" clearable>
+           <el-select v-model="filters.auditStatus" placeholder="审核状态" >
             <el-option key="0" label="待审核" value="0"></el-option>
             <el-option key="1" label="已通过" value="1"></el-option>
             <el-option key="2" label="不通过" value="2"></el-option>            

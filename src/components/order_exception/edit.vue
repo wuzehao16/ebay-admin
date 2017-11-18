@@ -78,14 +78,14 @@
               <el-form-item label='异常状态'>
 				  <!-- <el-select v-model="orderInfo.errorStatus" placeholder="异常状态" :disabled="handle.handerType==0"> -->
           <el-select v-model="orderInfo.errorStatus" placeholder="异常状态" >
-		    		<el-option v-for="item in exStatusOptions" :key="item.value" :label="item.label" :value="item.value" >
+		    		<el-option v-for="item in exStatusOptions" :key="item.value" :label="item.label" :value="item.value" :disabled="errorStatusDisabled">
 		    		</el-option>
 				  </el-select>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='处理方式'>
-                <el-radio-group v-model='handle.handerType' :change="changeErrorStatus">
+              <el-form-item label='处理方式' >
+                <el-radio-group v-model='handle.handerType' @change="changeErrorStatus" >
                   <el-radio :label="'0'">退款</el-radio>
                   <el-radio :label="'1'">协商</el-radio>
                 </el-radio-group>
@@ -187,6 +187,7 @@ import {
 export default {
   data() {
     return {
+      errorStatusDisabled:false,
       orderInfo: {},
       rcList: [],
       addFormVisible: false,
@@ -266,7 +267,12 @@ export default {
       });
     },
     changeErrorStatus(val) {
-      this.orderInfo.errorStatus = "1";
+      if (val == 0) {
+        this.orderInfo.errorStatus = "1";
+        this.errorStatusDisabled = true;
+      }else{
+        this.errorStatusDisabled = false;
+      }
     },
     resetOrder() {
       this.orderInfo = Object.assign({}, this.orderInfo_bak);

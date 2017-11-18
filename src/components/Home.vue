@@ -31,7 +31,7 @@
           <i class="iconfont icon-unfold" v-show="collapsed"></i>
         </div>
 
-        <el-menu default-active="0"  class="el-menu-vertical-demo"
+        <el-menu default-active="0"  class="el-menu-vertical-demo" style="overflow-y: scroll;"
            :default-active="$route.path" :collapse='collapsed' router>
           <template v-for="(item,index) in $router.options.routes" 
             v-if="item.menuShow && authArr.includes(item.path)"> 
@@ -125,6 +125,9 @@
 
 </script>
 <style>
+.el-menu-vertical-demo > li:last-child {
+  margin-bottom: 50px;
+}
   .el-menu-item, .el-submenu__title {
     color: #fff;
   }

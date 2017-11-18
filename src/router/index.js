@@ -170,7 +170,7 @@ let router = new Router({
       leaf: true,
       iconCls: 'iconfont icon-order-error', // 图标样式class
       children: [
-        {path: '/orderException/list', component: ExOrderList, name: '订单异常', menuShow: true},
+        {path: '/orderException/list', component: ExOrderList, name: '异常订单', menuShow: true},
         {path: '/orderException/edit', component: ExOrderEdit, name: '异常订单编辑', menuShow: false},
         {path: '/orderException/detail', component: ExOrderDetail, name: '异常订单详情', menuShow: false},
         {path: '/orderException/add', component: ExOrderAdd, name: '异常订单新增', menuShow: false}
@@ -236,7 +236,7 @@ let router = new Router({
       iconCls: 'iconfont icon-wechat', // 图标样式class
       children: [
         {path: '/wechat/menulist', component: WechatMenus, name: '微信菜单', menuShow: true},
-        {path: '/wechat/replylist', component: WechatReply, name: '自动回复设置', menuShow: true}
+        {path: '/wechat/replylist', component: WechatReply, name: '微信回复', menuShow: true}
       ]
     },
     {path: '*', redirect: '/login'}

@@ -31,7 +31,7 @@
           <i class="iconfont icon-unfold" v-show="collapsed"></i>
         </div>
 
-        <el-menu default-active="0"  class="el-menu-vertical-demo"
+        <el-menu default-active="0"  class="el-menu-vertical-demo" style="overflow-y: auto;"
            :default-active="$route.path" :collapse='collapsed' router>
           <template v-for="(item,index) in $router.options.routes" 
             v-if="item.menuShow && authArr.includes(item.path)"> 
@@ -124,7 +124,40 @@
 
 
 </script>
-<style>
+<style scoped>
+::-webkit-scrollbar  
+{  
+    width: 6px;  
+    height: 6px;  
+    background-color: #F5F5F5;  
+}  
+  
+/*定义滚动条轨道 内阴影+圆角*/  
+::-webkit-scrollbar-track  
+{  
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);  
+    border-radius: 10px;  
+    background-color: #F5F5F5;  
+}  
+  
+/*定义滑块 内阴影+圆角*/  
+::-webkit-scrollbar-thumb  
+{  
+    border-radius: 10px;  
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);  
+    background-color: #555;  
+}   
+</style>
+<style lang="scss">
+.el-menu-vertical-demo {}
+/*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/  
+  
+
+
+
+.el-menu-vertical-demo > li:last-child {
+  margin-bottom: 50px;
+}
   .el-menu-item, .el-submenu__title {
     color: #fff;
   }

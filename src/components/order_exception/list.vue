@@ -193,13 +193,12 @@ export default {
     },
     //删除异常订单
     deleteOrder(row) {
-      let params = { id: row.id };
       this.$confirm("是否删除异常订单?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(() => {
-        reqDeleteExOrder(params).then(res => {
+        reqDeleteExOrder({id: row.id}).then(res => {
           if (res.data.code == 0) {
             this.$message({
               type: "success",
@@ -211,10 +210,10 @@ export default {
             let action = res.data.msg;
             this.$alert(`${action}`, "提示", {
               confirmButtonText: "确定"
-            });
+            })
           }
-        });
-      });
+        })
+      })
     }
   },
   mounted() {

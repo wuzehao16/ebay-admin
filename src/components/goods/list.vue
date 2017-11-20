@@ -118,7 +118,7 @@ export default {
     onSale(row) {
       this.$confirm("确认上架该商品吗?", "提示", { type: "warning" })
         .then(() => {
-          reqOnSaleGoods(row.id).then(res => {
+          reqOnSaleGoods({productId: row.id}).then(res => {
             if (res.data.msg == "成功") {
               row.productStatus = "正常";
               this.$message({
@@ -137,7 +137,7 @@ export default {
     offSale(row) {
       this.$confirm("确认下架该商品吗?", "提示", { type: "warning" })
         .then(() => {
-          reqOffSaleGoods(row.id).then(res => {
+          reqOffSaleGoods({productId: row.id}).then(res => {
             if (res.data.msg == "成功") {
               row.productStatus = "下架";
               this.$message({

@@ -144,7 +144,7 @@
         	<template scope="scope">
             	<el-button size="small" type="primary" @click='showDetail(scope)'>详情</el-button>
             	<el-button size="small" @click="showEdit(scope)">编辑</el-button>
-							<el-button size="small" type="danger" @click="cancelOrder(scope.row)" :disabled="scope.row.orderStatus == 2">取消</el-button>
+							<el-button size="small" type="danger" @click="cancelOrder(scope.row)" :disabled="scope.row.orderStatus != '1'">取消</el-button>
         	</template>
     	</el-table-column>
   	</el-table>

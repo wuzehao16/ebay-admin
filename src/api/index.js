@@ -2,7 +2,7 @@ import axios from 'axios'
 
 //订单列表
 export const reqGetOrderList = params => { return axios.get(`/sell/seller/order/orderlistShow`, { params: params }) }
-export const reqCancelOrder = params => { return axios.get(`/sell/seller/order/cancel`, { params: params }) }
+export const reqCancelOrder = params => { return axios.put(`/sell/seller/order/cancel/${params.openid}/${params.orderId}`) }
 
 export const reqProductName = params => { return axios.get(`/sell/seller/product/list`, { params: params }) }
 
@@ -12,14 +12,14 @@ export const reqNumToList = params => { return axios.get(`/sell/seller/order/lis
 
 export const reqGetExOrderList = params => { return axios.get(`/sell/ebay/error/list`, { params: params }) }
 
-export const reqEditExOrder = params => { return axios.post(`/sell/ebay/error/save`,  params) }
-export const reqDeleteExOrder = params => { return axios.post(`/sell/ebay/error/delete`, params) }
+export const reqEditExOrder = params => { return axios.put(`/sell/ebay/error/save`,  params) }
+export const reqDeleteExOrder = params => { return axios.delete(`/sell/ebay/error/delete/${params.id}`) }
 
 export const reqAddExOrder = params => { return axios.post(`/sell/ebay/error/create`, params) }
 //订单轨迹
 export const reqPutExOrderRcList = params => { return axios.post(`/sell/ebay/errorrc/save`, params) }
 export const reqaddExOrderRcList = params => { return axios.post(`/sell/ebay/errorrc/create`, params) }
-export const reqDeleteExOrderRcList = params => { return axios.post(`/sell/ebay/errorrc/delete`, params) }
+export const reqDeleteExOrderRcList = params => { return axios.delete(`/sell/ebay/errorrc/delete`, params) }
 export const reqGetExOrderRcList = params => { return axios.get(`/sell/ebay/errorrc/list`, { params: params }) }
 //微信
 export const reqGetWechatMenus = params => { return axios.get(`/sell/wechat/menu/list`, { params: params }) }
@@ -61,10 +61,10 @@ export const reqWechatReplyEdit = params => { return axios.get(`/sell//wechat/wx
 export const reqWechatReplyDelete = params => { return axios.delete(`/sell/wechat/wxMessage/${params}`) }
 export const reqWechatReplyAdd = params => { return axios.get(`/sell/wechat/wxMessage`, { params: params }) }
 export const reqGoodsList = params => { return axios.get(`/sell/seller/product/list`, { params: params }) }
-export const reqSaveGoods = params => { return axios.post(`/sell/seller/product/save`, params) }
-export const reqGoodsDetail = params => { return axios.get(`/sell/buyer/product/detail`, { params: params }) }
-export const reqOnSaleGoods = params => { return axios.post(`/sell/seller/product/on_sale`, params,  {headers: {'Content-Type':'text/plain'}}) }
-export const reqOffSaleGoods = params => { return axios.post(`/sell/seller/product/off_sale`, params, {headers: {'Content-Type':'text/plain'}}) }
+export const reqSaveGoods = params => { return axios.put(`/sell/seller/product/save`, params) }
+export const reqGoodsDetail = params => { return axios.get(`/sell/buyer/product/detail/${params.productId}`) }
+export const reqOnSaleGoods = params => { return axios.put(`/sell/seller/product/on_sale/${params.productId}`) }
+export const reqOffSaleGoods = params => { return axios.put(`/sell/seller/product/off_sale/${params.productId}`) }
 //获取ebay商品
 export const reqEbayGoods = params => { return axios.get(`/sell/ebay/getGoodsInfo`, { params: params }) }
 

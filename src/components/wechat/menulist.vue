@@ -244,13 +244,21 @@ export default {
       this.addLoading = true;
       Object.assign(this.addForm, { wxMenuParent: this.wxMenuParent });
       reqAddWechatMenu(this.addForm).then(res => {
-        this.$message({
-          message: "新增成功",
-          type: "success"
-        });
-        this.addLoading = false;
-        this.addFormVisible = false;
-        this.getMenuList(this.wxMenuParent)
+        this.addFormVisible = false     
+        this.addLoading = false
+        if (res.data.code == 0) {
+          this.$message({
+            message: "新增成功",
+            type: "success"
+          })
+          this.getMenuList(this.wxMenuParent)
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "success"
+          })          
+        }
+
       });
     }
   },

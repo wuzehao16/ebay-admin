@@ -104,7 +104,7 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='一级提成比例'>
-                <el-input v-model="distrInfo.firstDistRatio" placeholder="一级提成比例" :disabled="isSettle">
+                <el-input v-model.number="distrInfo.firstDistRatio" placeholder="一级提成比例" :disabled="isSettle">
                   <template slot="append">
                     %
                   </template>
@@ -132,12 +132,12 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='一级提成'>
-                <el-input v-model="firstCommission" placeholder="一级提成" :disabled="isSettle"></el-input>
+                <el-input :value="distrInfo.firstCommission" placeholder="一级提成" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='二级提成'>
-                <el-input v-model="secondCommission" placeholder="二级提成" :disabled="isSettle"></el-input>
+                <el-input :value="distrInfo.secondCommission" placeholder="二级提成" disabled></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -173,8 +173,7 @@
               </el-form-item>
             </el-col>
           </el-row>    
-          </template>              
-          
+          </template>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16' :offset='10'>
 			 	       <el-button type="success" @click='editSubmit'>提交</el-button>
@@ -189,8 +188,7 @@
   </el-row>
 </template>
 <script>
-import { reqDistrEdit, reqDistrDetail } from '../../api';
-
+import { reqDistrEdit, reqDistrDetail } from '../../api'
 export default {
   data() {
     return {
@@ -239,8 +237,6 @@ export default {
           label: "已删除"
         }
       ],
-
-
       distrInfo: {
         firstDistRatio:0,
         secondDistRatio:0
@@ -251,9 +247,6 @@ export default {
   },
   methods: {
     editSubmit() {
-      
-      this.distrInfo.firstCommission = this.firstCommission
-      this.distrInfo.secondCommission = this.secondCommission
     	reqDistrEdit({distribution: this.distrInfo}).then((res) => {
         
         if (res.data.code == 0) {
@@ -274,20 +267,23 @@ export default {
     toOrderList() {
     	this.$router.push('/placeSettle/list')
     }
-
   },
-  computed:{
-    firstCommission() {
-      return (this.orderInfo.orderAmount * this.distrInfo.firstDistRatio/100).toFixed(2)
+  watch: {
+    'distrInfo.firstDistRatio': {
+        handler: function(a, b) {
+          this.distrInfo.firstCommission = (this.orderInfo.orderAmount * a/100).toFixed(2)
+        },
+        deep: true
     },
-    secondCommission() {
-      return (this.orderInfo.orderAmount * this.distrInfo.secondDistRatio/100).toFixed(2) 
+    'distrInfo.secondDistRatio': {
+        handler: function(a, b) {
+          this.distrInfo.secondCommission = (this.orderInfo.orderAmount * a/100).toFixed(2) 
+        },
+        deep: true
     }
   },
   mounted() {
      let s = this.$route.params.isEdit
-
-     
      if (s) {
         this.isSettle = false
         this.crumbName = '结算编辑'
@@ -295,11 +291,12 @@ export default {
      let id = this.$route.params.id
      if (id) {
         reqDistrDetail({id}).then((res) => {
-          
           let d = res.data.data
           if (d) {
             this.distrInfo = d.distribution
             this.orderInfo = d.order
+            this.distrInfo.firstDistRatio ? '' : this.distrInfo.firstDistRatio = 0
+            this.distrInfo.secondDistRatio ? '' : this.distrInfo.secondDistRatio = 0
           }
         }).catch((err) => {
           

@@ -30,21 +30,21 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='商品单价：'>
+              <el-form-item label='商品单价：' prop='items[0].productPrice' :rules="[{ required: true, message: '商品单价不能为空'}, { type: 'number', message: '商品单价必须为数字值'}]">
                 <el-input v-model.number="orderInfo.items[0].productPrice" placeholder="商品单价" width="111">
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='商品数量：'>
+              <el-form-item label='商品数量：' prop="items[0].productQuantity" :rules="[{ required: true, message: '商品数量不能为空'}, { type: 'number', message: '商品数量必须为数字值'}]">
                 <el-input v-model.number="orderInfo.items[0].productQuantity" placeholder="商品数量"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='物流费用：'>
+              <el-form-item label='物流费用：' prop="carriage" :rules="[{ required: true, message: '物流费用不能为空'}, { type: 'number', message: '物流费用必须为数字值'}]">
                 <el-input v-model.number="orderInfo.carriage" placeholder="物流费用">
                   <template slot="append">元</template>
                 </el-input>

@@ -9,7 +9,7 @@
     </el-col>
     <el-col :span="24" class="warp-main">
       <el-col :span="24" class="toolbarff">
-        <el-form :model="orderInfo" ref='editForm' label-width='100px'>
+        <el-form :model="orderInfo" ref='editForm' label-width='100px' :rules="rules">
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='订单编号：'>
@@ -30,21 +30,21 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='商品单价：'>
+              <el-form-item label='商品单价：' prop='items[0].productPrice' :rules="[{ required: true, message: '商品单价不能为空'}, { type: 'number', message: '商品单价必须为数字值'}]">
                 <el-input v-model.number="orderInfo.productPrice" placeholder="商品单价" width="111">
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='商品数量：'>
+              <el-form-item label='商品数量：' prop="items[0].productQuantity" :rules="[{ required: true, message: '商品数量不能为空'}, { type: 'number', message: '商品数量必须为数字值'}]">
                 <el-input v-model.number="orderInfo.productQuantity" placeholder="商品数量"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='物流费用：'>
+              <el-form-item label='物流费用：' prop="carriageFee" :rules="[{ required: true, message: '物流费用不能为空'}, { type: 'number', message: '物流费用必须为数字值'}]">
                 <el-input v-model.number="orderInfo.carriageFee" placeholder="物流费用">
                   <template slot="append">元</template>
                 </el-input>
@@ -87,8 +87,8 @@
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='收货电话：'>
-                <el-input v-model="orderInfo.buyerPhone" placeholder="收货电话"></el-input>
+              <el-form-item label='收货电话：' prop="buyerPhone" >
+                <el-input v-model.number="orderInfo.buyerPhone" placeholder="收货电话"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -172,13 +172,22 @@ import {
   reqGetOrderDetail,
   reqGetUserList
 } from "../../api";
-import { regionData, TextToCode ,CodeToText} from "element-china-area-data";
+import { regionData, TextToCode, CodeToText } from "element-china-area-data";
 
 export default {
   data() {
+    var validatephone = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("手机号不能为空"));
+      } else if (!(/^1[3|4|5|8]\d{9}$/).test(value)) {
+        callback(new Error("请输入正确的手机号码"));
+      } else {
+        callback();
+      }
+    };
     return {
       orderInfo: {
-        userPhone:"",
+        userPhone: "",
         items: [
           {
             id: 0,
@@ -193,13 +202,14 @@ export default {
       },
       orderInfo_bak: {},
       addressOptions: regionData,
-      selectedOptions: []
+      selectedOptions: [],
+      rules: {
+        buyerPhone: [{ validator: validatephone, trigger: "blur" }]
+      }
     };
   },
   methods: {
-    handleAddressChange(val) {
-
-    },
+    handleAddressChange(val) {},
     addressCodeToaddress() {
       if (
         this.orderInfo.consignee_address &&
@@ -217,10 +227,10 @@ export default {
     editSubmit() {
       // 编辑提交
       this.addressCodeToaddress();
-      this.orderInfo.items = this.orderInfo.orderInfo
-      this.orderInfo.orderMasterId = this.orderInfo.id
-      this.orderInfo.buyerAddress = this.orderInfo.address
-      this.orderInfo.cneeAddress = this.orderInfo.address
+      this.orderInfo.items = this.orderInfo.orderInfo;
+      this.orderInfo.orderMasterId = this.orderInfo.id;
+      this.orderInfo.buyerAddress = this.orderInfo.address;
+      this.orderInfo.cneeAddress = this.orderInfo.address;
       reqEditOrder(this.orderInfo).then(res => {
         this.$message({
           message: "提交成功",
@@ -286,7 +296,6 @@ export default {
       return newArray;
     },
     handleSelect(item) {
-
       this.orderInfo.items[0].productId = item.id;
       this.orderInfo.items[0].productName = item.value;
     },
@@ -294,14 +303,18 @@ export default {
       //获取订单详情
       let params = { orderNo: orderId };
       reqGetOrderDetail(params).then(res => {
-        this.orderInfo = Object.assign({},this.orderInfo,res.data.data.content[0]);
+        this.orderInfo = Object.assign(
+          {},
+          this.orderInfo,
+          res.data.data.content[0]
+        );
         this.handleAddressToCode();
       });
     },
     handleAddressToCode() {
       //地址转code
 
-      if (this.orderInfo.cneeAddress.length < 2) return
+      if (this.orderInfo.cneeAddress.length < 2) return;
       let address = this.orderInfo.cneeAddress.split("@");
       if (address.length > 3) {
         this.orderInfo.consignee_address = [
@@ -318,18 +331,14 @@ export default {
         this.orderInfo.address_detail = address[2];
       }
     },
-    getProductId(){
-       let params = { productName: this.orderInfo.productName };
-        reqProductName(params).then(res => {
-
-        });
+    getProductId() {
+      let params = { productName: this.orderInfo.productName };
+      reqProductName(params).then(res => {});
     }
   },
   computed: {
     calGoodsTotalPrice() {
-      return (
-        this.orderInfo.productQuantity * this.orderInfo.productPrice
-      );
+      return this.orderInfo.productQuantity * this.orderInfo.productPrice;
     },
     calOrderTotalPrice() {
       return this.calGoodsTotalPrice + this.orderInfo.carriageFee;
@@ -337,8 +346,8 @@ export default {
   },
   mounted() {
     let orderId = this.$route.params.order.orderNo;
-    this.orderInfo.productQuantity =  this.$route.params.order.productQuantity
-    this.orderInfo.productPrice = this.$route.params.order.productPrice
+    this.orderInfo.productQuantity = this.$route.params.order.productQuantity;
+    this.orderInfo.productPrice = this.$route.params.order.productPrice;
     this.getOrderDetail(orderId);
 
     Object.assign(this.orderInfo_bak, this.$route.params.order);

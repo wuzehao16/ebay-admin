@@ -9,7 +9,7 @@
     </el-col>
 	<div class="phone" :style="{'background-image': 'url(' + require('../../assets/images/phone.png') + ')'}">
 	<!-- app域名 -->
-		<iframe v-bind:src="'http://www.wstsoftware.com/popularize/pc_preview/' + product.id" frameborder="0"></iframe>
+		<iframe v-bind:src="'http://www.wstsoftware.com/popularize/pc_preview/' + product.id" frameborder="0" scrolling="no"></iframe>
 	</div>
   <div class="bt-box" v-if="product.auditStatus == '0'">
     <el-button type="primary" @click='auditSubmit("1")'>审核通过</el-button>

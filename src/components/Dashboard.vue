@@ -98,7 +98,17 @@
 </style>
 
 <script>
-  import echarts from 'echarts'
+  // import echarts from 'echarts'
+
+// 引入 ECharts 主模块
+let echarts = require('../../node_modules/echarts/lib/echarts.js')
+
+require('../../node_modules/echarts/lib/chart/bar');
+require('../../node_modules/echarts/lib/chart/line');
+require('../../node_modules/echarts/lib/chart/pie');
+// 引入提示框和标题组件
+require('../../node_modules/echarts/lib/component/tooltip');
+require('../../node_modules/echarts/lib/component/title');
 
   export default {
     data() {

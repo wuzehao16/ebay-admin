@@ -7,91 +7,126 @@
         <el-breadcrumb-item>{{ crumbName }}</el-breadcrumb-item>
       </el-breadcrumb>
     </el-col>
-    <el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" class="warp-main1" >
-		<el-form  label-width="100px" v-if="!isEdit" >
-		  <el-form-item label="Ebay原链">
-		    <el-input v-model="itemId" placeholder="ItemId" style="width: 80%;margin-right: 20px;"></el-input>
-        <el-button type="primary"   @click="onSearch">提取</el-button>
-		  </el-form-item>
-		<!--   <el-form-item>
-
-		  </el-form-item> -->
-		</el-form>
-		<template >
-		  <el-form ref="pro_info" :model="pro_info"  label-width="100px" v-loading="gettingGoods" v-if="add">
-        <el-form-item label="商品图片：">
-          <el-carousel :interval="41000" arrow="always" height="200px">
-            <el-carousel-item v-for="(item, index) in pro_info.productPic.split('@')" :key="item">
-              <li :style="{background:'url(' + item + ') center no-repeat'}" style="height:100%;list-style-type:none;background:#fff;" >
-          <!--     	<i class="el-icon-close" style="position:absolute;" @click="delPic(index)"></i> -->
-              </li>
-            </el-carousel-item>
-          </el-carousel>
+    <el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" class="warp-main1">
+      <el-form label-width="100px" v-if="!isEdit">
+        <el-form-item label="Ebay原链">
+          <el-input v-model="itemId" @keyup.native="handlerSearch" placeholder="ItemId" style="width: 80%;margin-right: 20px;"></el-input>
+          <el-button type="primary" @click="onSearch" v-loading="gettingGoods">提取</el-button>
         </el-form-item>
-			  <el-form-item label="商品名称："v-if="selected_ebay">
-				<label>{{ ebay.title }}</label>
-			    <el-input type="textarea" v-model="pro_info.productNane" placeholder="请翻译商品名称"></el-input>
-			  </el-form-item>
-			  <el-form-item label="商品价格：">
-				<label v-if='ebay.price'>{{ ebay.price.currency + " : " + ebay.price.value }}</label>
-			    <el-input type="textarea" v-model="pro_info.productPrice" placeholder="人民币价格￥"></el-input>
-			  </el-form-item>
-
-
-			  <!-- <h2>商品规格：</h2> -->
-			  <template v-for="(item, index) in ebay.localizedAspects">
-				  <el-form-item :label="(index == 0 ? '商品规格：' : '' )">
-					<label>{{ item.name }}</label>
-				    <el-input type="textarea" v-model="else_key[index]" placeholder="请输入译文"></el-input>
-				  </el-form-item>
-				  <el-form-item>
-					<label>{{ item.value }}</label>
-				    <el-input type="textarea" v-model="else_value[index]" placeholder="请输入译文"></el-input>
-				  </el-form-item>
-			  </template>
-
-        <el-form-item label="商品介绍">
-          <div v-html="ebay.description"></div>
-          <el-input type="textarea" v-model="pro_info.productMemo"  placeholder="请翻译商品介绍" :rows='8'></el-input>
-
-        </el-form-item>
-
-
-
-
-
-
-
-
-			<div style="text-align: center;">
-		    	<el-button type="primary" @click="onSave">提审</el-button>
-			</div>
-		  </el-form>
-		</template>
+      </el-form>
+      <template>
+        <el-form ref="pro_info" :model="pro_info" :rules="rules" label-width="100px" v-loading="gettingGoods" style="height: 500px;">
+          <template v-if="showForm">
+            <el-form-item label="商品图片：">
+              <el-carousel :interval="41000" arrow="always" height="200px">
+                <el-carousel-item v-for="(item, index) in pro_info.productPic.split('@')" :key="item">
+                  <li :style="{background:'url(' + item + ') center no-repeat'}" style="height:100%;list-style-type:none;background:#fff;">
+                    <!--      <i class="el-icon-close" style="position:absolute;" @click="delPic(index)"></i> -->
+                  </li>
+                </el-carousel-item>
+              </el-carousel>
+            </el-form-item>
+            <el-form-item label="商品名称：" prop="productNane">
+              <label>{{ ebay.title }}</label>
+              <el-input type="textarea" v-model="pro_info.productNane" placeholder="请翻译商品名称"></el-input>
+            </el-form-item>
+            <el-form-item label="商品价格：" prop="productPrice">
+              <label v-if='ebay.price'>{{ ebay.price.currency + " : " + ebay.price.value }}</label>
+              <el-input type="textarea" v-model.number="pro_info.productPrice" placeholder="人民币价格￥"></el-input>
+            </el-form-item>
+            <el-form-item label="费用：">
+              <el-select v-model="feeType.carriage" placeholder="请选择邮费类型">
+                <el-option label="包邮" value="包邮"></el-option>
+                <el-option label="不包邮" value="不包邮"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="carriageFee" v-if='feeType.carriage == "不包邮"'>
+              <el-input type='text' class='fee-input' v-model.number="pro_info.carriageFee" placeholder="请输入邮费">
+                <template slot="prepend">邮费：</template>
+                <template slot="append">元</template>
+              </el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-select v-model="feeType.tax" placeholder="请选择税费类型">
+                <el-option label="免税" value="免税"></el-option>
+                <el-option label="不免税" value="不免税"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="taxFee" v-if='feeType.tax == "不免税"'>
+              <el-input type='text' class='fee-input' v-model.number="pro_info.taxFee" placeholder="请输入税费">
+                <template slot="prepend">税费：</template>
+                <template slot="append">元</template>
+              </el-input>
+            </el-form-item>
+            <template v-for="(value, key, index) in ebay.optionAttr">
+              <el-form-item :label="(index == 0 ? '选择属性：' : '')">
+                <label>{{key}}</label>
+                <el-input type="textarea" v-model="optionAttr.key[index]" :placeholder=" '请输入' + key + '译文' "></el-input>
+                <div class="el-form-item__error" v-if='!optionAttr.key[index] && aspeTip'>请输入{{ key }}的译文</div>
+              </el-form-item>
+              <el-form-item>
+                <label>{{ key }}的选项的原文：</label>
+                <el-input type="textarea" :value="value.join('\r')" disabled :rows="value.length"></el-input>
+                <label>{{ key }}的选项的译文：</label>
+                <el-input type="textarea" v-model="optionAttr.value[index]" :placeholder=" '请输入' + key + '的选项的译文，选项之间以回车分隔。'" :rows="value.length"></el-input>
+                <div class="el-form-item__error" v-if='!optionAttr.value[index] && aspeTip'>请输入{{ key }}的选项的译文</div>
+              </el-form-item>
+            </template>
+            <template v-for="(item, index) in ebay.localizedAspects">
+              <el-form-item :label="(index == 0 ? '商品规格：' : '' )" :class="{ 'aspe-wrap2': index == 0}">
+                <label>{{ item.name }}</label>
+                <el-input type="textarea" v-model="else_key[index]" placeholder="请输入译文"></el-input>
+                <div class="el-form-item__error" v-if='!else_key[index] && aspeTip'>请输入{{ item.name }}的译文</div>
+              </el-form-item>
+              <el-form-item class='aspe-wrap'>
+                <label>{{ item.value }}</label>
+                <el-input type="textarea" v-model="else_value[index]" placeholder="请输入译文"></el-input>
+                <div class="el-form-item__error" v-if='!else_value[index] && aspeTip'>请输入{{ item.value }}的译文</div>
+              </el-form-item>
+            </template>
+            <el-form-item label="商品介绍" prop="productMemo">
+              <div v-html="ebay.description" class="desc-wrap"></div>
+              <el-input type="textarea" v-model="pro_info.productMemo" placeholder="请翻译商品介绍" :rows='8'></el-input>
+            </el-form-item>
+            <div style="text-align: center;">
+              <el-button type="primary" @click="handlerValidate">提审</el-button>
+            </div>
+          </template>
+        </el-form>
+      </template>
     </el-col>
   </el-row>
 </template>
-
 <script>
 import { reqSaveGoods, reqGoodsDetail, reqEbayGoods } from "../../api";
+import debounce from 'lodash/debounce'
 export default {
   data() {
     return {
+      optionAttr: {
+        key: [],
+        value: []
+      },
+      feeType: {
+        carriage: '包邮',
+        tax: '免税'
+      },
       gettingGoods: false,
       crumbName: "商品新增",
       else_key: [],
       else_value: [],
       isEdit: false,
       productId: "",
+      itemIds: [],
       itemId: "",
       ebay: {},
-      add:false,
+      showForm: false,
       selected_ebay: false,
       pro_info: {
         //后台新增不需要openid
         productNane: "",
         userWxOpenid: "",
-        productPrice: "",
+        productPrice: null,
         ebayItemid: "",
         items: [],
         auditStatus: "0",
@@ -99,37 +134,111 @@ export default {
         productPic: "", //多个图片以@连接
         productIcon: "",
         productMemo: '',
-        productUsd: ''
+        productUsd: '',
+        productCountry: '',
+        carriageFee: null,
+        taxFee: null
+      },
+      aspeTip: false,
+      rules: {
+        productNane: [
+          { required: true, message: '请输入名称', trigger: 'change' }
+        ],
+        productPrice: [
+          { type: 'number', message: '请输入数字', trigger: 'change' },
+          { type: 'number', required: true, message: '请输入价格', trigger: 'change' }
+        ],
+        carriageFee: [
+          { type: 'number', message: '请输入数字', trigger: 'change' },
+          { type: 'number', required: true, message: '请输入邮费', trigger: 'change' }
+        ],
+        taxFee: [
+          { type: 'number', message: '请输入数字', trigger: 'change' },
+          { type: 'number', required: true, message: '请输入税费', trigger: 'change' }
+        ],
+        productMemo: [
+          { required: true, message: '请输入商品介绍', trigger: 'change' }
+        ]
+
       }
     };
   },
   methods: {
+    handlerSearch(e) {
+      if (e.key == 'Enter') {
+        this.onSearch()
+      }
+    },
+    handlerValidate() {
+      this.aspeTip = true
+      this.$refs['pro_info'].validate((valid) => {
+        let flag = this.ebay.localizedAspects.every((v, i) => {
+          return !!this.else_key[i] && !!this.else_value[i]
+        })
+        let flag2 = true
+        if (this.ebay.optionAttr) {
+          let flag2 = Object.entries(this.ebay.optionAttr).every((v, i) => {
+            console.log(this.optionAttr.key[i], this.optionAttr.value[i])
+            return !!this.optionAttr.key[i] && !!this.optionAttr.value[i]
+          })
+        }
+        if (valid && flag && flag2) {
+          this.onSave()
+        } else {
+          this.$message.error("还有必填项未填写，请检查！")
+          return false
+        }
+      })
+    },
     onSave() {
+      //把商品规格单属性放进items
+      for (let i in this.else_key) {
+        this.pro_info.items.push({
+          attrCname: this.else_key[i],
+          attrCvalue: this.else_value[i],
+          attrType: '2',
+          id: this.itemIds[0],
+          productId: this.productId
+        })
+        this.itemIds.splice(0, 1)
+      }
+      //组合商品：把商品选择属性放进items
+      if (this.ebay.optionAttr) {
+        for (let [i, item] of new Map(Object.entries(this.ebay.optionAttr).map((item, i) => [i, item]))) {
+          let tempCvalue = this.optionAttr.value[i].split(/[\r\n]/g)
+          for (let [j, elem] of item[1].entries()) {
+            this.pro_info.items.push({
+              attrCname: this.optionAttr.key[i],
+              attrCvalue: tempCvalue[j] || '',
+              attrEname: item[0],
+              attrEvalue: elem, //英文原文
+              attrType: '1',
+              id: this.itemIds[0],
+              productId: this.productId
+            })
+            this.itemIds.splice(0, 1)
+          }
+        }
+      }
+      if (this.feeType.carriage == '包邮') {
+        this.pro_info.carriageFee = null
+      }
+      if (this.feeType.tax == '免税') {
+        this.pro_info.taxFee = null
+      }
+      this.pro_info.productPrice = Number.parseFloat(
+        this.pro_info.productPrice
+      );
+      this.pro_info.ebayItemid = this.itemId;
+      this.isEdit ? (this.pro_info.productId = this.productId) : "";
+
+      this.pro_info.productUsd = Number.parseFloat(this.pro_info.productUsd)
       const loading = this.$loading({
         lock: true,
         text: "Loading",
         spinner: "el-icon-loading",
         background: "rgba(0, 0, 0, 0.7)"
       });
-      for (let i in this.else_key) {
-        if (!this.isEdit) {
-          this.pro_info.items.push({
-            attrName: this.else_key[i],
-            attrValue: this.else_value[i]
-          });
-        } else {
-          this.pro_info.items[i].attrName = this.else_key[i];
-          this.pro_info.items[i].attrValue = this.else_value[i];
-        }
-      }
-
-      this.pro_info.productPrice = Number.parseFloat(
-        this.pro_info.productPrice
-      );
-      this.pro_info.ebayItemid = this.itemId;
-      this.isEdit ? (this.pro_info.productId = this.productId) : "";
-      console.log("shit:" , this.pro_info)
-      this.pro_info.productUsd = Number.parseFloat(this.pro_info.productUsd)
       reqSaveGoods(this.pro_info)
         .then(res => {
           loading.close();
@@ -148,60 +257,58 @@ export default {
           this.$message.error("提交失败");
         });
     },
-    onSearch() {
-      // const loading2 = this.$loading({
-      //   lock: true,
-      //   text: "Loading",
-      //   spinner: "el-icon-loading",
-      //   background: "rgba(0, 0, 0, 0.7)"
-      // });
+    onSearch: debounce(function() {
       if (this.itemId.match(/^[ ]*$/)) {
         this.$message.error("请输入Ebay商品ID");
       } else {
-        this.add = true;
         this.gettingGoods = true;
-        // let itemId = "v1|" + this.itemId + "|0";
-         let itemId =  this.itemId ;
+        let itemId = this.itemId;
         reqEbayGoods({ itemId })
           .then(res => {
             if (res.data.errors) {
               this.$message.error("找不到该商品！");
+              this.showForm = false
             } else if (res.data.itemId) {
+              this.showForm = true;
               this.ebay = res.data;
               this.selected_ebay = true;
 
-              this.pro_info.productIcon = this.ebay.image.imageUrl;
+              this.pro_info.productIcon = this.ebay.image.imageUrl
+              this.pro_info.productCountry = this.ebay.itemLocation.country
               this.pro_info.productUsd = this.ebay.price.value
-              let imgArr = [];
-              imgArr.push(this.pro_info.productIcon);
-              for (let i of this.ebay.additionalImages) {
-                imgArr.push(i.imageUrl);
+
+              let imgArr = []
+              imgArr.push(this.pro_info.productIcon)
+              if (this.ebay.additionalImages) {
+                for (let i of this.ebay.additionalImages) {
+                  imgArr.push(i.imageUrl)
+                }
+                this.pro_info.productPic = imgArr.join("@")
+              } else {
+                this.pro_info.productPic = imgArr.join("")
               }
-              this.pro_info.productPic = imgArr.join("@");
             }
-            // loading2.close();
             this.gettingGoods = false;
           })
           .catch(err => {
-            // loading2.close();
             this.gettingGoods = false;
-            this.add = false;
+            this.showForm = false;
           });
       }
-    },
+    }, 500),
     delPic(index) {
       this.selected_ebay.e_pics.splice(index, 1);
     }
   },
   mounted() {
-		this.productId = this.$route.params.productId;
+    this.productId = this.$route.params.productId;
     if (this.productId) {
 
-			this.itemId = this.$route.params.ebayItemid;
-			let userWxOpenid = this.$route.params.userWxOpenid;
+      this.itemId = this.$route.params.ebayItemid;
+      let userWxOpenid = this.$route.params.userWxOpenid;
       this.onSearch();
       this.isEdit = true;
-      this.add = true;
+      // this.showForm = true;
       this.crumbName = "商品编辑";
       reqGoodsDetail({ productId: this.productId }).then(res => {
         let p = res.data.data;
@@ -212,26 +319,54 @@ export default {
           productNane: p.name,
           productPic: p.pic ? p.pic.join("@") : "",
           productPrice: p.price,
-					productIcon: p.icon,
-					userWxOpenid: userWxOpenid,
-          items: p.productAttr,
+          productIcon: p.icon,
+          userWxOpenid: userWxOpenid,
+          items: [],
           productMemo: p.productMemo,
-          productUsd: p.productUsd
-        };
-        for (let i in p.productAttr) {
-          this.else_key[i] = p.productAttr[i].attrName;
-          this.else_value[i] = p.productAttr[i].attrValue;
+          productUsd: p.productUsd,
+          carriageFee: p.carriageFee,
+          taxFee: p.taxFee
         }
+
+        if (p.carriageFee) {
+          this.feeType.carriage = '不包邮'
+        }
+        if (p.taxFee) {
+          this.feeType.tax = '不免税'
+        }
+
+
+        let j = 0
+        for (let [i, item] of new Map(p.productAttr.map((item, i) => [i, item]))) {
+          this.itemIds.push(item.id)
+          if (item.attrType == '2') {
+            this.else_key.push(item.attrCname)
+            this.else_value.push(item.attrCvalue)
+          } else if (item.attrType == '1') {
+            if (this.optionAttr.key[j] && this.optionAttr.key[j] != item.attrCname) {
+              j++
+            }
+            if (!this.optionAttr.key[j]) {
+              this.optionAttr.key[j] = item.attrCname
+              this.optionAttr.value[j] = item.attrCvalue
+            } else if (this.optionAttr.key[j] == item.attrCname) {
+              this.optionAttr.value[j] += '\n' + item.attrCvalue
+            }
+          }
+        }
+
+
       });
     }
   }
 };
-</script>
 
+</script>
 <style>
-.el-table__body tr.current-row > td {
+.el-table__body tr.current-row>td {
   background: #9eb2c1 !important;
 }
+
 .el-carousel__item h3 {
   color: #475669;
   font-size: 14px;
@@ -239,9 +374,20 @@ export default {
   line-height: 200px;
   margin: 0;
 }
+
 .el-carousel__item li {
   background-size: contain !important;
 }
+
+.aspe-wrap2 .el-form-item__content {
+  /*border-top: 1px dashed #999;*/
+}
+
+.aspe-wrap .el-form-item__content {
+  /*  border-bottom: 1px dashed #999;
+  padding-bottom: 30px;*/
+}
+
 .el-carousel__item:nth-child(2n) {
   background-color: #fff;
 }
@@ -249,26 +395,42 @@ export default {
 .el-carousel__item:nth-child(2n + 1) {
   background-color: #fff;
 }
+
 .el-icon-close {
   display: none;
 }
+
+.desc-wrap {
+  height: 600px;
+  overflow: scroll;
+  margin-bottom: 10px;
+  border: 1px solid #999;
+  border-radius: 4px;
+}
+
 .is-active .el-icon-close {
   display: block;
 }
+
 .el-icon-close:hover {
   color: red;
 }
-.demo-form-inline{
-  /* width: 50%; */
+
+.demo-form-inline {
   margin: 10px 10px;
 }
-.warp-main1{
-    /*width: 50%;*/
-    margin: auto;
-    position: absolute;
-    top: 50px;
-    left: 0;
-    bottom: 0;
-    right: 0;
+
+.warp-main1 {
+  margin: auto;
+  position: absolute;
+  top: 50px;
+  left: 0;
+  bottom: 0;
+  right: 0;
 }
+
+.fee-input {
+  margin: 10px 0;
+}
+
 </style>

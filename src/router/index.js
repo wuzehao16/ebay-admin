@@ -79,7 +79,7 @@ let router = new Router({
     {
       path: '/goods',
       component: Home,
-      name: '商品管理',
+      name: '商品管理-m',
       menuShow: true,
       leaf: true, // 只有一个节点
       iconCls: 'iconfont icon-product', // 图标样式class
@@ -120,7 +120,7 @@ let router = new Router({
     {
       path: '/placeSettle',
       component: Home,
-      name: '分销结算',
+      name: '分销结算-m',
       menuShow: true,
       leaf: true,
       iconCls: 'iconfont icon-distri', // 图标样式class
@@ -145,7 +145,7 @@ let router = new Router({
     {
       path: '/withdraw',
       component: Home,
-      name: '提现管理',
+      name: '提现管理-m',
       menuShow: true,
       leaf: true,
       iconCls: 'iconfont icon-withdraw', // 图标样式class
@@ -158,7 +158,7 @@ let router = new Router({
     {
       path: '/reconciliation',
       component: Home,
-      name: '对账管理',
+      name: '对账管理-m',
       menuShow: true,
       leaf: true,
       iconCls: 'iconfont icon-settle', // 图标样式class

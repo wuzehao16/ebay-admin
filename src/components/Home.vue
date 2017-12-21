@@ -212,14 +212,12 @@
         float: left;
         text-align: center;
         width: 49px;
-        border-right: 1px solid #000;
         line-height: 26px;
       }
       .topbar-title {
         float: left;
         text-align: center;
-        width: 129px;
-        border-right: 1px solid #000;
+        padding: 0 10px;
       }
       .topbar-account {
         float: right;

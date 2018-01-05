@@ -228,15 +228,23 @@ export default {
       }
       //组合商品：把商品选择属性放进items
       if (this.ebay.optionAttr) {
+        let aItems = Object.entries(this.ebay.itemsAttr)
         for (let [i, item] of new Map(Object.entries(this.ebay.optionAttr).map((item, i) => [i, item]))) {
           let tempCvalue = this.optionAttr.value[i].split(/[\r\n]/g)
           for (let [j, elem] of item[1].entries()) {
+            let itemId = []
+            for (let i of aItems) {
+              if (i[1][item[0]] == elem) {
+                itemId.push(i[0])
+              }
+            }
             this.pro_info.items.push({
               attrCname: this.optionAttr.key[i],
               attrCvalue: tempCvalue[j] || '',
               attrEname: item[0],
               attrEvalue: elem, //英文原文
               attrType: '1',
+              itemId: itemId.join('@'), //以@连接
               id: this.itemIds[0],
               productId: this.productId
             })
@@ -305,12 +313,12 @@ export default {
         this.$message.error("请输入Ebay商品ID");
       } else {
         this.gettingGoods = true;
+        this.showForm = false
         let itemId = this.itemId;
         reqEbayGoods({ itemId })
           .then(res => {
             if (res.data.errors) {
               this.$message.error("找不到该商品！");
-              this.showForm = false
             } else if (res.data.itemId) {
               this.showForm = true;
               this.ebay = res.data;

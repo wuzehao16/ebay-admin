@@ -8,14 +8,14 @@
       </el-breadcrumb>
     </el-col>
     <el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" class="warp-main1">
-      <el-form label-width="100px" v-if="!isEdit">
+      <el-form label-width="100px" v-if="!isEdit" @submit.native.prevent>
         <el-form-item label="Ebay原链">
           <el-input v-model="itemId" @keyup.native="handlerSearch" placeholder="ItemId" style="width: 80%;margin-right: 20px;"></el-input>
-          <el-button type="primary" @click="onSearch" v-loading="gettingGoods">提取</el-button>
+          <el-button type="primary" @click="onSearch" :disabled="gettingGoods">提取</el-button>
         </el-form-item>
       </el-form>
       <template>
-        <el-form ref="pro_info" :model="pro_info" :rules="rules" label-width="100px" v-loading="gettingGoods" style="height: 500px;">
+        <el-form ref="pro_info" :model="pro_info" :rules="rules" label-width="100px" v-loading="gettingGoods" style="height: 500px;" @submit.native.prevent>
           <template v-if="showForm">
             <el-form-item label="商品图片：">
               <el-carousel :interval="41000" arrow="always" height="200px">
@@ -33,6 +33,19 @@
             <el-form-item label="商品价格：" prop="productPrice">
               <label v-if='ebay.price'>{{ ebay.price.currency + " : " + ebay.price.value }}</label>
               <el-input type="textarea" v-model.number="pro_info.productPrice" placeholder="人民币价格￥"></el-input>
+            </el-form-item>
+            <el-form-item label="组合价格：" v-if="ebay.itemsAttr">
+              <el-select v-model="testValue" placeholder="请选择">
+                <el-option v-for="(v, k, i) in ebay.itemsAttr" :key="k" :label="'第' + (i + 1) + '种组合价格'" :value="k">
+                </el-option>
+              </el-select>
+              <div v-for="(v, k, i) in ebay.itemsAttr" v-show="k == testValue">
+                <p v-for="(item, key, index) in v" v-if="!'imageUrl@stock@attrCvalue'.match(key)">
+                  {{ key + ":" + item }}</p>
+                <el-input v-model="ebay.itemsAttr[k].attrCvalue" :placeholder="'请输入第' + (i + 1) + '种组合价格'">
+                  <template slot="prepend">第{{ i + 1 }}种组合价格（￥）：</template>
+                </el-input>
+              </div>
             </el-form-item>
             <el-form-item label="费用：">
               <el-select v-model="feeType.carriage" placeholder="请选择邮费类型">
@@ -103,6 +116,7 @@ import debounce from 'lodash/debounce'
 export default {
   data() {
     return {
+      testValue: null,
       optionAttr: {
         key: [],
         value: []
@@ -159,7 +173,6 @@ export default {
         productMemo: [
           { required: true, message: '请输入商品介绍', trigger: 'change' }
         ]
-
       }
     };
   },
@@ -177,13 +190,24 @@ export default {
         })
         let flag2 = true
         if (this.ebay.optionAttr) {
-          let flag2 = Object.entries(this.ebay.optionAttr).every((v, i) => {
-            console.log(this.optionAttr.key[i], this.optionAttr.value[i])
+          flag2 = Object.entries(this.ebay.optionAttr).every((v, i) => {
             return !!this.optionAttr.key[i] && !!this.optionAttr.value[i]
           })
         }
+        let flag3 = true
+        if (this.ebay.itemsAttr) {
+          flag3 = Object.entries(this.ebay.itemsAttr).every((v, i) => {
+            let str = v[1].attrCvalue
+            return str && /^\d+(?:\.\d{1,2})?$/.test(str)
+          })
+        }
         if (valid && flag && flag2) {
-          this.onSave()
+          if (flag3) {
+            this.onSave()
+          } else {
+            this.$message.error("请填写全部的组合价格（只能为最多两位小数的数字）")
+            return false
+          }
         } else {
           this.$message.error("还有必填项未填写，请检查！")
           return false
@@ -220,6 +244,25 @@ export default {
           }
         }
       }
+
+      //组合商品： 组合价格
+      if (this.ebay.itemsAttr) {
+        let aItems = Object.entries(this.ebay.itemsAttr)
+        for (let i of aItems) {
+          this.pro_info.items.push({
+            attrEname: 'price',
+            attrEvalue: i[1].price,
+            attrType: '1',
+            itemId: i[0],
+            attrCname: i[1].stock, //无stock字段，暂用attrCvalue充当
+            attrCvalue: i[1].attrCvalue,
+            productId: this.productId,
+            id: this.itemIds[0]
+          })
+          this.itemIds.splice(0, 1)
+        }
+      }
+
       if (this.feeType.carriage == '包邮') {
         this.pro_info.carriageFee = null
       }
@@ -287,6 +330,19 @@ export default {
               } else {
                 this.pro_info.productPic = imgArr.join("")
               }
+              //set 组合价格
+              try {
+                if (this.ebay.itemsAttr) {
+                  let arr = Object.keys(this.ebay.itemsAttr)
+                  for (let v of this.pro_info.productAttr_bak) {
+                    if (v.itemId && arr.includes(v.itemId)) {
+                      this.ebay.itemsAttr[v.itemId].attrCvalue = v.attrCvalue
+                    }
+                  }
+                }
+              } catch (error) {
+                console.log(error)
+              }
             }
             this.gettingGoods = false;
           })
@@ -295,7 +351,7 @@ export default {
             this.showForm = false;
           });
       }
-    }, 500),
+    }, 600),
     delPic(index) {
       this.selected_ebay.e_pics.splice(index, 1);
     }
@@ -325,7 +381,8 @@ export default {
           productMemo: p.productMemo,
           productUsd: p.productUsd,
           carriageFee: p.carriageFee,
-          taxFee: p.taxFee
+          taxFee: p.taxFee,
+          productAttr_bak: p.productAttr || []
         }
 
         if (p.carriageFee) {
@@ -358,13 +415,20 @@ export default {
 
       });
     }
+  },
+  watch: {
+
   }
-};
+}
 
 </script>
 <style>
 .el-table__body tr.current-row>td {
   background: #9eb2c1 !important;
+}
+
+.el-carousel__button {
+  background-color: #999;
 }
 
 .el-carousel__item h3 {

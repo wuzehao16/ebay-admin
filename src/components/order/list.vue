@@ -101,32 +101,35 @@
         	</template>
     	</el-table-column> 
     	<el-table-column property="ebayNo" label="Ebay订单号" width='200'></el-table-column>
-    	<el-table-column property="ebayStatus" label="Ebay状态" width="180" >
+    	<el-table-column property="ebayStatus" label="Ebay状态" width="120" >
         	<template scope="scope">
-            		<template v-if='scope.row.ebayStatus == 1'>
+            		<template v-if='scope.row.ebayStatus == "1"'>
             			待支付
             		</template>
-            		<template v-else-if='scope.row.ebayStatus == 2'>
+            		<template v-else-if='scope.row.ebayStatus == "2"'>
             			已取消
             		</template>
-            		<template v-else-if='scope.row.ebayStatus == 3'>
+            		<template v-else-if='scope.row.ebayStatus == "3"'>
             			已支付
             		</template>
-								<template v-else-if='scope.row.ebayStatus == 4'>
+								<template v-else-if='scope.row.ebayStatus == "4"'>
             			已发货
             		</template>
-            		<template v-else>
+            		<template v-else-if='scope.row.ebayStatus == "5"'>
             			已完成-海外仓已签收
             		</template>
+                <template v-else>
+                  未下单
+                </template>
         	</template>
-    	</el-table-column> 
+    	</el-table-column>  
     	
-    	<el-table-column property="buyerName" label="买家姓名" width='100'></el-table-column>
-    	<el-table-column prop="user_type" label="会员类型" width="120" >
+    	<el-table-column property="buyerName" label="买家姓名" width='160'></el-table-column>
+<!--     	<el-table-column prop="user_type" label="会员类型" width="120" >
         	<template scope="scope">
             {{scope.row.user_type == 0 ? '分销商':'普通用户'}}
         	</template>
-    	</el-table-column>    	
+    	</el-table-column>  -->   	
     	<el-table-column property="buyerPhone" label="手机号码" width='150'></el-table-column>
     	<!-- <el-table-column  label="订单来源" width='100'>
     		<template scope="scope">
@@ -153,7 +156,7 @@
         <el-pagination layout="total, sizes, prev, pager, next" @current-change="setPageChange" @size-change="setSizeChange" :page-size="size" :total="total" style="float:right;">
         </el-pagination>
     </el-col>
-
+ 
 
 
     </el-col>

@@ -18,13 +18,14 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品名称：'>
-                <el-autocomplete
+                <el-input v-model="orderInfo.productName" placeholder="不需填写" disabled></el-input>
+<!--                 <el-autocomplete
                   v-model="orderInfo.productName"
                   placeholder="商品名称"
                   :fetch-suggestions="querySearchAsync"
                   @select="handleSelect"
                   style="width:100%;"
-                ></el-autocomplete>
+                ></el-autocomplete> -->
               </el-form-item>
             </el-col>
           </el-row>
@@ -188,6 +189,7 @@ export default {
     return {
       orderInfo: {
         userPhone: "",
+        productName: "",
         items: [
           {
             id: 0,
@@ -345,12 +347,17 @@ export default {
     }
   },
   mounted() {
-    let orderId = this.$route.params.order.orderNo;
-    this.orderInfo.productQuantity = this.$route.params.order.productQuantity;
-    this.orderInfo.productPrice = this.$route.params.order.productPrice;
-    this.getOrderDetail(orderId);
-
-    Object.assign(this.orderInfo_bak, this.$route.params.order);
+    let order = this.$route.params.order
+    if (order) {
+      let orderId = order.orderNo
+      this.orderInfo.productName = order.productName
+      this.orderInfo.productQuantity = order.productQuantity
+      this.orderInfo.productPrice = order.productPrice
+      this.getOrderDetail(orderId)
+      Object.assign(this.orderInfo_bak, this.$route.params.order)
+    } else {
+      this.$router.push('/order/list')
+    }
   }
 };
 </script>

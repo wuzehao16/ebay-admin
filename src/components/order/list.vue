@@ -122,27 +122,14 @@
                   未下单
                 </template>
         	</template>
-    	</el-table-column>  
-    	
-    	<el-table-column property="buyerName" label="买家姓名" width='160'></el-table-column>
-<!--     	<el-table-column prop="user_type" label="会员类型" width="120" >
-        	<template scope="scope">
-            {{scope.row.user_type == 0 ? '分销商':'普通用户'}}
-        	</template>
-    	</el-table-column>  -->   	
+    	</el-table-column>
+    	<el-table-column property="buyerName" label="买家姓名" width='160'></el-table-column>	
     	<el-table-column property="buyerPhone" label="手机号码" width='150'></el-table-column>
-    	<!-- <el-table-column  label="订单来源" width='100'>
-    		<template scope="scope">
-    			{{ scope.row.order_source == "0" ? 'PC端':'移动端' }}
-    		</template>
-    	</el-table-column>    	 -->
     	<el-table-column  label="创建时间" width='150' >
 				<template scope="scope">
 					{{fTimestamp(scope.row.created)}}
 				</template>
 			</el-table-column>
-
-
 	    <el-table-column fixed="right" label="操作" width='200'>
         	<template scope="scope">
             	<el-button size="small" type="primary" @click='showDetail(scope)'>详情</el-button>
@@ -233,7 +220,7 @@
       },
       showEdit(scope) {
       	this.$router.push({
-      		name:'订单编辑',
+      		name:'订单编辑', 
       		params:{
       			order: this.orders[scope.$index]
       		}
@@ -242,9 +229,11 @@
       showDetail(scope) {
 				
       	this.$router.push({
-      		name:'订单详情',
+      		// name:'订单详情',
+          name:'订单编辑', 
       		params:{
-      			order: this.orders[scope.$index]
+      			order: this.orders[scope.$index],
+            isDetail: true
       		}
       	})      	
       },

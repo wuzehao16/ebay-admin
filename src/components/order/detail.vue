@@ -18,11 +18,7 @@
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品名称：'>
-                <el-autocomplete
-                  v-model="orderInfo.productName"
-                  placeholder="商品名称"
-                  style="width:100%;"
-                ></el-autocomplete>
+                <el-autocomplete v-model="orderInfo.productName" placeholder="商品名称" style="width:100%;"></el-autocomplete>
               </el-form-item>
             </el-col>
           </el-row>
@@ -57,7 +53,7 @@
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-             <el-col :span='8'>
+            <el-col :span='8'>
               <el-form-item label='用户姓名：'>
                 <el-input v-model="orderInfo.buyerName" placeholder="购买用户"></el-input>
               </el-form-item>
@@ -139,18 +135,15 @@
             </el-col>
           </el-row>
         </el-form>
-
-
-	<el-col :span='16' :offset='4'>
-	  <label style="font-weight:bold;margin: 20px 0;">订单物流信息：</label><br/><br/>
-	  <el-table :data="logistics" border style="width: 100%;margin-bottom:40px;">
-	    <el-table-column prop="create_time" label="时间" width='180'></el-table-column>
-	    <el-table-column prop="description" label="描述"></el-table-column>
-	  </el-table>
-	</el-col>
-
-
-
+        <el-col :span='16' :offset='4'>
+          <label style="font-weight:bold;margin: 20px 0;">订单物流信息：</label>
+          <br/>
+          <br/>
+          <el-table :data="logistics" border style="width: 100%;margin-bottom:40px;">
+            <el-table-column prop="create_time" label="时间" width='180'></el-table-column>
+            <el-table-column prop="description" label="描述"></el-table-column>
+          </el-table>
+        </el-col>
       </el-col>
     </el-col>
   </el-row>
@@ -174,7 +167,7 @@ export default {
     getOrderDetail(orderId) {
       let params = { orderNo: orderId };
       reqGetOrderDetail(params).then(res => {
-       this.orderInfo = Object.assign({},this.orderInfo,res.data.data.content[0]);
+        this.orderInfo = Object.assign({}, this.orderInfo, res.data.data.content[0]);
 
         this.handleAddressToCode();
       });
@@ -210,15 +203,17 @@ export default {
   },
   mounted() {
     let orderId = this.$route.params.order.orderNo;
-    this.orderInfo.productQuantity =  this.$route.params.order.productQuantity
+    this.orderInfo.productQuantity = this.$route.params.order.productQuantity
     this.orderInfo.productPrice = this.$route.params.order.productPrice
     this.getOrderDetail(orderId);
     this.logistics = this.orderInfo.logistics;
   }
 };
+
 </script>
 <style>
 .demo-table-expand label {
   font-weight: bold;
 }
+
 </style>

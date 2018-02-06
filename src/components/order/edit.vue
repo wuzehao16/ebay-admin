@@ -10,7 +10,7 @@
     <el-col :span="24" class="warp-main">
       <el-col :span="24" class="toolbarff">
         <el-form :model="orderInfo" ref='editForm' label-width='100px' :rules="rules">
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+          <el-row type="flex" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='订单编号：'>
                 <el-input v-model="orderInfo.orderNo" placeholder="不需填写" disabled></el-input>
@@ -19,7 +19,7 @@
             <el-col :span='8'>
               <el-form-item label='商品名称：'>
                 <el-input v-model="orderInfo.productName" placeholder="不需填写" disabled></el-input>
-<!--                 <el-autocomplete
+                <!--         <el-autocomplete
                   v-model="orderInfo.productName"
                   placeholder="商品名称"
                   :fetch-suggestions="querySearchAsync"
@@ -29,21 +29,21 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+          <el-row type="flex" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='商品单价：' prop='items[0].productPrice' :rules="[{ required: true, message: '商品单价不能为空'}, { type: 'number', message: '商品单价必须为数字值'}]">
+              <el-form-item label='商品单价：' prop='productPrice' :rules="[{ required: true, message: '商品单价不能为空'}, { type: 'number', message: '商品单价必须为数字值'}]">
                 <el-input v-model.number="orderInfo.productPrice" placeholder="商品单价" width="111">
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='商品数量：' prop="items[0].productQuantity" :rules="[{ required: true, message: '商品数量不能为空'}, { type: 'number', message: '商品数量必须为数字值'}]">
+              <el-form-item label='商品数量：' prop="productQuantity" :rules="[{ required: true, message: '商品数量不能为空'}, { type: 'number', message: '商品数量必须为数字值'}]">
                 <el-input v-model.number="orderInfo.productQuantity" placeholder="商品数量"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+          <el-row type="flex" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='物流费用：' prop="carriageFee" :rules="[{ required: true, message: '物流费用不能为空'}, { type: 'number', message: '物流费用必须为数字值'}]">
                 <el-input v-model.number="orderInfo.carriageFee" placeholder="物流费用">
@@ -52,17 +52,33 @@
               </el-form-item>
             </el-col>
             <el-col :span='8'>
+              <el-form-item label='税费：' prop="taxFee" :rules="[{ required: true, message: '税费不能为空'}, { type: 'number', message: '税费必须为数字值'}]">
+                <el-input v-model.number="orderInfo.taxFee" placeholder="税费">
+                  <template slot="append">元</template>
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row type="flex" justify="center" :gutter='20'>
+            <el-col :span='8'>
               <el-form-item label='商品总价：'>
                 <el-input v-bind:value="calGoodsTotalPrice" placeholder="商品总价" disabled>
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
             </el-col>
+            <el-col :span='8'>
+              <el-form-item label='订单总价：'>
+                <el-input v-model="orderInfo.orderAmount" placeholder="订单总价" disabled>
+                  <template slot="append">元</template>
+                </el-input>
+              </el-form-item>
+            </el-col>
           </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-             <el-col :span='8'>
+          <el-row type="flex" justify="center" :gutter='20'>
+            <el-col :span='8'>
               <el-form-item label='用户姓名：'>
-                <!-- <el-autocomplete
+                <!--       <el-autocomplete
                   v-model="orderInfo.userPhone"
                   :fetch-suggestions="phoneSearchAsync"
                   placeholder="用户电话"
@@ -74,40 +90,45 @@
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='订单总价：'>
-                <el-input v-model="orderInfo.orderAmount" placeholder="订单总价" disabled>
-                  <template slot="append">元</template>
-                </el-input>
-              </el-form-item>
             </el-col>
           </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+          <el-row type="flex" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='收货姓名：'>
+              <el-form-item label='收货人姓名：'>
                 <el-input v-model="orderInfo.cneeName" placeholder="收货姓名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='收货电话：' prop="buyerPhone" >
-                <el-input v-model.number="orderInfo.buyerPhone" placeholder="收货电话"></el-input>
+              <el-form-item label='收货人电话：' prop="buyerPhone">
+                <el-input v-model.number="orderInfo.cneePhone" placeholder="收货电话"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-            <el-col :span='8'>
-              <el-form-item label='收货地址：'>
-                <el-cascader :options="addressOptions" v-model="orderInfo.consignee_address" @change="handleAddressChange" style='width:100%;margin-bottom:10px;'>
+          <el-row type="flex" justify="center" :gutter='20'>
+            <el-col :span='16'>
+              <el-form-item label='收货人地址：'>
+                <el-cascader :options="addressOptions" v-model="selectedOptions" @change="handleAddressChange"  size="large" style='width: 100%;'>
                 </el-cascader>
-
               </el-form-item>
             </el-col>
-            <el-col :span='8'>
+          </el-row>
+          <el-row type="flex" justify="center" :gutter='20'>
+            <el-col :span='16'>
               <el-form-item label='详细地址：'>
                 <el-input v-model="orderInfo.address_detail" placeholder="详细地址"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+          <el-row type="flex" justify="center" :gutter='20'>
+            <el-col :span='8'>
+              <el-form-item label='物流编号：'>
+                <el-input v-model="orderInfo.logisticsNo" placeholder="物流编号"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span='8'>
+            </el-col>
+          </el-row>
+          <el-row type="flex" justify="center" :gutter='20'>
             <el-col :span='16'>
               <el-form-item label='订单状态：'>
                 <el-radio-group v-model='orderInfo.orderStatus'>
@@ -124,7 +145,7 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+          <el-row type="flex" justify="center" :gutter='20'>
             <el-col :span='16'>
               <el-form-item label='Ebay状态：'>
                 <el-radio-group v-model='orderInfo.ebayStatus'>
@@ -137,7 +158,7 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+          <el-row type="flex" justify="center" :gutter='20'>
             <el-col :span='16'>
               <el-form-item label='物流状态：'>
                 <el-radio-group v-model='orderInfo.logisticsStatus'>
@@ -150,17 +171,22 @@
               </el-form-item>
             </el-col>
           </el-row>
-
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
-                <el-col :span='16' :offset='10'>
-            <el-button type="success" @click='editSubmit'>提交</el-button>
-              <!-- <el-button type="warning" @click='resetOrder'>重置</el-button> -->
+          <el-row type="flex" justify="center" :gutter='20' v-if='!$route.params.isDetail'>
+            <el-col :span='16' :offset='10'>
+              <el-button type="success" @click='editSubmit'>提交</el-button>
               <el-button type="info" @click='toOrderList'>返回列表</el-button>
             </el-col>
           </el-row>
-
-
         </el-form>
+        <el-col :span='16' :offset='4' v-if='$route.params.isDetail'>
+          <label style="font-weight:bold;margin: 20px 0;">订单物流信息：</label>
+          <br/>
+          <br/>
+          <el-table :data="logistics" border style="width: 100%;margin-bottom:40px;">
+            <el-table-column prop="trackingTime" label="时间" width='180'></el-table-column>
+            <el-table-column prop="trackingMessage" label="描述"></el-table-column>
+          </el-table>
+        </el-col>
       </el-col>
     </el-col>
   </el-row>
@@ -171,9 +197,10 @@ import {
   reqEditOrder,
   reqProductName,
   reqGetOrderDetail,
-  reqGetUserList
+  reqGetUserList,
+  reqLogistics,
+  reqAddressJson
 } from "../../api";
-import { regionData, TextToCode, CodeToText } from "element-china-area-data";
 
 export default {
   data() {
@@ -187,23 +214,14 @@ export default {
       }
     };
     return {
+      logistics: [],
       orderInfo: {
-        userPhone: "",
-        productName: "",
-        items: [
-          {
-            id: 0,
-            orderId: "",
-            productIcon: "",
-            productId: 0,
-            productName: "",
-            productPrice: 0,
-            productQuantity: 0
-          }
-        ]
+        carriageFee: 0,
+        productPrice: 0,
+        productQuantity: 0
       },
       orderInfo_bak: {},
-      addressOptions: regionData,
+      addressOptions: [],
       selectedOptions: [],
       rules: {
         buyerPhone: [{ validator: validatephone, trigger: "blur" }]
@@ -211,28 +229,17 @@ export default {
     };
   },
   methods: {
-    handleAddressChange(val) {},
-    addressCodeToaddress() {
-      if (
-        this.orderInfo.consignee_address &&
-        this.orderInfo.consignee_address.length < 1
-      )
-        return;
-      this.orderInfo.address =
-        CodeToText[this.orderInfo.consignee_address[0]] +
-        "@" +
-        CodeToText[this.orderInfo.consignee_address[1]] +
-        "@" +
-        CodeToText[this.orderInfo.consignee_address[2]];
-      this.orderInfo.address += "@" + this.orderInfo.address_detail;
+    handleAddressChange(val) {
+      console.log(val)
     },
+
     editSubmit() {
       // 编辑提交
-      this.addressCodeToaddress();
       this.orderInfo.items = this.orderInfo.orderInfo;
       this.orderInfo.orderMasterId = this.orderInfo.id;
       this.orderInfo.buyerAddress = this.orderInfo.address;
-      this.orderInfo.cneeAddress = this.orderInfo.address;
+      this.orderInfo.cneeAddress = this.selectedOptions.join('@') +
+        '@' + this.orderInfo.address_detail;
       reqEditOrder(this.orderInfo).then(res => {
         this.$message({
           message: "提交成功",
@@ -252,6 +259,7 @@ export default {
       var that = this;
       var product = this.product;
       var results = queryString ? fetch(queryString) : product;
+
       function fetch(queryString) {
         let params = { userPhone: that.orderInfo.userPhone };
         reqGetUserList(params).then(res => {
@@ -279,6 +287,7 @@ export default {
       var that = this;
       var product = this.product;
       var results = queryString ? fetch(queryString) : product;
+
       function fetch(queryString) {
         let params = { productName: that.orderInfo.productName };
         reqProductName(params).then(res => {
@@ -303,35 +312,48 @@ export default {
     },
     getOrderDetail(orderId) {
       //获取订单详情
-      let params = { orderNo: orderId };
-      reqGetOrderDetail(params).then(res => {
-        this.orderInfo = Object.assign(
-          {},
-          this.orderInfo,
-          res.data.data.content[0]
-        );
-        this.handleAddressToCode();
-      });
-    },
-    handleAddressToCode() {
-      //地址转code
+      reqGetOrderDetail({ orderId: orderId }).then(res => {
+        let r = res.data.data
+        this.orderInfo = Object.assign({}, r, r.orderDetailList[0])
+        let addr = r.cneeAddress.split('@')
+        this.selectedOptions = addr.slice(0, 4)
+        this.orderInfo.address_detail = addr[4]
 
-      if (this.orderInfo.cneeAddress.length < 2) return;
-      let address = this.orderInfo.cneeAddress.split("@");
-      if (address.length > 3) {
-        this.orderInfo.consignee_address = [
-          TextToCode[address[0]].code,
-          TextToCode[address[0]][address[1]].code,
-          TextToCode[address[0]][address[1]][address[2]].code
-        ];
-        this.orderInfo.address_detail = address[3];
-      } else {
-        this.orderInfo.consignee_address = [
-          TextToCode[address[0]].code,
-          TextToCode[address[0]][address[1]].code
-        ];
-        this.orderInfo.address_detail = address[2];
-      }
+        reqAddressJson().then(res => {
+          let fir = []
+          for (let i of Object.entries(res.data)) {
+            let sec = []
+            for (let j of Object.entries(i[1])) {
+              let thi = []
+              for (let k of Object.entries(j[1])) {
+                let four = []
+                for (let m of k[1]) {
+                  four.push({
+                    value: m,
+                    label: m
+                  })
+                }
+                thi.push({
+                  value: k[0],
+                  label: k[0],
+                  children: four
+                })
+              }
+              sec.push({
+                value: j[0],
+                label: j[0],
+                children: thi
+              })
+            }
+            fir.push({
+              value: i[0],
+              label: i[0],
+              children: sec
+            })
+          }
+          this.addressOptions = fir
+        })
+      });
     },
     getProductId() {
       let params = { productName: this.orderInfo.productName };
@@ -350,19 +372,27 @@ export default {
     let order = this.$route.params.order
     if (order) {
       let orderId = order.orderNo
-      this.orderInfo.productName = order.productName
-      this.orderInfo.productQuantity = order.productQuantity
-      this.orderInfo.productPrice = order.productPrice
       this.getOrderDetail(orderId)
+
       Object.assign(this.orderInfo_bak, this.$route.params.order)
+
+      if (this.$route.params.isDetail) {
+        reqLogistics({ logisticsNo: order.logisticsNo }).then((res) => {
+          this.logistics = res.data
+        }).catch(err => {
+          console.log('err')
+        })
+      }
     } else {
       this.$router.push('/order/list')
     }
   }
 };
+
 </script>
 <style>
 .demo-table-expand label {
   font-weight: bold;
 }
+
 </style>

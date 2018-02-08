@@ -116,7 +116,7 @@
             			已发货
             		</template>
             		<template v-else-if='scope.row.ebayStatus == "5"'>
-            			已完成-海外仓已签收
+            			已完成
             		</template>
                 <template v-else>
                   未下单
@@ -124,17 +124,21 @@
         	</template>
     	</el-table-column>
     	<el-table-column property="buyerName" label="买家姓名" width='160'></el-table-column>	
-    	<el-table-column property="buyerPhone" label="手机号码" width='150'></el-table-column>
+    <!-- 	<el-table-column property="buyerPhone" label="手机号码" width='150'></el-table-column> -->
     	<el-table-column  label="创建时间" width='150' >
 				<template scope="scope">
 					{{fTimestamp(scope.row.created)}}
 				</template>
 			</el-table-column>
-	    <el-table-column fixed="right" label="操作" width='200'>
+	    <el-table-column fixed="right" label="操作" width='210'>
         	<template scope="scope">
             	<el-button size="small" type="primary" @click='showDetail(scope)'>详情</el-button>
             	<el-button size="small" @click="showEdit(scope)">编辑</el-button>
-							<el-button size="small" type="danger" @click="cancelOrder(scope.row)" :disabled="scope.row.orderStatus != '1'">取消</el-button>
+							<el-button size="small" type="danger" @click="cancelOrder(scope.row)" :disabled="scope.row.orderStatus != '1'">
+                
+                  {{ scope.row.orderStatus == '2' ? '已取消' : '取消' }}
+                     
+              </el-button>
         	</template>
     	</el-table-column>
   	</el-table>

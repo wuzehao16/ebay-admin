@@ -149,6 +149,7 @@
             <el-col :span='16'>
               <el-form-item label='Ebay状态：'>
                 <el-radio-group v-model='orderInfo.ebayStatus'>
+                  <el-radio :label="'-1'">未下单</el-radio>
                   <el-radio :label="'1'">待支付</el-radio>
                   <el-radio :label="'2'">已取消</el-radio>
                   <el-radio :label="'3'">已支付</el-radio>
@@ -162,6 +163,7 @@
             <el-col :span='16'>
               <el-form-item label='物流状态：'>
                 <el-radio-group v-model='orderInfo.logisticsStatus'>
+                  <el-radio :label="'-1'">未发货</el-radio>
                   <el-radio :label="'1'">海外仓已入库</el-radio>
                   <el-radio :label="'2'">海外仓已出库</el-radio>
                   <el-radio :label="'3'">清关中</el-radio>
@@ -204,7 +206,7 @@ import {
 
 export default {
   data() {
-    var validatephone = (rule, value, callback) => {
+/*    var validatephone = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("手机号不能为空"));
       } else if (!(/^1[3|4|5|8]\d{9}$/).test(value)) {
@@ -212,7 +214,7 @@ export default {
       } else {
         callback();
       }
-    };
+    };*/
     return {
       logistics: [],
       orderInfo: {
@@ -224,15 +226,14 @@ export default {
       addressOptions: [],
       selectedOptions: [],
       rules: {
-        buyerPhone: [{ validator: validatephone, trigger: "blur" }]
+        // buyerPhone: [{ validator: validatephone, trigger: "blur" }]
       }
     };
   },
   methods: {
     handleAddressChange(val) {
-      console.log(val)
+      // console.log(val)
     },
-
     editSubmit() {
       // 编辑提交
       this.orderInfo.items = this.orderInfo.orderInfo;
@@ -314,10 +315,16 @@ export default {
       //获取订单详情
       reqGetOrderDetail({ orderId: orderId }).then(res => {
         let r = res.data.data
+        if (!r.ebayStatus) r.ebayStatus = '-1'
+        if (!r.logisticsStatus) r.logisticsStatus = '-1'        
+
         this.orderInfo = Object.assign({}, r, r.orderDetailList[0])
         let addr = r.cneeAddress.split('@')
         this.selectedOptions = addr.slice(0, 4)
         this.orderInfo.address_detail = addr[4]
+
+
+        console.log('nono:', this.orderInfo)
 
         reqAddressJson().then(res => {
           let fir = []
@@ -373,12 +380,15 @@ export default {
     if (order) {
       let orderId = order.orderNo
       this.getOrderDetail(orderId)
-
       Object.assign(this.orderInfo_bak, this.$route.params.order)
 
       if (this.$route.params.isDetail) {
+//         17091924161
         reqLogistics({ logisticsNo: order.logisticsNo }).then((res) => {
-          this.logistics = res.data
+          let r = res.data.data
+          if (typeof r == 'object') {
+            this.logistics = r
+          }
         }).catch(err => {
           console.log('err')
         })
@@ -390,9 +400,3 @@ export default {
 };
 
 </script>
-<style>
-.demo-table-expand label {
-  font-weight: bold;
-}
-
-</style>

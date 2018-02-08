@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+export const staticBase = (process.env.NODE_ENV === 'production') ? '' : '/static'
+
 //订单列表
 export const reqGetOrderList = params => { return axios.get(`/sell/seller/order/orderlistShow`, { params: params }) }
 export const reqCancelOrder = params => { return axios.put(`/sell/seller/order/cancel/${params.openid}/${params.orderId}`) }
@@ -42,7 +44,7 @@ export const reqGetUserList = params => { return axios.get(`/sell/ebay/user/list
 export const reqDeleteUser = params => { return axios.delete(`/sell/ebay/user/${params.id}/delete`) }
 export const reqEditUser = params => { return axios.post(`/sell/ebay/user/${params.id}/update`, params) }
 //地址
-export const reqAddressJson = params => { return axios.get(`static/resource/address4.json`) }
+export const reqAddressJson = params => { return axios.get(`${staticBase}/resource/address4.json`) }
 //订单管理
 export const reqGetOrder = params => { return axios.get(`/sell/order/getorder`, { params: params }) }
 export const reqEditOrder = params => { return axios.put(`/sell/seller/order/update`,  params) }

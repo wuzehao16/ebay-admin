@@ -9,22 +9,20 @@
     </el-col>
     <el-col :span="24" class="warp-main">
       <el-col :span="24" class="toolbarff">
-        <el-form :model="exOrderInfo" ref='editForm' label-width='100px'>
+        <el-form :model="exOrderInfo" ref='addExOrderForm' label-width='100px' :rules="rules">
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='订单编号'>
-			    <el-autocomplete class="inline-input" v-model="exOrderInfo.orderNo" 
-			    :fetch-suggestions="querySearchAsync" placeholder="订单编号" 
-			    @select="handleSelect"></el-autocomplete>
+              <el-form-item label='订单编号' prop="orderNo">
+                <el-autocomplete class="inline-input" v-model="exOrderInfo.orderNo" :fetch-suggestions="querySearchAsync" placeholder="订单编号" @select="handleSelect"></el-autocomplete>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='商品名称'>
-                <el-input v-model="exOrderInfo.productName" placeholder="商品名称" disabled></el-input>
+                <el-input v-model="orderInfo.productName" placeholder="商品名称" disabled></el-input>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+          <!--           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='卖家邮箱'>
                 <el-input v-model="exOrderInfo.seller_email" placeholder="卖家邮箱" disabled></el-input>
@@ -35,68 +33,63 @@
                 <el-input v-model="exOrderInfo.sellPhone" placeholder="卖家电话" disabled></el-input>
               </el-form-item>
             </el-col>
-          </el-row>
+          </el-row> -->
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='买家姓名'>
-                <el-input v-model="exOrderInfo.buyerName" placeholder="买家姓名" disabled></el-input>
+                <el-input v-model="orderInfo.buyerName" placeholder="买家姓名" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='买家电话'>
-                <el-input v-model="exOrderInfo.buyerPhone" placeholder="买家电话" disabled></el-input>
+                <el-input v-model="orderInfo.buyerPhone" placeholder="买家电话" disabled></el-input>
               </el-form-item>
             </el-col>
           </el-row>
-
-
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='异常类型'>
-				  <el-select v-model.number="exOrderInfo.errorType" placeholder="异常类型">
-		    		<el-option v-for="item in exTypeOptions" :key="item.value" :label="item.label" :value="item.value">
-		    		</el-option>
-				  </el-select>
+              <el-form-item label='异常类型' prop="errorType">
+                <el-select v-model.number="exOrderInfo.errorType" placeholder="异常类型">
+                  <el-option v-for="item in exTypeOptions" :key="item.value" :label="item.label" :value="item.value">
+                  </el-option>
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label='订单总价（元）'>
-                <el-input v-model="exOrderInfo.orderAmount" placeholder="订单总价" disabled></el-input>
-              </el-form-item>              
+                <el-input v-model="orderInfo.orderAmount" placeholder="订单总价" disabled></el-input>
+              </el-form-item>
             </el-col>
           </el-row>
-      
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
-              <el-form-item label='异常状态'>
-				  <el-select v-model="exOrderInfo.errorStatus" placeholder="异常状态">
-		    		<el-option v-for="item in exStatusOptions" :key="item.value" :label="item.label" :value="item.value">
-		    		</el-option>
-				  </el-select>
+              <el-form-item label='异常状态' prop='errorStatus'>
+                <el-select v-model="exOrderInfo.errorStatus" placeholder="异常状态">
+                  <el-option v-for="item in exStatusOptions" :key="item.value" :label="item.label" :value="item.value">
+                  </el-option>
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='处理人'>
-                <el-input   placeholder="处理人" v-model="exOrderInfo.handerby">
+              <el-form-item label='处理人' prop='handerby'>
+                <el-input placeholder="处理人" v-model="exOrderInfo.handerby">
                 </el-input>
               </el-form-item>
-            </el-col>            
+            </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
-              <el-form-item label='异常描述'>
-                <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
-                  v-model="exOrderInfo.errorMemo">
+              <el-form-item label='异常描述' prop='errorMemo'>
+                <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容" v-model="exOrderInfo.errorMemo">
                 </el-input>
               </el-form-item>
             </el-col>
-          </el-row> 
+          </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16' :offset='10'>
-			 	<el-button type="success" @click='AddSubmit'>提交</el-button>
-			    <!-- <el-button type="warning" @click='resetOrder'>重置</el-button> -->
-			    <el-button type="info" @click='toOrderList'>返回列表</el-button>
-		    </el-col>
+              <el-button type="success" @click='AddSubmit'>提交</el-button>
+              <el-button type="info" @click='toOrderList'>返回列表</el-button>
+            </el-col>
           </el-row>
         </el-form>
       </el-col>
@@ -104,7 +97,7 @@
   </el-row>
 </template>
 <script>
-import { reqNumToList, reqAddExOrder,reqGetOrderDetail } from "../../api/index";
+import { reqNumToList, reqAddExOrder, reqGetOrderDetail } from "../../api/index";
 
 export default {
   data() {
@@ -113,10 +106,13 @@ export default {
         orderNo: "",
         errorStatus: "",
         errorType: "",
-        handerby: ""
+        handerby: "",
+        errorMemo: ""
       },
-      exTypeOptions: [
-        {
+      orderInfo: {
+
+      },
+      exTypeOptions: [{
           value: 0,
           label: "系统异常"
         },
@@ -129,8 +125,7 @@ export default {
           label: "卖家取消订单"
         }
       ],
-      exStatusOptions: [
-        {
+      exStatusOptions: [{
           value: 0,
           label: "待解决"
         },
@@ -149,26 +144,62 @@ export default {
       ],
       orderList: [],
       orderIdArr: [],
-      states: ""
+      states: "",
+      rules: {
+        orderNo: [
+          { required: true, message: '请输入订单编号', trigger: 'change' }
+        ],
+        errorStatus: [
+          { required: true, type: 'number', message: '请选择异常状态', trigger: 'change' }
+        ],
+        errorType: [
+          { required: true, type: 'number', message: '请选择异常类型', trigger: 'change' }
+        ],
+        handerby: [
+          { required: true, message: '请输入处理人', trigger: 'change' }
+        ],
+        errorMemo: [
+          { required: true, message: '请输入异常描述', trigger: 'change' }
+        ],
+      }
     };
   },
   methods: {
     resetOrder() {},
     AddSubmit() {
-      // if (!this.orderIdArr.inclusloveMemo(this.exOrderInfo.orderNo)) {
-      //   this.orderUnmatched();
-      //   return false;
-      // }
-
-      
-
-      reqAddExOrder(this.exOrderInfo).then(res => {
-        this.$message({
-          message: "提交成功",
-          type: "success"
-        });
-      });
-      this.toOrderList();
+      this.$refs['addExOrderForm'].validate((valid) => {
+        if (valid) {
+          reqGetOrderDetail({ orderId: this.exOrderInfo.orderNo }).then(res => {
+            if (res.data.code != 29) {
+              console.log('gogogogogogoogog')
+              reqAddExOrder(this.exOrderInfo).then(res => {
+                if (res.data.code == 0) {
+                  this.$message({
+                    message: "提交成功",
+                    type: "success"
+                  })
+                  this.toOrderList();
+                } else {
+                  this.$message({
+                    message: "服务器繁忙",
+                    type: "info"
+                  })
+                }
+              }).catch(err => {
+                this.$message({
+                  message: "服务器错误",
+                  type: "error"
+                })
+              })
+            } else {
+              this.$message({
+                message: res.data.msg,
+                type: 'error'
+              })
+            }
+          })
+        }
+      })
     },
     toOrderList() {
       this.$router.push("/orderException/list");
@@ -179,6 +210,7 @@ export default {
       var that = this;
       var product = this.product;
       var results = queryString ? fetch(queryString) : product;
+
       function fetch(queryString) {
         let params = { orderNo: that.exOrderInfo.orderNo };
         reqNumToList(params).then(res => {
@@ -198,19 +230,14 @@ export default {
       return newArray;
     },
     handleSelect(item) {
-      
       this.getOrderDetail(item.value);
     },
     getOrderDetail(orderId) {
-      let params = { orderNo: orderId };
-      reqGetOrderDetail(params).then(res => {
-        this.exOrderInfo = Object.assign(
-          {},
-          this.exOrderInfo,
-          res.data.data.content[0]
-        );
-        
-      });
+      reqGetOrderDetail({ orderId }).then(res => {
+        this.orderInfo = Object.assign({}, res.data.data,
+          res.data.data.orderDetailList[0]
+        )
+      })
     },
     orderUnmatched() {
       this.$message.error("无匹配订单编号！");
@@ -218,4 +245,5 @@ export default {
   },
   mounted() {}
 };
+
 </script>

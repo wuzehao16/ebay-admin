@@ -9,7 +9,7 @@
     </el-col>
     <el-col :span="24" class="warp-main">
       <el-col :span="24" class="toolbarff">
-        <el-form :model="orderInfo" ref='editForm' label-width='100px'>
+        <el-form :model="handle" ref='add_new_rc' label-width='100px' :rules='rules'>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='订单编号'>
@@ -22,7 +22,7 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+          <!--           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='卖家邮箱'>
                 <el-input v-model="orderInfo.seller_email" placeholder="卖家邮箱" disabled></el-input>
@@ -33,7 +33,7 @@
                 <el-input v-model="orderInfo.seller_tel" placeholder="卖家电话" disabled></el-input>
               </el-form-item>
             </el-col>
-          </el-row>
+          </el-row> -->
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='买家姓名'>
@@ -46,15 +46,13 @@
               </el-form-item>
             </el-col>
           </el-row>
-
-
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='异常类型'>
-      				  <el-select v-model.number="orderInfo.errorType" placeholder="异常类型" disabled>
-      		    		<el-option v-for="item in exTypeOptions" :key="item.value" :label="item.label" :value="item.value">
-      		    		</el-option>
-      				  </el-select>
+                <el-select v-model.number="orderInfo.errorType" placeholder="异常类型" disabled>
+                  <el-option v-for="item in exTypeOptions" :key="item.value" :label="item.label" :value="item.value">
+                  </el-option>
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
@@ -66,26 +64,24 @@
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
               <el-form-item label='异常描述'>
-				<el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
-				  v-model="orderInfo.errorMemo" disabled>
-				</el-input>
+                <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容" v-model="orderInfo.errorMemo" disabled>
+                </el-input>
               </el-form-item>
             </el-col>
           </el-row>
-
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
               <el-form-item label='异常状态'>
-				  <!-- <el-select v-model="orderInfo.errorStatus" placeholder="异常状态" :disabled="handle.handerType==0"> -->
-          <el-select v-model="orderInfo.errorStatus" placeholder="异常状态" >
-		    		<el-option v-for="item in exStatusOptions" :key="item.value" :label="item.label" :value="item.value" :disabled="errorStatusDisabled">
-		    		</el-option>
-				  </el-select>
+                <!-- <el-select v-model="orderInfo.errorStatus" placeholder="异常状态" :disabled="handle.handerType==0"> -->
+                <el-select v-model="orderInfo.errorStatus" placeholder="异常状态">
+                  <el-option v-for="item in exStatusOptions" :key="item.value" :label="item.label" :value="item.value" :disabled="errorStatusDisabled">
+                  </el-option>
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-              <el-form-item label='处理方式' >
-                <el-radio-group v-model='handle.handerType' @change="changeErrorStatus" >
+              <el-form-item label='处理方式' prop='handerType'>
+                <el-radio-group v-model='handle.handerType' @change="changeErrorStatus">
                   <el-radio :label="'0'">退款</el-radio>
                   <el-radio :label="'1'">协商</el-radio>
                 </el-radio-group>
@@ -94,84 +90,80 @@
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
-              <el-form-item label='处理人'>
-                <el-input  placeholder="处理人"
-                  v-model="handle.handerby">
+              <el-form-item label='处理人' prop='createdby'>
+                <el-input placeholder="处理人" v-model="handle.createdby">
                 </el-input>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
-              <el-form-item label='解决说明'>
-                <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
-                  v-model="handle.sloveMemo">
+              <el-form-item label='解决说明' prop='sloveMemo'>
+                <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容" v-model="handle.sloveMemo">
                 </el-input>
               </el-form-item>
             </el-col>
           </el-row>
-
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16' :offset='10'>
-			 	<el-button type="success" @click='editSubmit'>更新</el-button>
-			    <el-button type="info" @click='toOrderList'>返回列表</el-button>
-		    </el-col>
+              <el-button type="success" @click='editSubmit'>更新</el-button>
+              <el-button type="info" @click='toOrderList'>返回列表</el-button>
+            </el-col>
           </el-row>
         </el-form>
-
         <el-col :span='16' :offset='4'>
           <label style="font-weight:bold;margin: 20px 0;">异常订单处理跟踪记录：</label>
           <!-- <el-button type="text" @click="addFormVisible = true">新增</el-button> -->
-          <br/><br/>
+          <br/>
+          <br/>
           <el-table :data="rcList" border style="width: 100%;margin-bottom:40px;">
             <el-table-column prop="sloveMemo" label="解决说明" min-width="160"></el-table-column>
-            <el-table-column  label="跟进时间" width="160">
+            <el-table-column label="跟进时间" width="160">
               <template scope="scope">
                 {{ fTimestamp(scope.row.updated) }}
               </template>
             </el-table-column>
             <el-table-column label="处理方式" width="100">
               <template scope="scope">
-                {{ scope.row.handerType == 0 ? "退款" : "协商" }}
+                <template v-if='scope.row.handerType == "0"'>退款</template>
+                <template v-else-if='scope.row.handerType == "1"'>协商</template>
+                <template v-else>创建异常</template>
               </template>
             </el-table-column>
             <el-table-column prop="createdby" label="处理人" width="110"></el-table-column>
-            <el-table-column width="120" label="操作">
+            <!--             <el-table-column width="120" label="操作">
               <template slot-scope="scope">
                 <el-button @click="editOrderRc(scope)" type="text" size="small">编辑</el-button>
                 <el-button type="text" size="small" @click="deleteOrderRc(scope)">删除</el-button>
               </template>
-            </el-table-column>
+            </el-table-column> -->
           </el-table>
         </el-col>
       </el-col>
     </el-col>
-
     <!-- 编辑 -->
-      <el-dialog title="收货地址" :visible.sync="editFormVisible">
-        <el-form :model="editForm">
-          <el-form-item label="处理人" :label-width="formLabelWidth">
-            <el-input v-model="editForm.createdby" auto-complete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="处理方式" :label-width="formLabelWidth">
-            <el-select v-model="editForm.handerType" placeholder="请选择活动区域">
-              <el-option label="退款" value="0"></el-option>
-              <el-option label="协商" value="1"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label='解决说明' :label-width="formLabelWidth">
-            <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容"
-              v-model="editForm.sloveMemo" >
-            </el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="edit-footer">
-          <el-button @click="editFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="editOrderRcSubmit()">确 定</el-button>
-        </div>
-      </el-dialog>
+    <el-dialog title="收货地址" :visible.sync="editFormVisible">
+      <el-form :model="editForm">
+        <el-form-item label="处理人" :label-width="formLabelWidth">
+          <el-input v-model="editForm.createdby" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="处理方式" :label-width="formLabelWidth">
+          <el-select v-model="editForm.handerType" placeholder="请选择活动区域">
+            <el-option label="退款" value="0"></el-option>
+            <el-option label="协商" value="1"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label='解决说明' :label-width="formLabelWidth">
+          <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6}" placeholder="请输入内容" v-model="editForm.sloveMemo">
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="edit-footer">
+        <el-button @click="editFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editOrderRcSubmit()">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-row>
-
 </template>
 <script>
 import util from "../../common/util";
@@ -187,7 +179,7 @@ import {
 export default {
   data() {
     return {
-      errorStatusDisabled:false,
+      errorStatusDisabled: false,
       orderInfo: {},
       rcList: [],
       addFormVisible: false,
@@ -202,14 +194,13 @@ export default {
       },
       handle: {
         sloveMemo: "",
-        handerby: "",
+        createdby: "",
         handerType: "",
         updated: ""
       },
       handle_bak: {},
       orderInfo_bak: {},
-      exTypeOptions: [
-        {
+      exTypeOptions: [{
           value: "0",
           label: "系统异常"
         },
@@ -222,8 +213,7 @@ export default {
           label: "卖家取消订单"
         }
       ],
-      exStatusOptions: [
-        {
+      exStatusOptions: [{
           value: "0",
           label: "待解决"
         },
@@ -239,38 +229,44 @@ export default {
           value: "3",
           label: "已挂起"
         }
-      ]
+      ],
+      rules: {
+        handerType: [
+          { required: true, message: '请选择处理方式', trigger: 'change' }
+        ],
+        createdby: [
+          { required: true, message: '请输入处理人', trigger: 'change' }
+        ],
+        sloveMemo: [
+          { required: true, message: '请输入解决说明', trigger: 'change' }
+        ],
+      }
     };
   },
   methods: {
-    validation(){
-       if (this.orderInfo.handerby == "") {
-        this.$message.error("请输入处理人");
-        return false;
-      }
-      if (this.orderInfo.sloveMemo == "") {
-        this.$message.error("请输入解决说明");
-        return false;
-      }
-      return true
-    },
     editSubmit() {
-      Object.assign(this.orderInfo, this.handle);
-      if (!this.validation()) return
-      reqEditExOrder(this.orderInfo).then(res => {
-        this.$message({
-          message: "提交成功",
-          type: "success"
-        });
-        this.orderInfo.updated = this.fTimestamp(new Date());
-        this.rcList.push(this.orderInfo);
-      });
+      this.$refs['add_new_rc'].validate((valid) => {
+        if (valid) {
+          Object.assign(this.orderInfo, this.handle)
+          let submitTime = new Date()
+          this.orderInfo.created = this.orderInfo.updated = submitTime.getTime()
+          reqaddExOrderRcList(this.orderInfo).then(res => {
+            this.$message({
+              message: "提交成功",
+              type: "success"
+            })
+            this.orderInfo.updated = this.fTimestamp(submitTime)
+            this.rcList.splice(0, 0, Object.assign({}, this.orderInfo))
+          })
+        }
+      })
     },
     changeErrorStatus(val) {
       if (val == 0) {
         this.orderInfo.errorStatus = "1";
         this.errorStatusDisabled = true;
-      }else{
+      } else {
+        this.orderInfo.errorStatus = "0";
         this.errorStatusDisabled = false;
       }
     },
@@ -283,13 +279,13 @@ export default {
     },
     getRcList() {
       //获取订单轨迹
-      let params = { errorNo: this.orderInfo.errorNo };
+      let params = { errorNo: this.orderInfo.errorNo, size: 100 };
       reqGetExOrderRcList(params).then(res => {
         this.rcList = res.data.data.content;
       });
     },
-    validationrc(){
-       if (this.editForm.createdby == "") {
+    validationrc() {
+      if (this.editForm.createdby == "") {
         this.$message.error("请输入处理人");
         return false;
       }
@@ -302,7 +298,7 @@ export default {
     editOrderRcSubmit(scope) {
       //编辑提交订单轨迹
       let params = Object.assign(this.orderInfo, this.editForm);
-      if (!this.validationrc()) return      
+      if (!this.validationrc()) return
       reqaddExOrderRcList(params).then(res => {
         this.editFormVisible = false;
         this.getRcList();
@@ -342,15 +338,10 @@ export default {
       });
     },
     getOrderDetail() {
-      let params = { orderNo: this.orderInfo.orderNo };
+      let params = { orderId: this.orderInfo.orderNo };
       reqGetOrderDetail(params).then(res => {
-        if (res.data.data.length < 1) {
-          return;
-        }
-        this.orderInfo = Object.assign(
-          {},
-          this.orderInfo,
-          res.data.data.content[0]
+        this.orderInfo = Object.assign({}, res.data.data, this.orderInfo,
+          res.data.data.orderDetailList[0]
         );
       });
     }
@@ -358,10 +349,16 @@ export default {
   mounted() {
     this.orderInfo = this.$route.params.ex_order;
     // this.handle = Object.assign({},this.orderInfo)
-    this.getOrderDetail();
-    Object.assign(this.orderInfo_bak, this.$route.params.ex_order);
-    Object.assign(this.handle_bak, this.handle);
-    this.getRcList();
+
+    if (this.orderInfo) {
+      this.getOrderDetail();
+      Object.assign(this.orderInfo_bak, this.$route.params.ex_order);
+      Object.assign(this.handle_bak, this.handle);
+      this.getRcList();
+    } else {
+      this.$router.push('/orderException/list')
+    }
   }
 };
+
 </script>

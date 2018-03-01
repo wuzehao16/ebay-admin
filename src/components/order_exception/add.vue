@@ -171,14 +171,13 @@ export default {
         if (valid) {
           reqGetOrderDetail({ orderId: this.exOrderInfo.orderNo }).then(res => {
             if (res.data.code != 29) {
-              console.log('gogogogogogoogog')
               reqAddExOrder(this.exOrderInfo).then(res => {
                 if (res.data.code == 0) {
                   this.$message({
                     message: "提交成功",
                     type: "success"
                   })
-                  this.toOrderList();
+                  this.toOrderList()
                 } else {
                   this.$message({
                     message: "服务器繁忙",

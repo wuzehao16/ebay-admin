@@ -53,7 +53,7 @@
               </el-form-item>
             </el-col>
             <el-col :span='8'>
-            </el-col>            
+            </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='8'>
@@ -72,7 +72,6 @@
                 </el-select>
               </el-form-item>
             </el-col>
-
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
@@ -96,7 +95,6 @@
             </el-table-column>
             <el-table-column label="处理方式" width="100">
               <template scope="scope">
-                <!-- {{ scope.row.handerType == '0' ? "退款" : "协商" }} -->
                 <template v-if='scope.row.handerType == "0"'>退款</template>
                 <template v-else-if='scope.row.handerType == "1"'>协商</template>
                 <template v-else>创建异常</template>
@@ -212,8 +210,8 @@ export default {
   },
   mounted() {
     this.orderInfo = this.$route.params.ex_order
-    if (!this.orderInfo) { 
-      this.$router.push('/orderException/list') 
+    if (!this.orderInfo) {
+      this.$router.push('/orderException/list')
     } else {
       let orderNo = this.$route.params.ex_order.orderNo
       this.getOrderDetail(orderNo)

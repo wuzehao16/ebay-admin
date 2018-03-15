@@ -67,6 +67,7 @@ export const reqWechatReplyDelete = params => { return axios.delete(`/sell/wecha
 export const reqWechatReplyAdd = params => { return axios.get(`/sell/wechat/wxMessage`, { params: params }) }
 export const reqGoodsList = params => { return axios.get(`/sell/seller/product/list`, { params: params }) }
 export const reqSaveGoods = params => { return axios.put(`/sell/seller/product/save`, params) }
+export const reqAuditGoods = params => { return axios.post(`/sell/seller/product/audit?productId=${params.productId}&auditStatus=${params.auditStatus}`, params) }
 export const reqGoodsDetail = params => { return axios.get(`/sell/buyer/product/detail/${params.productId}`) }
 export const reqOnSaleGoods = params => { return axios.put(`/sell/seller/product/on_sale/${params.productId}`) }
 export const reqOffSaleGoods = params => { return axios.put(`/sell/seller/product/off_sale/${params.productId}`) }

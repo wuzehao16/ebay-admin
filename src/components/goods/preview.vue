@@ -15,10 +15,10 @@
     <el-button type="primary" @click='auditSubmit("1")'>审核通过</el-button>
     <el-button type="warning" @click='auditSubmit("2")'>驳回</el-button>   
   </div>
-  </el-row>  
+  </el-row>   
 </template>
 <script>
-import {reqSaveGoods} from '../../api'
+import {reqAuditGoods} from '../../api'
 export default {
   data() {
   	return {
@@ -35,10 +35,13 @@ export default {
           info = '确认驳回该商品的提审吗？'
           resInfo = '该商品已被您驳回！'
         }
-        this.product.auditStatus = val
-        this.product.productId = this.product.id
+        //this.product.auditStatus = val
+        //this.product.productId = this.product.id
         this.$confirm(info, '提示', {type: 'warning'}).then(() => {
-          reqSaveGoods(this.product).then((res) => {
+          reqAuditGoods({
+            productId: this.product.id,
+            auditStatus: val
+          }).then((res) => {
             if (res.data.code == 0) {
               this.$message({
                 type: 'success',

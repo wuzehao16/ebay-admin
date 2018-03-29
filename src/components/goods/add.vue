@@ -35,7 +35,10 @@
               <el-input type="textarea" v-model.number="pro_info.productPrice" placeholder="人民币价格￥"></el-input>
             </el-form-item>
             <el-form-item label="组合价格：" v-if="ebay.itemsAttr">
-              <el-select v-model="testValue" placeholder="请选择">
+              <el-input placeholder="请输入美元USD/人民币CNY" v-model="exchaneRate">
+                <template slot="prepend">美元USD/人民币CNY</template>
+              </el-input>
+              <el-select v-model="testValue" placeholder="请选择组合价格">
                 <el-option v-for="(v, k, i) in ebay.itemsAttr" :key="k" :label="'第' + (i + 1) + '种组合价格'" :value="k">
                 </el-option>
               </el-select>
@@ -116,6 +119,7 @@ import debounce from 'lodash/debounce'
 export default {
   data() {
     return {
+      exchaneRate: 6.66,
       testValue: null,
       optionAttr: {
         key: [],
@@ -342,14 +346,19 @@ export default {
               try {
                 if (this.ebay.itemsAttr) {
                   let arr = Object.keys(this.ebay.itemsAttr)
-                  for (let v of this.pro_info.productAttr_bak) {
-                    if (v.itemId && arr.includes(v.itemId)) {
-                      this.ebay.itemsAttr[v.itemId].attrCvalue = v.attrCvalue
+                  if (this.productAttr_bak) {
+                    for (let v of this.pro_info.productAttr_bak) {
+                      if (v.itemId && arr.includes(v.itemId)) {
+                        this.ebay.itemsAttr[v.itemId].attrCvalue = v.attrCvalue
+                      }
                     }
+                  }
+                  if (!this.isEdit) {
+                    this.getCNY()
                   }
                 }
               } catch (error) {
-                console.log(error)
+                console.log('jffjjf', error)
               }
             }
             this.gettingGoods = false;
@@ -362,6 +371,11 @@ export default {
     }, 600),
     delPic(index) {
       this.selected_ebay.e_pics.splice(index, 1);
+    },
+    getCNY() {
+      for (let i of Object.values(this.ebay.itemsAttr)) {
+        i.attrCvalue = (Number.parseFloat(i.price) * this.exchaneRate).toFixed(2)
+      }
     }
   },
   mounted() {
@@ -425,7 +439,9 @@ export default {
     }
   },
   watch: {
-
+    exchaneRate(a) {
+      this.getCNY()
+    }
   }
 }
 

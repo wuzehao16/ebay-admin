@@ -42,7 +42,7 @@
         <el-pagination layout="total" :total="listLength" style="float:right;">
         </el-pagination>
       </el-col>
-      <el-dialog title="编辑轮播" v-model="editFormVisible" :close-on-click-modal="false" max-width="800px" class="userEditForm">
+      <el-dialog title="编辑轮播" v-model="editFormVisible" :close-on-click-modal="false" max-width="800px" class="userEditForm" :before-close='beforeClose'>
         <el-form :model="bannerForm" label-width="80px" ref="bannerForm" :rules="rules">
           <el-form-item label="轮播名称" prop="name">
             <el-input v-model="bannerForm.name" auto-complete="off"></el-input>
@@ -70,7 +70,7 @@
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button @click.native="cancelEditUser('bannerForm')">取消</el-button>
+          <el-button @click.native="cancelEdit('bannerForm')">取消</el-button>
           <el-button type="primary" @click.native="bannerSubmit">提交</el-button>
         </div>
       </el-dialog>
@@ -180,7 +180,14 @@ export default {
       this.currentRow = val;
     },
     filterTag(value, row) {
-      return row.isvalid === value;
+      return row.isValid == value;
+    },
+    beforeClose() {
+      this.cancelEdit()
+    },
+    cancelEdit() {
+      this.$refs['bannerForm'].resetFields()
+      this.editFormVisible = false
     },
     getBanners() {
       this.loading = true;
@@ -203,7 +210,6 @@ export default {
       this.showProgress = false
       this.$nextTick(function() {
         // DOM 更新了
-        this.$refs['bannerForm'].resetFields()
         let b = document.getElementById('pic_wrap').clientWidth
         document.getElementById('pic_wrap').style.height = b * 0.46 + 'px'
       })

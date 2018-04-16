@@ -2,6 +2,11 @@ import axios from 'axios'
 
 export const staticBase = (process.env.NODE_ENV === 'production') ? '' : '/static'
 
+//banner
+export const reqBannerList = params => { return axios.get(`/sell/seller/banner/list`, {params: params}) }
+export const reqBannerSave = params => { return axios.post(`/sell/seller/banner/save`, params) }
+
+
 //订单列表
 export const reqGetOrderList = params => { return axios.get(`/sell/seller/order/orderlistShow`, { params: params }) }
 export const reqCancelOrder = params => { return axios.put(`/sell/seller/order/cancel/${params.openid}/${params.orderId}`) }

@@ -5,6 +5,8 @@ const Home = r => require.ensure([], () => r(require( '@/components/Home')), 'Ho
 const Dashboard = r => require.ensure([], () => r(require( '@/components/Dashboard')), 'Dashboard')
 
 const UserList2 = r => require.ensure([], () => r(require( '@/components/user/userlist')), 'UserList2')
+const BannerList = r => require.ensure([], () => r(require( '@/components/banner/list')), 'BannerList')
+const CategoryList = r => require.ensure([], () => r(require( '@/components/category/list')), 'CategoryList')
 
 const OrderList = r => require.ensure([], () => r(require( '@/components/order/list')), 'OrderList')
 const OrderEdit = r => require.ensure([], () => r(require( '@/components/order/edit')), 'OrderEdit')
@@ -63,6 +65,28 @@ let router = new Router({
       iconCls: 'iconfont icon-home', // 图标样式class
       children: [
         {path: '/dashboard', component: Dashboard, name: '首页', menuShow: true}
+      ]
+    },
+    {
+      path: '/banner',
+      component: Home,
+      name: '轮播管理m',
+      menuShow: true,
+      leaf: true, // 只有一个节点
+      iconCls: 'iconfont icon-user', // 图标样式class
+      children: [
+        {path: '/banner/list', component: BannerList, name: '轮播管理', menuShow: true}
+      ]
+    },
+    {
+      path: '/category',
+      component: Home,
+      name: '分类管理m',
+      menuShow: true,
+      leaf: true, // 只有一个节点
+      iconCls: 'iconfont icon-user', // 图标样式class
+      children: [
+        {path: '/category/list', component: CategoryList, name: '分类管理', menuShow: true}
       ]
     },
     {

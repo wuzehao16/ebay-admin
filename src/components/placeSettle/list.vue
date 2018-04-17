@@ -44,13 +44,13 @@
     	<el-table-column property="productTotalPrice" label="总价（元）" width='120'></el-table-column>
       <el-table-column prop="buyUserName" label="买家姓名" width="120"></el-table-column>
     	<el-table-column label="一级/提成（元）" width='160'>
-    		<template scope="scope">
+    		<template slot-scope="scope">
     			{{ scope.row.firstDistName }}/
     			{{ scope.row.firstCommission }}
     		</template>
     	</el-table-column>
     	<el-table-column label="二级/提成（元）" width='160'>
-    		<template scope="scope">
+    		<template slot-scope="scope">
           {{ scope.row.secondDistName }}/
           {{ scope.row.secondCommission }}
     		</template>
@@ -58,7 +58,7 @@
     	<el-table-column prop="totalCommission" label="总提成（元）" width='120'></el-table-column>
   
     	<el-table-column prop="auditStatus" label="审核结算" width="120" :filters="[{ text: '待审核', value: '0' }, { text: '未通过', value: '1' }, { text: '已通过', value: '2' }, { text: '作废', value: '3' }]" :filter-method="filterSettleStatusTag" filter-placement="bottom-end">
-        	<template scope="scope">
+        	<template slot-scope="scope">
           <el-tag type="info" v-if="scope.row.auditStatus == '0'">待审核</el-tag>
           <el-tag type="warning" v-if="scope.row.auditStatus == '1'">未通过</el-tag>
           <el-tag type="success" v-if="scope.row.auditStatus == '2'">已通过</el-tag>
@@ -66,17 +66,17 @@
         	</template>
     	</el-table-column>
     	<el-table-column  label="结算时间" width='150'>
-        <template scope="scope">
+        <template slot-scope="scope">
          {{ fTimestamp(scope.row.created) }}
         </template>
       </el-table-column>
     	<el-table-column  label="付款时间" width='150'>
-        <template scope="scope">
+        <template slot-scope="scope">
          {{ fTimestamp(scope.row.updated) }}
         </template>        
       </el-table-column>
 	    <el-table-column fixed="right" label="操作" width='160'>
-        	<template scope="scope">
+        	<template slot-scope="scope">
             	<el-button size="small" type="primary" @click="showEdit(scope.row)">编辑</el-button>
             	<el-button size="small" @click="showSettle(scope.row)">审核</el-button>
         	</template>

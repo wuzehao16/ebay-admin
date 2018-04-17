@@ -13,7 +13,7 @@
     <el-col :span="24" class="warp-main">
     <el-table ref="singleTable" :data="replys" v-loading='loading'  style="width: 100%">
     	<el-table-column type="expand">
-    		<template scope="props">
+    		<template slot-scope="props">
     			<el-form label-position="right" inline class="demo-table-expand">
             <el-form-item label="消息类型">
               <el-radio-group v-model="props.row.replyType">
@@ -65,18 +65,18 @@
       <el-table-column property="messageName" label="标题"></el-table-column>
     	<el-table-column property="keyWords" label="关键字"></el-table-column>
     	<el-table-column  label="创建时间" width='200'>
-        <template scope="scope">
+        <template slot-scope="scope">
 					{{fTimestamp(scope.row.crtTime)}}
 				</template>
     	</el-table-column>
     	<el-table-column  label="更新时间" width='200'>
-        <template scope="scope">
+        <template slot-scope="scope">
           {{fTimestamp(scope.row.uptTime)}}
         </template>
     	</el-table-column>
 
 	    <el-table-column fixed="right" label="操作" width='100'>
-        	<template scope="scope">
+        	<template slot-scope="scope">
             	<el-button size="small" @click="deleteSubmit(scope.row,scope.$index)">删除</el-button>
         	</template>
     	</el-table-column>

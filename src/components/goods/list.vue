@@ -44,7 +44,7 @@
       <el-table-column property="productNane" label="商品名称" min-width='400'></el-table-column>      
     	<el-table-column property="productStatus" label="商品状态" min-width='100'></el-table-column>
       <el-table-column prop="auditStatus" label="审核状态" min-width="120" :filters="[{ text: '待审核', value: '0' }, { text: '已通过', value: '1' }, { text: '不通过', value: '2' }]" :filter-method="filterAuditTag" filter-placement="bottom-end">
-        <template scope="scope">
+        <template slot-scope="scope">
           <template v-if='scope.row.auditStatus == "0"'>
             <span style="color:red;">待审核</span>
           </template>
@@ -59,18 +59,18 @@
     	<el-table-column property="userWxOpenid" label="译者微信ID" min-width="140"></el-table-column>
 
     	<el-table-column label="翻译时间" min-width="150">
-          <template scope="scope">
+          <template slot-scope="scope">
             {{ fTimestamp(scope.row.created) }}
           </template> 
       </el-table-column>
     	<el-table-column  label="审核时间" min-width="150">
-          <template scope="scope">
+          <template slot-scope="scope">
             {{ fTimestamp(scope.row.audited) }}
           </template>
       </el-table-column>
       <el-table-column prop="ebayItemid"  label="ebayItemId" min-width='160'></el-table-column>
 	    <el-table-column label="操作" width='240' fixed="right">
-        	<template scope="scope">
+        	<template slot-scope="scope">
               <template v-if="scope.row.auditStatus == '1'">
                   <el-button size="small" v-if="scope.row.productStatus == '下架'"
                       @click="onSale(scope.row)">上架</el-button>

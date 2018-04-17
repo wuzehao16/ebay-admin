@@ -5,6 +5,8 @@ export const staticBase = (process.env.NODE_ENV === 'production') ? '' : '/stati
 //banner
 export const reqBannerList = params => { return axios.get(`/sell/seller/banner/list`, {params: params}) }
 export const reqBannerSave = params => { return axios.post(`/sell/seller/banner/save`, params) }
+//category
+export const reqCategoryList = params => { return axios.get(`/sell/seller/category/list`, {params: params}) }
 
 
 //订单列表

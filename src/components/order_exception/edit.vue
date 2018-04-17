@@ -119,12 +119,12 @@
           <el-table :data="rcList" border style="width: 100%;margin-bottom:40px;">
             <el-table-column prop="sloveMemo" label="解决说明" min-width="160"></el-table-column>
             <el-table-column label="跟进时间" width="160">
-              <template scope="scope">
+              <template slot-scope="scope">
                 {{ fTimestamp(scope.row.updated) }}
               </template>
             </el-table-column>
             <el-table-column label="处理方式" width="100">
-              <template scope="scope">
+              <template slot-scope="scope">
                 <template v-if='scope.row.handerType == "0"'>退款</template>
                 <template v-else-if='scope.row.handerType == "1"'>协商</template>
                 <template v-else>创建异常</template>
@@ -132,7 +132,7 @@
             </el-table-column>
             <el-table-column prop="createdby" label="处理人" width="110"></el-table-column>
             <!--             <el-table-column width="120" label="操作">
-              <template slot-scope="scope">
+              <template slot-slot-scope="scope">
                 <el-button @click="editOrderRc(scope)" type="text" size="small">编辑</el-button>
                 <el-button type="text" size="small" @click="deleteOrderRc(scope)">删除</el-button>
               </template>

@@ -47,7 +47,7 @@
     	<el-table-column property="tradeOutAmount" label="支出（元）" min-width='140'></el-table-column>
     	<el-table-column property="userBalance" label="账户余额（元）" min-width='140'></el-table-column>
     	<el-table-column label="交易状态" width='100'>
-    		<template scope="scope">
+    		<template slot-scope="scope">
     			<template v-if="scope.row.tradeStatus == 0">
     			处理中
     			</template>
@@ -61,7 +61,7 @@
     	</el-table-column>
     	<!-- <el-table-column property="des" label="额度说明" width="240"></el-table-column> -->
     	<el-table-column  label="交易时间" width='200'>
-				<template scope="scope">
+				<template slot-scope="scope">
 					{{fTimestamp(scope.row.created)}}
 				</template>
 

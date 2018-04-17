@@ -64,13 +64,13 @@
     	<el-table-column property="productPrice" label="单价（元）" width='120'></el-table-column>
     	<el-table-column property="productQuantity" label="数量"></el-table-column>
     	<el-table-column property="orderAmount" label="总价（元）" width='120'>
-    		<!-- <template scope="scope">
+    		<!-- <template slot-scope="scope">
     			{{ (scope.row.productPrice * 10000 * scope.row.productQuantity / 10000).toFixed(2) }}
     		</template> -->
     	</el-table-column>
   
     	<el-table-column prop="orderStatus" label="订单状态" width="120">
-        	<template scope="scope">
+        	<template slot-scope="scope">
             		<template v-if='scope.row.orderStatus == 1'>
             			待支付
             		</template>
@@ -102,7 +102,7 @@
     	</el-table-column> 
     	<el-table-column property="ebayNo" label="Ebay订单号" width='200'></el-table-column>
     	<el-table-column property="ebayStatus" label="Ebay状态" width="120" >
-        	<template scope="scope">
+        	<template slot-scope="scope">
             		<template v-if='scope.row.ebayStatus == "1"'>
             			待支付
             		</template>
@@ -126,12 +126,12 @@
     	<el-table-column property="buyerName" label="买家姓名" width='160'></el-table-column>	
     <!-- 	<el-table-column property="buyerPhone" label="手机号码" width='150'></el-table-column> -->
     	<el-table-column  label="创建时间" width='150' >
-				<template scope="scope">
+				<template slot-scope="scope">
 					{{fTimestamp(scope.row.created)}}
 				</template>
 			</el-table-column>
 	    <el-table-column fixed="right" label="操作" width='210'>
-        	<template scope="scope">
+        	<template slot-scope="scope">
             	<el-button size="small" type="primary" @click='showDetail(scope)'>详情</el-button>
             	<el-button size="small" @click="showEdit(scope)">编辑</el-button>
 							<el-button size="small" type="danger" @click="cancelOrder(scope.row)" :disabled="scope.row.orderStatus != '1'">

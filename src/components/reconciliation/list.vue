@@ -48,7 +48,7 @@
     	<el-table-column type="index" width="60"> </el-table-column>
     	<el-table-column property="tradeNo" label="交易号" width='120'></el-table-column>
     	<el-table-column label="交易类型" width='140'>
-    		<template scope="scope">
+    		<template slot-scope="scope">
         <template v-if="scope.row.accountItem">
           <template v-if="scope.row.accountItem.tradeType == '0'">收入</template>
           <template v-if="scope.row.accountItem.tradeType == '1'">支出</template>
@@ -59,14 +59,14 @@
     	<el-table-column property="user.userName" label="用户姓名" width='120'></el-table-column>
 
     	<el-table-column label="平台状态" width='140'>
-    		<template scope="scope">
+    		<template slot-scope="scope">
     			<template v-if="scope.row.platformStatus == '0'">处理中</template>
     			<template v-if="scope.row.platformStatus == '1'">成功</template>
     			<template v-if="scope.row.platformStatus == '2ebayStatus'">失败</template>
     		</template>
     	</el-table-column>
     	<el-table-column label="Ebay状态" width='140'>
-    		<template scope="scope">
+    		<template slot-scope="scope">
     			<template v-if="scope.row.ebayStatus == '0'">处理中</template>
     			<template v-if="scope.row.ebayStatus == '1'">成功</template>
     			<template v-if="scope.row.ebayStatus == '2'">失败</template>
@@ -75,14 +75,14 @@
     	<el-table-column property="platformAmount" label="平-交易金额（元）" width='160'></el-table-column>
     	<el-table-column property="ebayAmount" label="E-交易金额（元）" width='160'></el-table-column>
     	<el-table-column label="平-交易时间" width='200'>
-          <template scope="scope">{{ fTimestamp(scope.row.platformTime) }}</template> 
+          <template slot-scope="scope">{{ fTimestamp(scope.row.platformTime) }}</template> 
       </el-table-column>
     	<el-table-column label="E-交易时间" width='200'>
-          <template scope="scope">{{ fTimestamp(scope.row.ebayTime) }}</template> 
+          <template slot-scope="scope">{{ fTimestamp(scope.row.ebayTime) }}</template> 
       </el-table-column>
       <el-table-column prop="handleMemo" label="处理意见" min-width='400'></el-table-column>
       <el-table-column prop="checkStatus" fixed="right" label="核对状态" width="120" :filters="[{ text: '异常', value: '0' }, { text: '修复中', value: '1' }, { text: '正常', value: '2' }]" :filter-method="filterTag" filter-placement="bottom-end">
-          <template scope="scope">
+          <template slot-scope="scope">
             <template v-if="scope.row.checkStatus == '1'">
               <el-tag type='primary' close-transition>修复中</el-tag>
             </template>
@@ -95,7 +95,7 @@
           </template>
       </el-table-column>
 	    <el-table-column fixed="right" label="操作" width='80'>
-        	<template scope="scope">
+        	<template slot-scope="scope">
             	<!-- <el-button v-if="" size="small" @click="showDetail(scope.row)">查看</el-button> -->
             	<el-button size="small" type="primary" 
             		@click="showEdit(scope.row)">处理</el-button>

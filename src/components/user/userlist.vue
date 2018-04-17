@@ -38,7 +38,7 @@
     	<el-table-column property="userName" label="会员姓名" min-width="100"></el-table-column>
     	<el-table-column property="userPhone" label="手机号码" min-width='130'></el-table-column>
     	<el-table-column prop="userCtype" label="会员类型" min-width="120" :filters="[{ text: '分销商', value: '1' }, { text: '普通用户', value: '2' }]" :filter-method="filterTag" filter-placement="bottom-end">
-        	<template scope="scope">
+        	<template slot-scope="scope">
             <template v-if="scope.row.userCtype == '2'">
               普通用户
             </template>
@@ -53,13 +53,13 @@
       <el-table-column property="userWxName" label="微信昵称" min-width="120"></el-table-column>
     	<el-table-column property="userWxOpenid" label="微信openId" min-width="200"></el-table-column>
     	<el-table-column label="日期" min-width="160">
-          <template scope="scope">
+          <template slot-scope="scope">
           {{ fTimestamp(scope.row.created) }}
           </template>
 
       </el-table-column>
 	    <el-table-column label="操作" width='240'>
-        	<template scope="scope">
+        	<template slot-scope="scope">
               <el-button size="small" @click="showEditUserDialog(scope.$index,scope.row)">编辑</el-button>
               <template v-if="scope.row.isActive == 'Y'">
               <el-button size="small" @click="changeActive(scope.row)">禁用</el-button>

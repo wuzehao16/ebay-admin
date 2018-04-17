@@ -48,7 +48,7 @@
     	<el-table-column property="user.userName" label="用户姓名" width='120'></el-table-column>
     	<el-table-column property="user.userPhone" label="手机号码" width='140'></el-table-column>
     	<el-table-column label="交易状态" width='140'>
-    		<template scope="scope">
+    		<template slot-scope="scope">
           <template v-if="scope.row.accountItem">
             <template v-if="scope.row.accountItem.tradeStatus == '0'">失败</template>
             <template v-if="scope.row.accountItem.tradeStatus == '1'">成功</template>
@@ -58,7 +58,7 @@
     	</el-table-column>
     	<el-table-column property="drawAmount" label="提现金额（元）" width='140'></el-table-column>
     	<el-table-column label="危险系数" width='100'>
-    		<template scope="scope">
+    		<template slot-scope="scope">
           <template v-if="scope.row.perilRatio == '0'">正常</template>
     			<template v-if="scope.row.perilRatio == '1'">低</template>
     			<template v-if="scope.row.perilRatio == '2'">中</template>
@@ -66,7 +66,7 @@
     		</template>
     	</el-table-column>       	
     	<el-table-column label="审核状态" width='140'>
-    		<template scope="scope">
+    		<template slot-scope="scope">
     			<template v-if="scope.row.auditStatus == '0'">待审核</template>
     			<template v-if="scope.row.auditStatus == '1'">已通过</template>
     			<template v-if="scope.row.auditStatus == '2'">不通过</template>
@@ -74,18 +74,18 @@
     		</template>
     	</el-table-column>       	
     	<el-table-column label="发放状态" width='140'>
-    		<template scope="scope">
+    		<template slot-scope="scope">
     			<template v-if="scope.row.issue_status == 0">未发放</template>
     			<template v-if="scope.row.issue_status == 1">已发放</template>
     		</template>
     	</el-table-column>
     	<el-table-column label="申请时间" width='200'>
-        <template scope="scope">
+        <template slot-scope="scope">
           {{ fTimestamp(scope.row.created) }}
         </template> 
       </el-table-column>
     	<el-table-column label="到账时间" width='200'>
-        <template scope="scope">
+        <template slot-scope="scope">
             <template v-if="scope.row.accountItem">
               <template v-if="scope.row.accountItem.tradeStatus == '1'">
                 {{ fTimestamp(scope.row.accountItem.updated) }}
@@ -95,7 +95,7 @@
         </template>
       </el-table-column>
 	    <el-table-column fixed="right" label="操作" width='240'>
-        	<template scope="scope">
+        	<template slot-scope="scope">
             	<el-button size="small" @click="showAudit(scope.row, true)">查看</el-button>
             	<el-button :disabled="scope.row.auditStatus != '0'" size="small" type="primary" 
             		@click="showAudit(scope.row)">审核</el-button>

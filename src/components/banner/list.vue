@@ -14,7 +14,7 @@
         <el-table-column property="name" label="轮播名称" min-width="100"></el-table-column>
         <el-table-column property="clickUrl" label="跳转地址" min-width="100"></el-table-column>
         <el-table-column prop="isValid" label="是否上线" min-width="120" :filters="[{ text: '在线', value: '1' }, { text: '下线', value: '0' }]" :filter-method="filterTag" filter-placement="bottom-end">
-          <template scope="scope">
+          <template slot-scope="scope">
             <template v-if="scope.row.isValid == '1'">
               在线
             </template>
@@ -27,12 +27,12 @@
           </template>
         </el-table-column>
         <el-table-column label="创建时间" min-width="160">
-          <template scope="scope">
+          <template slot-scope="scope">
             {{ fTimestamp(scope.row.createTime) }}
           </template>
         </el-table-column>
         <el-table-column label="操作">
-          <template scope="scope">
+          <template slot-scope="scope">
             <el-button size="small" @click="showDialog(scope.$index,scope.row)">编辑</el-button>
           </template>
         </el-table-column>
@@ -57,7 +57,7 @@
               <input type="file" name="pic" id="pic" accept="image/jpg" @change="changePic" />
             </div>
             <el-progress v-if='showProgress' :percentage="uploadPercent" :status="uploadStatus"></el-progress>
-            <el-button @click.native="uploadBanner">上传</el-button>
+            <el-button @click.native="uploadBanner" :disabled="updisabled">上传</el-button>
           </el-form-item>
           <el-form-item label="是否上线" prop="isValid">
             <el-select v-model="bannerForm.isValid" placeholder="是否上线" clearable>
@@ -66,7 +66,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="排序" prop="queue">
-            <el-input v-model.number="bannerForm.queue" auto-complete="off"></el-input>
+            <el-input v-model="bannerForm.queue" auto-complete="off"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -102,17 +102,21 @@ export default {
       },
       bannerForm_bak: {},
       bannerList: [],
-      uploadPercent: null,
+      uploadPercent: 0,
       uploadStatus: '',
       showProgress: true,
-      imageUrl: ''
+      imageUrl: '',
+      updisabled: true
     };
   },
   methods: {
     changePic() {
+      this.updisabled = false
       this.isNewOrChanged = true
       console.log('changePic in method.')
+
       this.showProgress = false
+      this.uploadStatus = ''
       let _this = this
       //获取文件  
       let file = document.getElementById('pic').files[0];
@@ -132,6 +136,7 @@ export default {
       reader.readAsDataURL(file)
     },
     uploadBanner() {
+      this.updisabled = true
       var files = document.getElementById('pic').files; //files是文件选择框选择的文件对象数组  
       if (files.length == 0) {
         this.$message({
@@ -140,7 +145,7 @@ export default {
         })
         return;
       }
-      this.uploadPercent = 0
+      
       this.showProgress = true
       var form = new FormData(),
         url = 'http://www.wstsoftware.com/sell/seller/upload', //服务器上传地址  
@@ -148,16 +153,18 @@ export default {
       form.append('file', file);
       var xhr = new XMLHttpRequest();
       xhr.open("post", url, true);
+
+      let _this = this
       //上传进度事件  
       xhr.upload.addEventListener("progress", function(result) {
         console.log('aa', result)
         if (result.lengthComputable) {
           //上传进度  
-          this.uploadPercent = (result.loaded / result.total * 100).toFixed(0);
-          console.log('haha', this.uploadPercent)
+          _this.uploadPercent = (result.loaded / result.total * 100).toFixed(0);
+          console.log('haha', _this.uploadPercent)
         }
       }, false);
-      let _this = this
+      
       xhr.addEventListener("readystatechange", function() {
         var result = xhr;
         if (result.status != 200) { //error  
@@ -244,7 +251,7 @@ export default {
                 this.getBanners();
               }
             })
-          })
+          }).catch()
         }
       });
     }

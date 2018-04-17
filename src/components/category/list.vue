@@ -17,16 +17,13 @@
       </div>
       <el-table ref="singleTable" :data="menus" v-loading='loading' style="width: 100%">
         <el-table-column type="expand">
-          <template scope="props">
+          <template slot-scope="props">
             <el-form label-position="right" inline class="demo-table-expand">
               <el-form-item label="商品分类名称">
-                <el-input v-model="props.row.wxMenuName" placeholder="商品分类名称"></el-input>
+                <el-input v-model="props.row.name" placeholder="商品分类名称"></el-input>
               </el-form-item>
               <el-form-item label="排序号">
-                <el-input v-model="props.row.wxMenuSeriNo" placeholder="排序号"></el-input>
-              </el-form-item>
-              <el-form-item label="链接地址" v-show="props.row.wxMenuType == 2">
-                <el-input v-model="props.row.wxMenuContent" placeholder="链接地址"></el-input>
+                <el-input v-model="props.row.queue" placeholder="排序号"></el-input>
               </el-form-item>
               <el-form-item>
                 <el-button @click="editSubmit(props.row)">保存</el-button>
@@ -35,15 +32,15 @@
           </template>
         </el-table-column>
         <el-table-column type="index" width="60"> </el-table-column>
-        <el-table-column property="wxMenuName" label="商品分类名称" width='200'></el-table-column>
-        <el-table-column property="wxMenuSeriNo" label="排序"></el-table-column>
+        <el-table-column property="name" label="商品分类名称" width='200'></el-table-column>
+        <el-table-column property="queue" label="排序"></el-table-column>
         <el-table-column label="创建时间" width='200'>
-          <template scope="scope">
-            {{fTimestamp(scope.row.crtTime)}}
+          <template slot-scope="scope">
+            {{fTimestamp(scope.row.createTime)}}
           </template>
         </el-table-column>
-        <el-table-column fixed="right" label="操作" width='200'>
-          <template scope="scope">
+        <el-table-column  label="操作" width='200'>
+          <template slot-scope="scope">
             <el-button size="small" type="primary" v-show="showflag" @click="showChildren(scope.row)">二级分类</el-button>
             <el-button size="small" type="danger" @click="deleteSubmit(scope.row,scope.$index)">删除</el-button>
           </template>
@@ -96,7 +93,7 @@
 }
 
 .demo-table-expand label {
-  width: 90px;
+  width: 100px;
   color: #99a9bf;
 }
 
@@ -116,6 +113,9 @@
 </style>
 <script>
 import {
+  reqCategoryList,
+
+
   reqGetWechatMenus,
   reqEditWechatMenu,
   reqDeleteWechatMenu,
@@ -167,10 +167,18 @@ export default {
     getMenuList(id) {
       this.loading = true;
       let params = { id: id }
-      reqGetWechatMenus(params).then(res => {
+/*      reqGetWechatMenus(params).then(res => {
         this.menus = res.data.data;
         this.loading = false;
-      });
+      });*/
+
+
+      reqCategoryList({
+        pid: '0'
+      }).then(res => {
+        this.menus = res.data.data
+        this.loading = false
+      }).catch(err => {})
     },
     editSubmit(row) {
       row = Object.assign(row, { wxMenuParent: this.wxMenuParent });

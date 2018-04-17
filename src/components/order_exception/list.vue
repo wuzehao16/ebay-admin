@@ -48,7 +48,7 @@
     	<el-table-column property="errorNo" label="异常编号" width='200'></el-table-column>
     	<el-table-column property="orderNo" label="订单编号" width='200'></el-table-column>
     	<el-table-column prop="errorType" label="异常类型" width="120" :filters="[{ text: '系统异常', value: '0' }, { text: 'Ebay缺货', value: '1' }, { text: '卖家取消订单', value: '2' }]" :filter-method="filterExTypeTag" filter-placement="bottom-end">
-        	<template scope="scope">
+        	<template slot-scope="scope">
             		<template v-if='scope.row.errorType == "0"'>
             			系统异常
             		</template>
@@ -61,7 +61,7 @@
         	</template>
     	</el-table-column> 
     	<el-table-column prop="errorStatus" label="异常状态" width="120" :filters="[{ text: '待解决', value: '0' }, { text: '已解决', value: '1' },{ text: '未解决', value: '2' },  { text: '挂起', value: '3' }]" :filter-method="filterExStatusTag" filter-placement="bottom-end">
-        	<template scope="scope">
+        	<template slot-scope="scope">
             		<template v-if='scope.row.errorStatus == "0"'>
             			待解决
             		</template>
@@ -82,17 +82,17 @@
     	<el-table-column label="最后处理人" width='130' property="handerby">    		
     	</el-table-column>
     	<el-table-column label="创建时间" width='150' >
-          <template scope="scope">
+          <template slot-scope="scope">
             {{ fTimestamp(scope.row.created) }}
           </template>
       </el-table-column>
     	<el-table-column label="最后更新时间" width='200' >
-          <template scope="scope">
+          <template slot-scope="scope">
             {{ fTimestamp(scope.row.updated) }}
           </template>	
     	</el-table-column>
 	    <el-table-column fixed="right" label="操作" width='220'>
-        	<template scope="scope">
+        	<template slot-scope="scope">
             	<el-button size="small" type="primary" @click='showDetail(scope.row)'>详情</el-button>
             	<el-button size="small" @click="showEdit(scope.row)">处理</el-button>
             	<el-button size="small" type="danger" @click="deleteOrder(scope.row)">删除</el-button>							

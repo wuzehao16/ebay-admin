@@ -16,7 +16,7 @@
     <div v-show="!showflag" class="label-menu">二级菜单：<span style="color:#20a0ff;">{{ label_menu }}</span>的子菜单 <el-button @click="showFather">返回一级菜单</el-button></div>
     <el-table ref="singleTable" :data="menus" v-loading='loading'  style="width: 100%">
     	<el-table-column type="expand">
-    		<template scope="props">
+    		<template slot-scope="props">
     			<el-form label-position="right" inline class="demo-table-expand">
     				<el-form-item label="菜单名称">
                 		<el-input v-model="props.row.wxMenuName" placeholder="菜单名称"></el-input>
@@ -46,18 +46,18 @@
     	<el-table-column property="wxMenuSeriNo" label="排序号" width='200'></el-table-column>
     	<el-table-column property="wxMenuName" label="菜单名称"></el-table-column>
     	<el-table-column  label="创建时间" width='200'>
-        <template scope="scope">
+        <template slot-scope="scope">
           {{fTimestamp(scope.row.crtTime)}}
         </template>
       </el-table-column>
     	<el-table-column  label="更新时间" width='200'>
-        <template scope="scope">
+        <template slot-scope="scope">
           {{fTimestamp(scope.row.uptTime)}}
         </template>
       </el-table-column>
     
 	    <el-table-column fixed="right" label="操作" width='260'>
-        	<template scope="scope">
+        	<template slot-scope="scope">
             	<el-button size="small" type="primary" v-show="showflag" @click="showChildren(scope.row)">二级菜单</el-button>
             	<el-button size="small" type="danger" @click="deleteSubmit(scope.row,scope.$index)">删除</el-button>
         	</template>

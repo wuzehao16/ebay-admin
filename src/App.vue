@@ -10,7 +10,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 body{
   padding:0px;
   margin:0px auto;
@@ -40,5 +40,31 @@ a{
 }
 .el-textarea.is-disabled .el-textarea__inner {
     color: #000 !important;
+}
+.wrap-pic {
+  margin-bottom: 10px;
+  width: 100%;
+  height: 150px;
+  background: #d1dbe5;
+  overflow: hidden;
+  position: relative;
+  input {
+    cursor: pointer;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    opacity: 0;
+  }
+  p {
+    text-align: center;
+    color: #8391a5;
+  }
+  img {
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
 }
 </style>

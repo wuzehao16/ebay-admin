@@ -7,6 +7,7 @@ export const reqBannerList = params => { return axios.get(`/sell/seller/banner/l
 export const reqBannerSave = params => { return axios.post(`/sell/seller/banner/save`, params) }
 //category
 export const reqCategoryList = params => { return axios.get(`/sell/seller/category/list`, {params: params}) }
+export const reqCategorySave = params => { return axios.post(`/sell/seller/category/save`, params) }
 
 
 //订单列表

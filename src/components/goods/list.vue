@@ -155,15 +155,18 @@ export default {
         });
     },
     goEdit(row) {
-      
-      this.$router.push({
+      this.$message({
+        type: 'info',
+        message: '编辑页面完善中......'
+      })
+/*      this.$router.push({
         name: "商品新增",
         params: {
           productId: row.id,
           ebayItemid: row.ebayItemid,
           userWxOpenid: row.userWxOpenid
         }
-      });
+      });*/
     },
     goPreview(row) {
       this.$router.push({

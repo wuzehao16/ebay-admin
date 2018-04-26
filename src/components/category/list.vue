@@ -288,6 +288,9 @@ export default {
       this.$refs['addForm'].validate(valid => {
         if (valid) {
           this.addLoading = true
+          if (!isEdit) {
+            this.addForm.pid = '0'
+          }
           reqCategorySave(this.addForm).then(res => {
             this.addFormVisible = false
             this.addLoading = false

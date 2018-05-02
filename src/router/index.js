@@ -75,7 +75,7 @@ let router = new Router({
       name: '轮播管理m',
       menuShow: true,
       leaf: true, // 只有一个节点
-      iconCls: 'iconfont icon-user', // 图标样式class
+      iconCls: 'iconfont icon-lb', // 图标样式class
       children: [
         {path: '/banner/list', component: BannerList, name: '轮播管理', menuShow: true}
       ]
@@ -86,7 +86,7 @@ let router = new Router({
       name: '分类管理m',
       menuShow: true,
       leaf: true, // 只有一个节点
-      iconCls: 'iconfont icon-user', // 图标样式class
+      iconCls: 'iconfont icon-fenlei', // 图标样式class
       children: [
         {path: '/category/list', component: CategoryList, name: '分类管理', menuShow: true}
       ]

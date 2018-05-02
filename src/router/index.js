@@ -15,6 +15,8 @@ const OrderAdd = r => require.ensure([], () => r(require( '@/components/order/ad
 //商品管理 
 const GoodsList = r => require.ensure([], () => r(require( '@/components/goods/list')), 'GoodsList')
 const GoodsAdd = r => require.ensure([], () => r(require( '@/components/goods/add')), 'GoodsAdd')
+const GoosEdit = r => require.ensure([], () => r(require( '@/components/goods/edit')), 'GoosEdit')
+
 const GoodsPreview = r => require.ensure([], () => r(require( '@/components/goods/preview')), 'GoodsPreview')
 //异常订单
 const ExOrderList = r => require.ensure([], () => r(require( '@/components/order_exception/list')), 'ExOrderList')
@@ -110,6 +112,7 @@ let router = new Router({
       children: [
         {path: '/goods/list', component: GoodsList, name: '商品管理', menuShow: true},
         {path: '/goods/add', component: GoodsAdd, name: '商品新增', menuShow: false},
+        {path: '/goods/edit/:id/:itemId', component: GoosEdit, name: '商品编辑', menuShow: false},
         {path: '/goods/preview', component: GoodsPreview, name: '商品预览', menuShow: false}
       ]
     },

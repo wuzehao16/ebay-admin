@@ -8,12 +8,12 @@
       </el-breadcrumb>
     </el-col>
     <el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" class="warp-main1">
-      <el-form label-width="100px" v-if="!isEdit" @submit.native.prevent>
+      <!--       <el-form label-width="100px" v-if="!isEdit" @submit.native.prevent>
         <el-form-item label="Ebay原链">
           <el-input v-model="itemId" @keyup.native="handlerSearch" placeholder="ItemId" style="width: 80%;margin-right: 20px;"></el-input>
           <el-button type="primary" @click="onSearch" :disabled="gettingGoods">提取</el-button>
         </el-form-item>
-      </el-form>
+      </el-form> -->
       <template>
         <el-form ref="pro_info" :model="pro_info" :rules="rules" label-width="100px" v-loading="gettingGoods" style="height: 500px;" @submit.native.prevent>
           <!--  -->
@@ -27,7 +27,7 @@
               </el-carousel>
             </el-form-item>
             <el-form-item label="商品分类：">
-              <el-cascader :options="categories" @change="setProductType" @active-item-change="handleItemChange" :props="props"></el-cascader>
+              <el-cascader :options="categories" @change="setProductType" @active-item-change="handleItemChange" :props="props" v-model='goodsType'></el-cascader>
               <div class="el-form-item__error" v-if='!pro_info.productType && aspeTip'>请选择商品分类</div>
             </el-form-item>
             <el-form-item label="商品名称：" prop="productNane">
@@ -141,11 +141,12 @@
   </el-row>
 </template>
 <script>
-import { reqSaveGoods, reqGoodsDetail, reqEbayGoods, reqCategoryList } from "../../api";
+import { reqSaveGoods, reqGoodsDetail, reqEbayGoods, reqCategoryList, reqCategoryById } from "../../api";
 import debounce from 'lodash/debounce'
 export default {
   data() {
     return {
+      goodsType: [],
       categories: [],
       props: {
         value: 'id',
@@ -164,7 +165,7 @@ export default {
         tax: '免税'
       },
       gettingGoods: false,
-      crumbName: "商品新增",
+      crumbName: "商品编辑",
       else_key: [],
       else_value: [],
       isEdit: false,
@@ -221,6 +222,9 @@ export default {
       this.pro_info.productType = val[1]
     },
     handleItemChange(val) {
+      this.getSub(val)
+    },
+    getSub(val) {
       for (let m of this.categories) {
         if (m.id == val[0] && !m.sub.length) {
           reqCategoryList({ pid: val[0] }).then(res => {
@@ -378,6 +382,7 @@ export default {
               this.showForm = true;
               this.ebay = res.data;
               this.selected_ebay = true;
+
               this.exchaneRate = this.ebay.usdRate
               this.pro_info.productNane = this.ebay.ctitle
               this.pro_info.productIcon = this.ebay.image.imageUrl
@@ -402,6 +407,73 @@ export default {
               } else {
                 this.pro_info.productPic = imgArr.join("")
               }
+
+              if (this.productId) { //是编辑
+                reqGoodsDetail({ productId: this.productId }).then(res => {
+                  // this.showForm = true
+                  let p = res.data.data
+                  // this.pro_info = p
+                  //0.商品分类 set
+                  reqCategoryById({ productType: p.type }).then(res => {
+                    let e = res.data.data
+                    this.getSub([e.pid])
+                    this.goodsType = [Number.parseInt(e.pid), e.id]
+                  })
+
+                  //1.标题 & 介绍 & 图片  set
+                  this.pro_info.productNane = p.name
+                  this.pro_info.productMemo = p.productMemo
+                  // this.pro_info.productPic = p.pic.join("@")
+
+                  for (let m of p.productAttr) {
+                    //3.商品规格  set
+                    if (m.attrType == '2') {
+                      for (let i of this.ebay.localizedAspects) {
+                        if (i.name == m.attrEname) {
+                          i.cname = m.attrCname
+                          i.cvalue = m.attrCvalue
+                        }
+                      }
+                    } else if (m.attrType == '1' && m.attrEname != 'price' && this.ebay.optionAttr) { //2.选择属性  set
+                      for (let c of this.ebay.optionAttr_2) {
+                        if (c.key == m.attrEname) {
+                          c.ckey = m.attrCname
+                          for (let j of c.children) {
+                            if (j.ckey == m.attrEvalue) {
+                              j.cvalue = m.attrCvalue
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  //4.费用（邮费/税费/展示价格/具体价格） set
+                  this.exchaneRate = this.ebay.usdRate
+                  if (p.carriageFee != 0) {
+                    this.feeType.carriage = '不包邮'
+                    let _this = this
+                    this.$nextTick(function() {
+                      console.log('hhaah')
+                      setTimeout(function() {
+                        console.log('timmmmmm')
+                        _this.pro_info.carriageFee = p.carriageFee
+
+
+                      }, 1000)
+                    })
+                  }
+                  if (p.taxFee != 0) {
+                    this.feeType.tax = '不免税'
+                    this.$nextTick(function() {
+                      this.pro_info.taxFee = p.taxFee
+                    })
+                  }
+                }).catch(err => {})
+              }
+
+
+
+
             }
             this.gettingGoods = false;
           })
@@ -420,1868 +492,1885 @@ export default {
           i.attrCvalue = this.getSellPrice(i.price)
         }
       }
+    },
+    initCategory() {
+      reqCategoryList({ pid: '0' }).then(res => {
+        let a = res.data.data
+        for (let i of a) {
+          i.sub = []
+        }
+        this.categories = a
+      })
     }
   },
   mounted() {
-    reqCategoryList({ pid: '0' }).then(res => {
-      let a = res.data.data
-      for (let i of a) {
-        i.sub = []
-      }
-      this.categories = a
-    })
+    this.initCategory()
 
-    reqGoodsDetail({productId: '165'}).then(res => {
+/*       this.ebay = {
+         "image": {
+           "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg"
+         },
+         "itemType": 1,
+         "description": "dljfljfl jio lakjf joadl js jojdslfh lakdhf akhfsdflshdfdiofajdflsd f ssdfjdlfjldkfjas.",
+         "shortDescription": "All associated Touch ID features will not operate as intended, however all other aspects of the handset remain fully operational. Refurbished Pristine - This is an exceptional product showing no signs of use, it has been fully tested and is in excellent working order.",
+         "title": "Apple iPhone 6S - 16GB 32GB 64GB 128GB -Gold/Silver/Grey/Rose- UNLOCKED/SIMFREE",
+         "itemLocation": {
+           "country": "GB",
+           "city": "Barnstaple",
+           "postalCode": "EX31 3UD"
+         },
+         "optionAttr": {
+           "Network": [
+             "O2 UK",
+             "Unlocked",
+             "Three UK",
+             "EE UK",
+             "Vodafone UK",
+             "Factory Unlocked"
+           ],
+           "Grade": [
+             "Grade C",
+             "Grade D",
+             "Pristine",
+             "Good",
+             "Very Good"
+           ],
+           "Storage Capacity": [
+             "64GB",
+             "16GB",
+             "128GB",
+             "32GB"
+           ],
+           "Colour": [
+             "Space Grey",
+             "Silver",
+             "Gold",
+             "Rose Gold",
+             "Grey"
+           ]
+         },
+         "itemId": "202085839828",
+         "itemsAttr": {
+           "v1|202085839828|502082036724": {
+             "price": "320.46",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "128GB",
+             "stock": 2,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502105061418": {
+             "price": "271.68",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "32GB",
+             "stock": 7,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061417": {
+             "price": "313.49",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036722": {
+             "price": "320.46",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036689": {
+             "price": "264.71",
+             "Network": "Three UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502105061419": {
+             "price": "243.81",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "32GB",
+             "stock": 2,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502082036688": {
+             "price": "320.46",
+             "Network": "Three UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036728": {
+             "price": "404.07",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036727": {
+             "price": "292.59",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036726": {
+             "price": "362.27",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036725": {
+             "price": "320.46",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036683": {
+             "price": "222.91",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036681": {
+             "price": "362.27",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036680": {
+             "price": "348.33",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036687": {
+             "price": "250.78",
+             "Network": "Three UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036686": {
+             "price": "222.91",
+             "Network": "Three UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502105061410": {
+             "price": "334.39",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502105061379": {
+             "price": "236.84",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036719": {
+             "price": "299.55",
+             "Network": "Three UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502105061412": {
+             "price": "299.55",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061411": {
+             "price": "362.27",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036718": {
+             "price": "390.19",
+             "Network": "Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502105061378": {
+             "price": "264.71",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502105061414": {
+             "price": "257.75",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "32GB",
+             "stock": 1,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061413": {
+             "price": "313.49",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "32GB",
+             "stock": 2,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061416": {
+             "price": "313.49",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502105061415": {
+             "price": "313.49",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502105061407": {
+             "price": "334.39",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036735": {
+             "price": "320.46",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502105061406": {
+             "price": "299.55",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502082036733": {
+             "price": "278.65",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502105061409": {
+             "price": "362.27",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502082036732": {
+             "price": "250.78",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "64GB",
+             "stock": 1,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502105061408": {
+             "price": "341.36",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502082036699": {
+             "price": "264.71",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502188325192": {
+             "price": "195.03",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036738": {
+             "price": "320.46",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 1,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036736": {
+             "price": "425.03",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502082036694": {
+             "price": "250.78",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036693": {
+             "price": "264.77",
+             "Network": "Unlocked",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Grade D",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502181827809": {
+             "price": "195.03",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 2,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036692": {
+             "price": "348.39",
+             "Network": "Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Grade D",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036691": {
+             "price": "341.36",
+             "Network": "EE UK",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502082036698": {
+             "price": "362.27",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036731": {
+             "price": "264.71",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036730": {
+             "price": "195.03",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036697": {
+             "price": "292.59",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036696": {
+             "price": "362.27",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036695": {
+             "price": "264.71",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 10,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036690": {
+             "price": "459.87",
+             "Network": "Three UK",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Pristine",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502105061401": {
+             "price": "320.46",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "128GB",
+             "stock": 4,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061400": {
+             "price": "292.59",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061403": {
+             "price": "236.84",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502252406336": {
+             "price": "229.87",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061402": {
+             "price": "264.71",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061405": {
+             "price": "271.68",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502105061404": {
+             "price": "362.27",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036669": {
+             "price": "466.84",
+             "Network": "Unlocked",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Pristine",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502082036702": {
+             "price": "390.19",
+             "Network": "Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502119685335": {
+             "price": "306.52",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502119685336": {
+             "price": "236.84",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502082036668": {
+             "price": "445.94",
+             "Network": "EE UK",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Pristine",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502082036700": {
+             "price": "264.71",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036667": {
+             "price": "299.55",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502119685333": {
+             "price": "306.52",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502082036666": {
+             "price": "320.46",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 1,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502119685334": {
+             "price": "306.52",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502082036705": {
+             "price": "299.55",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502119685332": {
+             "price": "306.52",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036660": {
+             "price": "264.71",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 9,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502155590476": {
+             "price": "306.52",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036665": {
+             "price": "250.78",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502155590478": {
+             "price": "292.59",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502119685339": {
+             "price": "306.52",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036664": {
+             "price": "208.97",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 4,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036663": {
+             "price": "236.84",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 10,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502119685337": {
+             "price": "306.52",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036662": {
+             "price": "334.39",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502119685338": {
+             "price": "306.52",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502082036678": {
+             "price": "222.91",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036677": {
+             "price": "195.03",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036717": {
+             "price": "383.23",
+             "Network": "EE UK",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502119685340": {
+             "price": "348.33",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036670": {
+             "price": "390.19",
+             "Network": "Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036676": {
+             "price": "257.75",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036675": {
+             "price": "299.55",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036673": {
+             "price": "299.55",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036647": {
+             "price": "264.71",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502255258484": {
+             "price": "236.84",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502267738455": {
+             "price": "243.81",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "32GB",
+             "stock": 1,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036645": {
+             "price": "313.55",
+             "Network": "O2 UK",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502082036644": {
+             "price": "250.78",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036649": {
+             "price": "348.33",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036643": {
+             "price": "195.03",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502255258482": {
+             "price": "236.84",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502255258483": {
+             "price": "236.84",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036642": {
+             "price": "222.91",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 1,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036641": {
+             "price": "195.03",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036640": {
+             "price": "222.91",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502255258481": {
+             "price": "299.55",
+             "Network": "Three UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "32GB",
+             "stock": 1,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036658": {
+             "price": "299.61",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502087822340": {
+             "price": "306.52",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036657": {
+             "price": "208.97",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036656": {
+             "price": "355.35",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502087822342": {
+             "price": "522.59",
+             "Network": "O2 UK",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Very Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502082036655": {
+             "price": "236.84",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 7,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036659": {
+             "price": "208.97",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 2,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036650": {
+             "price": "522.59",
+             "Network": "EE UK",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Very Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502257307757": {
+             "price": "250.78",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036654": {
+             "price": "327.48",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502082036653": {
+             "price": "236.84",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 10,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036652": {
+             "price": "306.52",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036651": {
+             "price": "306.52",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502173597167": {
+             "price": "257.75",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502173597168": {
+             "price": "264.71",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502173597169": {
+             "price": "306.52",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036625": {
+             "price": "264.71",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 5,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036624": {
+             "price": "278.65",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 10,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036623": {
+             "price": "278.65",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 2,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502181827811": {
+             "price": "264.71",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036629": {
+             "price": "320.46",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036627": {
+             "price": "250.78",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502087822334": {
+             "price": "257.75",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036626": {
+             "price": "250.78",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502087822336": {
+             "price": "264.71",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502087822338": {
+             "price": "306.52",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036742": {
+             "price": "250.78",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "64GB",
+             "stock": 1,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036741": {
+             "price": "397.16",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502173597170": {
+             "price": "222.91",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036740": {
+             "price": "278.65",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 3,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502105061391": {
+             "price": "208.97",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 1,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502173597173": {
+             "price": "250.78",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061390": {
+             "price": "264.71",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 6,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502173597174": {
+             "price": "250.78",
+             "Network": "Three UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502173597171": {
+             "price": "195.03",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502105061393": {
+             "price": "278.65",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 10,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061392": {
+             "price": "334.39",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502173597172": {
+             "price": "264.71",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502105061395": {
+             "price": "306.52",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061394": {
+             "price": "250.78",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "64GB",
+             "stock": 4,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502173597175": {
+             "price": "243.81",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502105061430": {
+             "price": "348.33",
+             "Network": "Three UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061397": {
+             "price": "320.46",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061396": {
+             "price": "348.33",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061432": {
+             "price": "195.03",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 2,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061399": {
+             "price": "362.27",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061398": {
+             "price": "264.71",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061431": {
+             "price": "250.78",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061433": {
+             "price": "348.33",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "128GB",
+             "stock": 1,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502181827810": {
+             "price": "229.87",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502246234596": {
+             "price": "306.52",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "128GB",
+             "stock": 1,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036636": {
+             "price": "313.55",
+             "Network": "EE UK",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502105061429": {
+             "price": "222.91",
+             "Network": "Three UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502082036635": {
+             "price": "222.91",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502105061428": {
+             "price": "271.68",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "32GB",
+             "stock": 1,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036634": {
+             "price": "313.55",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Grey"
+           },
+           "v1|202085839828|502082036633": {
+             "price": "222.91",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036639": {
+             "price": "195.03",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502082036638": {
+             "price": "222.91",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Gold"
+           },
+           "v1|202085839828|502082036632": {
+             "price": "250.78",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502082036630": {
+             "price": "320.46",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502105061380": {
+             "price": "320.46",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061382": {
+             "price": "222.91",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061381": {
+             "price": "195.03",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061384": {
+             "price": "195.03",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061383": {
+             "price": "222.91",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061386": {
+             "price": "250.78",
+             "Network": "Vodafone UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061385": {
+             "price": "222.91",
+             "Network": "O2 UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061421": {
+             "price": "355.30",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061388": {
+             "price": "348.33",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Very Good",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061387": {
+             "price": "236.84",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061420": {
+             "price": "243.81",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Grade C",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502105061423": {
+             "price": "404.07",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061422": {
+             "price": "404.07",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Silver"
+           },
+           "v1|202085839828|502105061389": {
+             "price": "236.84",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "16GB",
+             "stock": 10,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061425": {
+             "price": "264.71",
+             "Network": "EE UK",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "64GB",
+             "stock": 0,
+             "Colour": "Space Grey"
+           },
+           "v1|202085839828|502105061424": {
+             "price": "404.07",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "128GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502105061427": {
+             "price": "355.30",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
+             "Grade": "Pristine",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Rose Gold"
+           },
+           "v1|202085839828|502105061426": {
+             "price": "271.68",
+             "Network": "Factory Unlocked",
+             "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
+             "Grade": "Good",
+             "Storage Capacity": "32GB",
+             "stock": 0,
+             "Colour": "Gold"
+           }
+         },
+         "price": {
+           "convertedFromCurrency": "GBP",
+           "currency": "USD",
+           "convertedFromValue": "179.95",
+           "value": "250.78"
+         },
+         "ctitle": "苹果iPhone 6S - 16GB 32GB 64GB 128GB -金/银/灰/玫瑰-无锁/无锁。",
+         "localizedAspects": [{
+             "name": "Brand",
+             "cname": "品牌",
+             "type": "STRING",
+             "value": "Apple",
+             "cvalue": "苹果"
+           },
+           {
+             "name": "Features",
+             "cname": "特性",
+             "type": "STRING",
+             "value": "4K Video Recording, Camera, Colour Screen, Email, Fingerprint Sensor, Internet Browsing, MMS (Multimedia Messaging), MP3 Player, Sat Nav, Touch Screen, Video Calling",
+             "cvalue": "4K视频录制，摄像头，彩色屏幕，电子邮件，指纹传感器，网络浏览，MMS(多媒体信息)，MP3播放器，卫星导航，触摸屏，视频通话。"
+           },
+           {
+             "name": "Model",
+             "cname": "模型",
+             "type": "STRING",
+             "value": "iPhone 6s",
+             "cvalue": "iPhone 6 s"
+           },
+           {
+             "name": "Screen Size",
+             "cname": "屏幕大小",
+             "type": "STRING",
+             "value": "4.7\"",
+             "cvalue": "4.7”"
+           },
+           {
+             "name": "Style",
+             "cname": "风格",
+             "type": "STRING",
+             "value": "Smartphone",
+             "cvalue": "智能手机"
+           },
+           {
+             "name": "Lock Status",
+             "cname": "锁状态",
+             "type": "STRING",
+             "value": "Factory Unlocked",
+             "cvalue": "工厂解锁"
+           },
+           {
+             "name": "Operating System",
+             "cname": "操作系统",
+             "type": "STRING",
+             "value": "iOS",
+             "cvalue": "ios"
+           },
+           {
+             "name": "Processor",
+             "cname": "处理器",
+             "type": "STRING",
+             "value": "Dual Core",
+             "cvalue": "双核心"
+           },
+           {
+             "name": "Camera Resolution",
+             "cname": "相机的分辨率",
+             "type": "STRING",
+             "value": "12.0MP",
+             "cvalue": "12.0像素"
+           },
+           {
+             "name": "RAM",
+             "cname": "内存",
+             "type": "STRING",
+             "value": "2GB",
+             "cvalue": "2 gb"
+           },
+           {
+             "name": "Connectivity",
+             "cname": "连接",
+             "type": "STRING",
+             "value": "3G, 4G, Bluetooth, GPRS, GPS, Quad-Band, Tri-Band, USB, WAP, Wi-Fi",
+             "cvalue": "3G, 4G，蓝牙，GPRS, GPS，四波段，三波段，USB, WAP, Wi-Fi。"
+           },
+           {
+             "name": "Bundled Items",
+             "cname": "绑定的物品",
+             "type": "STRING",
+             "value": "USB Cable",
+             "cvalue": "usb电缆"
+           }
+         ],
+         "optionAttr_2": [{
+             "key": "Network",
+             "ckey": "网络",
+             "children": [{
+                 "ckey": "O2 UK",
+                 "cvalue": "O2英国"
+               },
+               {
+                 "ckey": "Unlocked",
+                 "cvalue": "解锁"
+               },
+               {
+                 "ckey": "Three UK",
+                 "cvalue": "三个英国"
+               },
+               {
+                 "ckey": "EE UK",
+                 "cvalue": "EE英国"
+               },
+               {
+                 "ckey": "Vodafone UK",
+                 "cvalue": "英国沃达丰(Vodafone)"
+               },
+               {
+                 "ckey": "Factory Unlocked",
+                 "cvalue": "工厂解锁"
+               }
+             ]
+           },
+           {
+             "key": "Grade",
+             "ckey": "年级",
+             "children": [{
+                 "ckey": "Grade C",
+                 "cvalue": "C级"
+               },
+               {
+                 "ckey": "Grade D",
+                 "cvalue": "D级"
+               },
+               {
+                 "ckey": "Pristine",
+                 "cvalue": "原始的"
+               },
+               {
+                 "ckey": "Good",
+                 "cvalue": "好"
+               },
+               {
+                 "ckey": "Very Good",
+                 "cvalue": "很好"
+               }
+             ]
+           },
+           {
+             "key": "Storage Capacity",
+             "ckey": "存储容量",
+             "children": [{
+                 "ckey": "64GB",
+                 "cvalue": "64 gb"
+               },
+               {
+                 "ckey": "16GB",
+                 "cvalue": "16 gb"
+               },
+               {
+                 "ckey": "128GB",
+                 "cvalue": "128 gb"
+               },
+               {
+                 "ckey": "32GB",
+                 "cvalue": "32 gb"
+               }
+             ]
+           },
+           {
+             "key": "Colour",
+             "ckey": "颜色",
+             "children": [{
+                 "ckey": "Space Grey",
+                 "cvalue": "灰色的空间"
+               },
+               {
+                 "ckey": "Silver",
+                 "cvalue": "银"
+               },
+               {
+                 "ckey": "Gold",
+                 "cvalue": "黄金"
+               },
+               {
+                 "ckey": "Rose Gold",
+                 "cvalue": "玫瑰金"
+               },
+               {
+                 "ckey": "Grey",
+                 "cvalue": "灰色"
+               }
+             ]
+           }
+         ],
+         "usdRate": "6.33"
+       }*/
+    // console.log(this.ebay)
+    
+    this.productId = this.$route.params.id
+    this.itemId = this.$route.params.itemId
 
-    }).catch(err => {})
-
-
-    /*    this.ebay = {
-          "image": {
-            "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg"
-          },
-          "itemType": 1,
-          "description": "夺二万事大吉天夺天下大雨",
-          "shortDescription": "All associated Touch ID features will not operate as intended, however all other aspects of the handset remain fully operational. Refurbished Pristine - This is an exceptional product showing no signs of use, it has been fully tested and is in excellent working order.",
-          "title": "Apple iPhone 6S - 16GB 32GB 64GB 128GB -Gold/Silver/Grey/Rose- UNLOCKED/SIMFREE",
-          "itemLocation": {
-            "country": "GB",
-            "city": "Barnstaple",
-            "postalCode": "EX31 3UD"
-          },
-          "optionAttr": {
-            "Network": [
-              "O2 UK",
-              "Unlocked",
-              "Three UK",
-              "EE UK",
-              "Vodafone UK",
-              "Factory Unlocked"
-            ],
-            "Grade": [
-              "Grade C",
-              "Grade D",
-              "Pristine",
-              "Good",
-              "Very Good"
-            ],
-            "Storage Capacity": [
-              "64GB",
-              "16GB",
-              "128GB",
-              "32GB"
-            ],
-            "Colour": [
-              "Space Grey",
-              "Silver",
-              "Gold",
-              "Rose Gold",
-              "Grey"
-            ]
-          },
-          "itemId": "202085839828",
-          "itemsAttr": {
-            "v1|202085839828|502082036724": {
-              "price": "329.52",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502105061418": {
-              "price": "279.36",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "32GB",
-              "stock": 1,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061417": {
-              "price": "322.35",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036722": {
-              "price": "329.52",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036689": {
-              "price": "272.20",
-              "Network": "Three UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502105061419": {
-              "price": "250.70",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "32GB",
-              "stock": 1,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502082036688": {
-              "price": "329.52",
-              "Network": "Three UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036728": {
-              "price": "415.50",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036727": {
-              "price": "300.86",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036726": {
-              "price": "372.51",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036725": {
-              "price": "329.52",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036683": {
-              "price": "229.21",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 9,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036681": {
-              "price": "372.51",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "128GB",
-              "stock": 2,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036680": {
-              "price": "358.18",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036687": {
-              "price": "257.87",
-              "Network": "Three UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036686": {
-              "price": "229.21",
-              "Network": "Three UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502105061410": {
-              "price": "343.85",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502105061379": {
-              "price": "243.54",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036719": {
-              "price": "308.02",
-              "Network": "Three UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502105061412": {
-              "price": "308.02",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061411": {
-              "price": "372.51",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036718": {
-              "price": "401.23",
-              "Network": "Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502105061378": {
-              "price": "272.20",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 1,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502105061414": {
-              "price": "265.03",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061413": {
-              "price": "322.35",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "32GB",
-              "stock": 1,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061416": {
-              "price": "322.35",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502105061415": {
-              "price": "322.35",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502105061407": {
-              "price": "343.85",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036735": {
-              "price": "329.52",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502105061406": {
-              "price": "308.02",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502082036733": {
-              "price": "286.53",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502105061409": {
-              "price": "372.51",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502082036732": {
-              "price": "257.87",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502105061408": {
-              "price": "351.01",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502082036699": {
-              "price": "272.20",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 1,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502188325192": {
-              "price": "200.55",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036738": {
-              "price": "329.52",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036736": {
-              "price": "437.05",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502082036694": {
-              "price": "257.87",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036693": {
-              "price": "272.26",
-              "Network": "Unlocked",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Grade D",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502181827809": {
-              "price": "200.55",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 7,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036692": {
-              "price": "358.24",
-              "Network": "Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Grade D",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036691": {
-              "price": "351.01",
-              "Network": "EE UK",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502082036698": {
-              "price": "372.51",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036731": {
-              "price": "272.20",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036730": {
-              "price": "200.55",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 1,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036697": {
-              "price": "300.86",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036696": {
-              "price": "372.51",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036695": {
-              "price": "272.20",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036690": {
-              "price": "472.88",
-              "Network": "Three UK",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Pristine",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502105061401": {
-              "price": "329.52",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061400": {
-              "price": "300.86",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061403": {
-              "price": "243.54",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502252406336": {
-              "price": "236.37",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "32GB",
-              "stock": 1,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061402": {
-              "price": "272.20",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 3,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061405": {
-              "price": "279.36",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502105061404": {
-              "price": "372.51",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036669": {
-              "price": "480.04",
-              "Network": "Unlocked",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Pristine",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502082036702": {
-              "price": "401.23",
-              "Network": "Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502119685335": {
-              "price": "315.19",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 1,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502119685336": {
-              "price": "243.54",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502082036668": {
-              "price": "458.55",
-              "Network": "EE UK",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Pristine",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502082036700": {
-              "price": "272.20",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 1,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036667": {
-              "price": "308.02",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502119685333": {
-              "price": "315.19",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502082036666": {
-              "price": "329.52",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502119685334": {
-              "price": "315.19",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502082036705": {
-              "price": "308.02",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502119685332": {
-              "price": "315.19",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036660": {
-              "price": "272.20",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502155590476": {
-              "price": "315.19",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036665": {
-              "price": "257.87",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502155590478": {
-              "price": "300.86",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502119685339": {
-              "price": "315.19",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036664": {
-              "price": "214.88",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036663": {
-              "price": "243.54",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 6,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502119685337": {
-              "price": "315.19",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036662": {
-              "price": "343.85",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502119685338": {
-              "price": "315.19",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502082036678": {
-              "price": "229.21",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036677": {
-              "price": "200.55",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036717": {
-              "price": "394.06",
-              "Network": "EE UK",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502119685340": {
-              "price": "358.18",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036670": {
-              "price": "401.23",
-              "Network": "Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036676": {
-              "price": "265.03",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036675": {
-              "price": "308.02",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036673": {
-              "price": "308.02",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036647": {
-              "price": "272.20",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502255258484": {
-              "price": "243.54",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "64GB",
-              "stock": 1,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036645": {
-              "price": "322.41",
-              "Network": "O2 UK",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502082036644": {
-              "price": "257.87",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036649": {
-              "price": "358.18",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036643": {
-              "price": "200.55",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 1,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502255258482": {
-              "price": "243.54",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "64GB",
-              "stock": 1,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502255258483": {
-              "price": "243.54",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036642": {
-              "price": "229.21",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036641": {
-              "price": "200.55",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036640": {
-              "price": "229.21",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502255258481": {
-              "price": "308.02",
-              "Network": "Three UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "32GB",
-              "stock": 1,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036658": {
-              "price": "308.08",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502087822340": {
-              "price": "315.19",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036657": {
-              "price": "214.88",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036656": {
-              "price": "365.40",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502087822342": {
-              "price": "537.36",
-              "Network": "O2 UK",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Very Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502082036655": {
-              "price": "243.54",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 3,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036659": {
-              "price": "214.88",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036650": {
-              "price": "537.36",
-              "Network": "EE UK",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Very Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502257307757": {
-              "price": "257.87",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 2,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036654": {
-              "price": "336.74",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502082036653": {
-              "price": "243.54",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 2,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036652": {
-              "price": "315.19",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036651": {
-              "price": "315.19",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502173597167": {
-              "price": "265.03",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502173597168": {
-              "price": "272.20",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502173597169": {
-              "price": "315.19",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036625": {
-              "price": "272.20",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036624": {
-              "price": "286.53",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 10,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036623": {
-              "price": "286.53",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 1,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502181827811": {
-              "price": "272.20",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036629": {
-              "price": "329.52",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036627": {
-              "price": "257.87",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502087822334": {
-              "price": "265.03",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036626": {
-              "price": "257.87",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502087822336": {
-              "price": "272.20",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502087822338": {
-              "price": "315.19",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036742": {
-              "price": "257.87",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036741": {
-              "price": "408.39",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502173597170": {
-              "price": "229.21",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036740": {
-              "price": "286.53",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 5,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502105061391": {
-              "price": "214.88",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502173597173": {
-              "price": "257.87",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 3,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061390": {
-              "price": "272.20",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502173597174": {
-              "price": "257.87",
-              "Network": "Three UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502173597171": {
-              "price": "200.55",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502105061393": {
-              "price": "286.53",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061392": {
-              "price": "343.85",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502173597172": {
-              "price": "272.20",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502105061395": {
-              "price": "315.19",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061394": {
-              "price": "257.87",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "64GB",
-              "stock": 3,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502173597175": {
-              "price": "250.70",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502105061430": {
-              "price": "358.18",
-              "Network": "Three UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061397": {
-              "price": "329.52",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "64GB",
-              "stock": 1,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061396": {
-              "price": "358.18",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061432": {
-              "price": "200.55",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 4,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061399": {
-              "price": "372.51",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061398": {
-              "price": "272.20",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061431": {
-              "price": "257.87",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061433": {
-              "price": "358.18",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502181827810": {
-              "price": "236.37",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502246234596": {
-              "price": "315.19",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "128GB",
-              "stock": 1,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036636": {
-              "price": "322.41",
-              "Network": "EE UK",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502105061429": {
-              "price": "229.21",
-              "Network": "Three UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502082036635": {
-              "price": "229.21",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502105061428": {
-              "price": "279.36",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036634": {
-              "price": "322.41",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://i.ebayimg.com/00/s/NjAwWDYwMA\u003d\u003d/z/q8sAAOSw3fZZ6MVG/$_1.JPG?set_id\u003d880000500F",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Grey"
-            },
-            "v1|202085839828|502082036633": {
-              "price": "229.21",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036639": {
-              "price": "200.55",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502082036638": {
-              "price": "229.21",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Gold"
-            },
-            "v1|202085839828|502082036632": {
-              "price": "257.87",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502082036630": {
-              "price": "329.52",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502105061380": {
-              "price": "329.52",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061382": {
-              "price": "229.21",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061381": {
-              "price": "200.55",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061384": {
-              "price": "200.55",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061383": {
-              "price": "229.21",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061386": {
-              "price": "257.87",
-              "Network": "Vodafone UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "16GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061385": {
-              "price": "229.21",
-              "Network": "O2 UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 7,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061421": {
-              "price": "365.34",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061388": {
-              "price": "358.18",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Very Good",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061387": {
-              "price": "243.54",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061420": {
-              "price": "250.70",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Grade C",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502105061423": {
-              "price": "415.50",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061422": {
-              "price": "415.50",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_silver_8.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Silver"
-            },
-            "v1|202085839828|502105061389": {
-              "price": "243.54",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "16GB",
-              "stock": 2,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061425": {
-              "price": "272.20",
-              "Network": "EE UK",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_grey_23.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "64GB",
-              "stock": 0,
-              "Colour": "Space Grey"
-            },
-            "v1|202085839828|502105061424": {
-              "price": "415.50",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "128GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502105061427": {
-              "price": "365.34",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_rose_gold_25.jpg",
-              "Grade": "Pristine",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Rose Gold"
-            },
-            "v1|202085839828|502105061426": {
-              "price": "279.36",
-              "Network": "Factory Unlocked",
-              "imageUrl": "https://second-handphones.com/media/catalog/product/6/s/6s_gold_1.jpg",
-              "Grade": "Good",
-              "Storage Capacity": "32GB",
-              "stock": 0,
-              "Colour": "Gold"
-            }
-          },
-          "price": {
-            "convertedFromCurrency": "GBP",
-            "currency": "USD",
-            "convertedFromValue": "179.95",
-            "value": "257.87"
-          },
-          "ctitle": "苹果iPhone 6S - 16GB 32GB 64GB 128GB -金/银/灰/玫瑰-无锁/无锁。",
-          "localizedAspects": [{
-              "name": "Brand",
-              "cname": "品牌",
-              "type": "STRING",
-              "value": "Apple",
-              "cvalue": "苹果"
-            },
-            {
-              "name": "Features",
-              "cname": "特性",
-              "type": "STRING",
-              "value": "4K Video Recording, Camera, Colour Screen, Email, Fingerprint Sensor, Internet Browsing, MMS (Multimedia Messaging), MP3 Player, Sat Nav, Touch Screen, Video Calling",
-              "cvalue": "4K视频录制，摄像头，彩色屏幕，电子邮件，指纹传感器，网络浏览，MMS(多媒体信息)，MP3播放器，卫星导航，触摸屏，视频通话。"
-            },
-            {
-              "name": "Model",
-              "cname": "模型",
-              "type": "STRING",
-              "value": "iPhone 6s",
-              "cvalue": "iPhone 6 s"
-            },
-            {
-              "name": "Screen Size",
-              "cname": "屏幕大小",
-              "type": "STRING",
-              "value": "4.7\"",
-              "cvalue": "4.7”"
-            },
-            {
-              "name": "Style",
-              "cname": "风格",
-              "type": "STRING",
-              "value": "Smartphone",
-              "cvalue": "智能手机"
-            },
-            {
-              "name": "Lock Status",
-              "cname": "锁状态",
-              "type": "STRING",
-              "value": "Factory Unlocked",
-              "cvalue": "工厂解锁"
-            },
-            {
-              "name": "Operating System",
-              "cname": "操作系统",
-              "type": "STRING",
-              "value": "iOS",
-              "cvalue": "ios"
-            },
-            {
-              "name": "Processor",
-              "cname": "处理器",
-              "type": "STRING",
-              "value": "Dual Core",
-              "cvalue": "双核心"
-            },
-            {
-              "name": "Camera Resolution",
-              "cname": "相机的分辨率",
-              "type": "STRING",
-              "value": "12.0MP",
-              "cvalue": "12.0像素"
-            },
-            {
-              "name": "RAM",
-              "cname": "内存",
-              "type": "STRING",
-              "value": "2GB",
-              "cvalue": "2 gb"
-            },
-            {
-              "name": "Connectivity",
-              "cname": "连接",
-              "type": "STRING",
-              "value": "3G, 4G, Bluetooth, GPRS, GPS, Quad-Band, Tri-Band, USB, WAP, Wi-Fi",
-              "cvalue": "3G, 4G，蓝牙，GPRS, GPS，四波段，三波段，USB, WAP, Wi-Fi。"
-            },
-            {
-              "name": "Bundled Items",
-              "cname": "绑定的物品",
-              "type": "STRING",
-              "value": "USB Cable",
-              "cvalue": "usb电缆"
-            }
-          ],
-          "optionAttr_2": [{
-              "key": "Network",
-              "ckey": "网络",
-              "children": [{
-                  "ckey": "O2 UK",
-                  "cvalue": "O2英国"
-                },
-                {
-                  "ckey": "Unlocked",
-                  "cvalue": "解锁"
-                },
-                {
-                  "ckey": "Three UK",
-                  "cvalue": "三个英国"
-                },
-                {
-                  "ckey": "EE UK",
-                  "cvalue": "EE英国"
-                },
-                {
-                  "ckey": "Vodafone UK",
-                  "cvalue": "英国沃达丰(Vodafone)"
-                },
-                {
-                  "ckey": "Factory Unlocked",
-                  "cvalue": "工厂解锁"
-                }
-              ]
-            },
-            {
-              "key": "Grade",
-              "ckey": "年级",
-              "children": [{
-                  "ckey": "Grade C",
-                  "cvalue": "C级"
-                },
-                {
-                  "ckey": "Grade D",
-                  "cvalue": "D级"
-                },
-                {
-                  "ckey": "Pristine",
-                  "cvalue": "原始的"
-                },
-                {
-                  "ckey": "Good",
-                  "cvalue": "好"
-                },
-                {
-                  "ckey": "Very Good",
-                  "cvalue": "很好"
-                }
-              ]
-            },
-            {
-              "key": "Storage Capacity",
-              "ckey": "存储容量",
-              "children": [{
-                  "ckey": "64GB",
-                  "cvalue": "64 gb"
-                },
-                {
-                  "ckey": "16GB",
-                  "cvalue": "16 gb"
-                },
-                {
-                  "ckey": "128GB",
-                  "cvalue": "128 gb"
-                },
-                {
-                  "ckey": "32GB",
-                  "cvalue": "32 gb"
-                }
-              ]
-            },
-            {
-              "key": "Colour",
-              "ckey": "颜色",
-              "children": [{
-                  "ckey": "Space Grey",
-                  "cvalue": "灰色的空间"
-                },
-                {
-                  "ckey": "Silver",
-                  "cvalue": "银"
-                },
-                {
-                  "ckey": "Gold",
-                  "cvalue": "黄金"
-                },
-                {
-                  "ckey": "Rose Gold",
-                  "cvalue": "玫瑰金"
-                },
-                {
-                  "ckey": "Grey",
-                  "cvalue": "灰色"
-                }
-              ]
-            }
-          ],
-          "usdRate": "6.28"
-        }
-        this.exchaneRate = this.ebay.usdRate*/
-
-
+    if (this.productId && this.itemId) {
+      this.onSearch()
+    } else {
+      this.$message({
+        type: 'info',
+        message: '该商品信息不全'
+      })
+    }
   },
   watch: {
     'feeType.carriage': function(a) {

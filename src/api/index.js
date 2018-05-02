@@ -8,7 +8,7 @@ export const reqBannerSave = params => { return axios.post(`/sell/seller/banner/
 //category
 export const reqCategoryList = params => { return axios.get(`/sell/seller/category/list`, {params: params}) }
 export const reqCategorySave = params => { return axios.post(`/sell/seller/category/save`, params) }
-
+export const reqCategoryById = params => { return axios.get(`/sell/seller/category/queryById`, {params: params}) }
 
 //订单列表
 export const reqGetOrderList = params => { return axios.get(`/sell/seller/order/orderlistShow`, { params: params }) }

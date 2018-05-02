@@ -155,18 +155,21 @@ export default {
         });
     },
     goEdit(row) {
-      this.$message({
-        type: 'info',
-        message: '编辑页面完善中......'
-      })
-/*      this.$router.push({
-        name: "商品新增",
+      if (!row.id || !row.ebayItemid) {
+        this.$message({
+            type: 'info',
+            message: '该商品信息不全'
+        })
+        return
+      }
+      this.$router.push({
+        name: "商品编辑",
         params: {
-          productId: row.id,
-          ebayItemid: row.ebayItemid,
-          userWxOpenid: row.userWxOpenid
+          id: row.id,
+          itemId: row.ebayItemid/*,
+          userWxOpenid: row.userWxOpenid*/
         }
-      });*/
+      })
     },
     goPreview(row) {
       this.$router.push({

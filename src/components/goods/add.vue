@@ -270,7 +270,7 @@ export default {
             return true
           })
         }
-        if (valid && flag && flag2) {
+        if (valid && flag && flag2 && this.pro_info.productType) {
           this.onSave()
         } else {
           this.$message.error("还有必填项未填写，请检查！")

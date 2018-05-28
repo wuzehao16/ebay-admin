@@ -32,7 +32,7 @@
         </el-table-column>
       </el-table>
       <!--新增界面-->
-      <el-dialog :title="dialogTitle" v-model="addFormVisible" :close-on-click-modal="false" :before-close='beforeClose'>
+      <el-dialog :title="dialogTitle" :visible.sync="addFormVisible" :close-on-click-modal="false" :before-close='beforeClose'>
         <el-form :model="addForm" label-width="80px" ref="addForm">
           <el-form-item label="分类名称" prop="name" :rules="[
                       { required: true, message: '分类名称不能为空'},
@@ -267,8 +267,6 @@ export default {
         this.isNewOrChanged.splice(1, 1, true)
         this.addForm = Object.assign({}, this.addForm_bak)
       } else { //编辑
-        console.log('aaa', row)
-        console.log('bbb', this.firCategory)
         this.isEdit = true
         this.imageUrl.splice(0, 1, row.imageUrl)
         this.imageUrl.splice(1, 1, row.bigImageUrl)

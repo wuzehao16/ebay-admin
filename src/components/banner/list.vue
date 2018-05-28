@@ -42,7 +42,7 @@
         <el-pagination layout="total" :total="listLength" style="float:right;">
         </el-pagination>
       </el-col>
-      <el-dialog title="编辑轮播" v-model="editFormVisible" :close-on-click-modal="false" max-width="800px" class="userEditForm" :before-close='beforeClose'>
+      <el-dialog title="编辑轮播" :visible.sync="editFormVisible" :close-on-click-modal="false" max-width="800px" class="userEditForm" :before-close='beforeClose'>
         <el-form :model="bannerForm" label-width="80px" ref="bannerForm" :rules="rules">
           <el-form-item label="轮播名称" prop="name">
             <el-input v-model="bannerForm.name" auto-complete="off"></el-input>

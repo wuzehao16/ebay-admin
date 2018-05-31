@@ -341,7 +341,7 @@ export default {
       this.pro_info.productPrice = this.getSellPrice(this.ebay.price.value)
       this.pro_info.ebayItemid = this.itemId;
       this.isEdit ? (this.pro_info.productId = this.productId) : "";
-
+      this.pro_info.addPrice = this.amount
       this.pro_info.productUsd = Number.parseFloat(this.ebay.price.value)
       const loading = this.$loading({
         lock: true,
@@ -424,6 +424,7 @@ export default {
                   this.pro_info.productNane = p.name
                   this.pro_info.productMemo = p.productMemo
                   // this.pro_info.productPic = p.pic.join("@")
+                  p.addPrice ? this.amount = p.addPrice : ''
 
                   for (let m of p.productAttr) {
                     //3.商品规格  set
@@ -508,7 +509,7 @@ export default {
     this.productId = this.$route.params.id
     this.itemId = this.$route.params.itemId
     if (this.productId && this.itemId) {
-        this.isEdit = true
+      this.isEdit = true
       this.onSearch()
     } else {
       this.$message({

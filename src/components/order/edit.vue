@@ -87,9 +87,16 @@
                 ></el-autocomplete> -->
                 <el-input v-model="orderInfo.buyerName" placeholder="用户姓名" disabled></el-input>
               </el-form-item>
-              </el-form-item>
             </el-col>
-            <el-col :span='8'>
+            <el-col :span='8' >
+              <div v-if="orderInfo.productAttr && JSON.parse(orderInfo.productAttr) && JSON.parse(orderInfo.productAttr).length>0">
+                <el-form-item :label='JSON.parse(orderInfo.productAttr)[0].key' >
+                  <el-input v-model="JSON.parse(orderInfo.productAttr)[0].value" disabled>
+                    <!-- <template slot="append">元</template> -->
+                  </el-input>
+                </el-form-item>
+              </div>
+
             </el-col>
           </el-row>
           <el-row type="flex" justify="center" :gutter='20'>
@@ -316,9 +323,10 @@ export default {
       reqGetOrderDetail({ orderId: orderId }).then(res => {
         let r = res.data.data
         if (!r.ebayStatus) r.ebayStatus = '-1'
-        if (!r.logisticsStatus) r.logisticsStatus = '-1'        
-
+        if (!r.logisticsStatus) r.logisticsStatus = '-1'
+        const id = this.orderInfo.id;
         this.orderInfo = Object.assign({}, r, r.orderDetailList[0])
+        this.orderInfo.id = r.id;
         let addr = r.cneeAddress.split('@')
         this.selectedOptions = addr.slice(0, 4)
         this.orderInfo.address_detail = addr[4]

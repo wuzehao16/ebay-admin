@@ -112,6 +112,15 @@
             </el-col>
           </el-row>
           <el-row type="flex" justify="center" :gutter='20'>
+            <el-col :span='8'>
+              <el-form-item label='收货身份证：'>
+                <el-input v-model="orderInfo.cneeIdcard" placeholder="收货人身份证"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span='8'>
+            </el-col>
+          </el-row>
+          <el-row type="flex" justify="center" :gutter='20'>
             <el-col :span='16'>
               <el-form-item label='收货人地址：'>
                 <el-cascader :options="addressOptions" v-model="selectedOptions" @change="handleAddressChange"  size="large" style='width: 100%;'>

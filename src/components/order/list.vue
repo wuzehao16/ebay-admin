@@ -15,7 +15,7 @@
 	      <el-form-item>
 	        <el-input v-model="filterOrders.orderNo" placeholder="订单编号"></el-input>
 	      </el-form-item>
-	  
+
 	      <el-form-item>
 	        <el-input v-model="filterOrders.productName" placeholder="商品名称"></el-input>
 	      </el-form-item>
@@ -46,7 +46,7 @@
 						<el-option key="4" label="已发货" value="4"></el-option>
 						<el-option key="5" label="已完成-海外仓已签收" value="5"></el-option>
 					</el-select>
-				</el-form-item>	
+				</el-form-item>
 	      <el-form-item>
 	        <el-button type="primary" @click="getOrders">查询</el-button>
 	      </el-form-item>
@@ -68,7 +68,7 @@
     			{{ (scope.row.productPrice * 10000 * scope.row.productQuantity / 10000).toFixed(2) }}
     		</template> -->
     	</el-table-column>
-  
+
     	<el-table-column prop="orderStatus" label="订单状态" width="120">
         	<template slot-scope="scope">
             		<template v-if='scope.row.orderStatus == 1'>
@@ -99,7 +99,7 @@
             			已删除
             		</template>
         	</template>
-    	</el-table-column> 
+    	</el-table-column>
     	<el-table-column property="ebayNo" label="Ebay订单号" width='200'></el-table-column>
     	<el-table-column property="ebayStatus" label="Ebay状态" width="120" >
         	<template slot-scope="scope">
@@ -123,21 +123,21 @@
                 </template>
         	</template>
     	</el-table-column>
-    	<el-table-column property="buyerName" label="买家姓名" width='160'></el-table-column>	
+    	<el-table-column property="buyerName" label="买家姓名" width='160'></el-table-column>
     <!-- 	<el-table-column property="buyerPhone" label="手机号码" width='150'></el-table-column> -->
     	<el-table-column  label="创建时间" width='150' >
 				<template slot-scope="scope">
 					{{fTimestamp(scope.row.created)}}
 				</template>
 			</el-table-column>
-	    <el-table-column fixed="right" label="操作" width='210'>
+	    <el-table-column fixed="right" label="操作" width='230'>
         	<template slot-scope="scope">
             	<el-button size="small" type="primary" @click='showDetail(scope)'>详情</el-button>
             	<el-button size="small" @click="showEdit(scope)">编辑</el-button>
 							<el-button size="small" type="danger" @click="cancelOrder(scope.row)" :disabled="scope.row.orderStatus != '1'">
-                
+
                   {{ scope.row.orderStatus == '2' ? '已取消' : '取消' }}
-                     
+
               </el-button>
         	</template>
     	</el-table-column>
@@ -147,7 +147,7 @@
         <el-pagination layout="total, sizes, prev, pager, next" @current-change="setPageChange" @size-change="setSizeChange" :page-size="size" :total="total" style="float:right;">
         </el-pagination>
     </el-col>
- 
+
 
 
     </el-col>
@@ -179,14 +179,14 @@
       }
     },
     methods: {
-			dateFormat:function(row, column) {  
-					let date = row[column.property];  
-					if (date == undefined) {  
-							return "";  
+			dateFormat:function(row, column) {
+					let date = row[column.property];
+					if (date == undefined) {
+							return "";
 					}
 					let t = new Date(date)
-					return t.toLocaleDateString();  
-      }, 
+					return t.toLocaleDateString();
+      },
       setHighlight(val) {
       	this.currentRow = val
       },
@@ -224,22 +224,22 @@
       },
       showEdit(scope) {
       	this.$router.push({
-      		name:'订单编辑', 
+      		name:'订单编辑',
       		params:{
       			order: this.orders[scope.$index]
       		}
       	})
       },
       showDetail(scope) {
-				
+
       	this.$router.push({
       		// name:'订单详情',
-          name:'订单编辑', 
+          name:'订单编辑',
       		params:{
       			order: this.orders[scope.$index],
             isDetail: true
       		}
-      	})      	
+      	})
       },
       showAdd() {
       	this.$router.push('/order/add')
@@ -255,9 +255,9 @@
           confirmButtonText: '确定',
           cancelButtonText: '取消',
 					type: 'warning'
-				
+
         }).then( ()=>{
-					
+
 					reqCancelOrder(params).then(res => {
 						if(res.data.code == 0) {
 							 this.$message({
@@ -265,9 +265,9 @@
 								message: '取消订单成功!'
 							});
 							p.orderStatus = "2";
-							
+
 						}else{
-							
+
 							let action = res.data.msg
 							this.$alert(`${ action }`, '提示', {
 								confirmButtonText: '确定',
@@ -283,4 +283,3 @@
     }
   }
 </script>
-

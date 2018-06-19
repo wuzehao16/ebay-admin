@@ -113,6 +113,16 @@
             </el-col>
           </el-row>
           <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
+            <el-col :span='8'>
+              <el-form-item label='收货身份证：'>
+                <el-input v-model="orderInfo.cneeIdcard" placeholder="收货人身份证"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span='8'>
+
+            </el-col>
+          </el-row>
+          <el-row type="flex" class="row-bg" justify="center" :gutter='20'>
             <el-col :span='16'>
               <el-form-item label='订单状态：'>
                 <el-radio-group v-model='orderInfo.orderStatus'>
